@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Event Planner</string>
+    <string name="log_in">Log in</string>
+    <string name="logo">LOGO</string>
+    <string name="enter_your_email">Enter your email</string>
+    <string name="enter_your_password">Enter your password</string>
+    <string name="event_planner">Event Planner</string>
+</resources>
