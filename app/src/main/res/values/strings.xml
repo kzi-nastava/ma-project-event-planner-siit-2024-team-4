@@ -10,4 +10,24 @@
     <string name="bend_description">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</string>
     <string name="name_of_band">Name of Band</string>
     <string name="service">service</string>
+    <string name="category">Category:</string>
+    <string name="Category1">Category1</string>
+    <string name="Category2">Category2</string>
+    <string name="Category3">Category3</string>
+    <string name="eventType">Event Type:</string>
+    <string name="eventType3">Event type 3</string>
+    <string name="eventType2">Event type 2</string>
+    <string name="eventType1">Event type 1</string>
+    <string name="availability">Availability:</string>
+    <string name="available">Available</string>
+    <string name="not_available">Not available</string>
+    <string name="price">Price:</string>
+    <string name="price_range_description">Price range</string>
+    <string name="price_slider">Slider for selecting a price range</string>
+    <string name="add_new">add new</string>
+    <string name="plus">+</string>
+    <string-array name="rangeSliderValues">
+        <item>20</item>
+        <item>70</item>
+    </string-array>
 </resources>

@@ -19,24 +19,36 @@
         android:layout_height="match_parent"
         app:srcCompat="@drawable/service_band"
         android:contentDescription="@string/service" />
+
     <TextView
         android:id="@+id/product_description"
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:layout_margin="5dp"
-        android:text="@string/name_of_band"
+        android:layout_width="183dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="14dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginBottom="5dp"
         android:layout_toEndOf="@id/product_image"
+        android:text="@string/name_of_band"
         android:textSize="20sp"
-        android:textStyle="bold"/>
+        android:textStyle="bold" />
+
     <TextView
         android:id="@+id/text2"
-        android:layout_width="match_parent"
-        android:layout_height="130dp"
-        android:layout_margin="5dp"
-        android:text="@string/bend_description"
+        android:layout_width="183dp"
+        android:layout_height="180dp"
         android:layout_below="@id/product_description"
+        android:layout_marginStart="14dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginBottom="5dp"
         android:layout_toEndOf="@id/product_image"
+        android:text="@string/bend_description"
         android:textSize="14sp"
-        android:textStyle="italic"/>
+        android:textStyle="italic" />
 
 </RelativeLayout>
