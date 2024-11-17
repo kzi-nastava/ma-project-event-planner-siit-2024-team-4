@@ -30,8 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="2dp"
             android:background="@color/black"
-            android:layout_margin="2dp"
-            />
+            android:layout_margin="2dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -97,13 +96,12 @@
                     android:text="@string/not_available"/>
             </RadioGroup>
 
-
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
                 android:background="@color/black"
-                android:layout_margin="2dp"
-                />
+                android:layout_margin="2dp" />
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -122,46 +120,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/slider"
-                android:contentDescription="@string/price_slider"
-                />
-
-
-
-            <!--            <com.google.android.material.slider.RangeSlider-->
-<!--                android:id="@+id/priceRangeSlider"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_margin="16dp"-->
-<!--                android:valueFrom="1250"-->
-<!--                android:valueTo="15000"-->
-<!--                android:stepSize="50"-->
-<!--                android:thumbTint="@color/black"-->
-<!--                android:trackTint="@color/black"-->
-<!--                android:contentDescription="@string/price_range_description"-->
-<!--                app:values="@array/default_price_range" />-->
-
-
-
-            <!--            <CheckBox-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="@string/samsung"/>-->
-<!--            <CheckBox-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="@string/xiaomi"/>-->
-<!--            <CheckBox-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="@string/huawei"/>-->
-<!--            <CheckBox-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="@string/nokia"/>-->
-
-
-
+                android:contentDescription="@string/price_slider" />
         </LinearLayout>
     </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

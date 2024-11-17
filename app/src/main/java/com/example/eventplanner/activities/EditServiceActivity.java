@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,7 +19,6 @@ import com.example.eventplanner.R;
 
 public class EditServiceActivity extends AppCompatActivity {
 
-//    View[] eventTypes = new View[]{};
     private boolean[] selectedStates;
 
     @Override
@@ -82,8 +80,8 @@ public class EditServiceActivity extends AppCompatActivity {
     }
 
     private void toggleSelection(int index) {
-        selectedStates[index] = !selectedStates[index]; // Promeni stanje
-        updateEventTypeStyle(index); // Ažuriraj stil stavke
+        selectedStates[index] = !selectedStates[index];
+        updateEventTypeStyle(index);
     }
 
     private void updateEventTypeStyle(int index) {
