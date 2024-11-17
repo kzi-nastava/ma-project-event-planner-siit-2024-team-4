@@ -21,6 +21,15 @@
     <string name="price_slider">Slider for selecting a price range</string>
     <string name="add_new">add new</string>
     <string name="plus">+</string>
+    <string name="your_services">Your services</string>
+    <string name="add_new_service">ADD NEW SERVICE</string>
+    <string name="name_of_category">Name of Category</string>
+    <string name="description_of_category">Description of Category</string>
+    <string name="add_new_category">Add new category</string>
+    <string name="name_of_service">Name of service</string>
+    <string name="description_of_service">Add description of Service</string>
+    <string name="add_service_price">Add service price</string>
+    <string name="add_discount">Add discount</string>
     <string-array name="rangeSliderValues">
         <item>20</item>
         <item>70</item>
