@@ -8,13 +8,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.eventplanner.R;
@@ -25,45 +21,52 @@ public class LogInActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.base_layout);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("");
 
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
-
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button logInBtn = findViewById(R.id.loginBtn);
-        logInBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(LogInActivity.this, "Login button clicked", Toast.LENGTH_SHORT).show();
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
 
+            if (id == R.id.nav_homepage) {
+                // Intent intent = new Intent(); nemamo homepage
+            } else if (id == R.id.nav_service) {
+                // za service
+            } else if (id == R.id.nav_login) {
+                // za login
+            } else if (id == R.id.nav_registration) {
+                // za ChooseRoleActity!!!!!!!!!
             }
+
+            drawerLayout.closeDrawer(navigationView);
+            return true;
         });
+
+        getLayoutInflater().inflate(R.layout.activity_login, findViewById(R.id.content_frame), true);
+
+        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button logInBtn = findViewById(R.id.loginBtn);
+        logInBtn.setOnClickListener(v ->
+                Toast.makeText(LogInActivity.this, "Login button clicked", Toast.LENGTH_SHORT).show()
+        );
 
         @SuppressLint({"MissingInflatedId", "LocalSuppress"}) TextView myTextView = findViewById(R.id.forgotPasswordText);
-
-        myTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(LogInActivity.this, "Check your email for a link to reset your password.", Toast.LENGTH_SHORT).show();
-            }
-        });
+        myTextView.setOnClickListener(v ->
+                Toast.makeText(LogInActivity.this, "Check your email for a link to reset your password.", Toast.LENGTH_SHORT).show()
+        );
 
         @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button registerBtn = findViewById(R.id.registerBtn);
-        registerBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(LogInActivity.this, ChooseRoleActivity.class);
-                startActivity(intent);
-
-            }
+        registerBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(LogInActivity.this, ChooseRoleActivity.class);
+            startActivity(intent);
         });
     }
 }

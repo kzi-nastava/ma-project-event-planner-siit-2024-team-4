@@ -22,6 +22,10 @@
 
     <string name="navigation_drawer_open">Open Navigation Drawer</string>
     <string name="navigation_drawer_close">Close Navigation Drawer</string>
+    <string name="homepage">Homepage</string>
+    <string name="service">Services</string>
+    <string name="login">Login</string>
+    <string name="registration">Registration</string>
 
 
 </resources>

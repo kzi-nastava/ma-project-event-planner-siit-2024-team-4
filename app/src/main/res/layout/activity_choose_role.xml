@@ -7,8 +7,6 @@
     android:layout_height="match_parent"
     tools:context="activities.ChooseRoleActivity">
 
-    <include layout="@layout/base_layout"/>
-
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="165dp"
