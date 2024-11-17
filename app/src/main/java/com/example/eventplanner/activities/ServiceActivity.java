@@ -44,10 +44,21 @@ public class ServiceActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        RelativeLayout card = findViewById(R.id.card_id);
-        card.setOnClickListener(v -> {
-            Intent intent = new Intent(ServiceActivity.this, EditServiceActivity.class);
-            startActivity(intent);
-        });
+        RelativeLayout card1 = findViewById(R.id.card1);
+        RelativeLayout card2 = findViewById(R.id.card2);
+        RelativeLayout card3 = findViewById(R.id.card3);
+        RelativeLayout card4 = findViewById(R.id.card4);
+        RelativeLayout card5 = findViewById(R.id.card5);
+
+        card1.setOnClickListener(v -> openEditServiceActivity());
+        card2.setOnClickListener(v -> openEditServiceActivity());
+        card3.setOnClickListener(v -> openEditServiceActivity());
+        card4.setOnClickListener(v -> openEditServiceActivity());
+        card5.setOnClickListener(v -> openEditServiceActivity());
+    }
+
+    private void openEditServiceActivity() {
+        Intent intent = new Intent(ServiceActivity.this, EditServiceActivity.class);
+        startActivity(intent);
     }
 }

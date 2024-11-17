@@ -85,30 +85,35 @@
             android:orientation="vertical">
 
             <include
+                android:id="@+id/card1"
                 layout="@layout/service_card"
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
                 android:layout_marginBottom="5dp" />
 
             <include
+                android:id="@+id/card2"
                 layout="@layout/service_card"
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
                 android:layout_marginBottom="5dp" />
 
             <include
+                android:id="@+id/card3"
                 layout="@layout/service_card"
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
                 android:layout_marginBottom="5dp" />
 
             <include
+                android:id="@+id/card4"
                 layout="@layout/service_card"
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
                 android:layout_marginBottom="5dp" />
 
             <include
+                android:id="@+id/card5"
                 layout="@layout/service_card"
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
