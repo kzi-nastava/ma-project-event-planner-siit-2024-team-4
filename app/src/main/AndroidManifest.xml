@@ -14,10 +14,10 @@
         tools:targetApi="31">
         <activity
             android:name=".activities.AddServiceActivity"
-            android:exported="false" />
+            android:exported="true" />
         <activity
             android:name=".activities.EditServiceActivity"
-            android:exported="false" />
+            android:exported="true" />
         <activity
             android:name=".activities.ServiceActivity"
             android:exported="true">

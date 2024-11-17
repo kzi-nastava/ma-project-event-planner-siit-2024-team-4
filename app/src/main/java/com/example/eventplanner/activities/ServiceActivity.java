@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -41,9 +43,11 @@ public class ServiceActivity extends AppCompatActivity {
             Intent intent = new Intent(ServiceActivity.this, AddServiceActivity.class);
             startActivity(intent);
         });
-    }
-    public void editService(View view) {
-        Intent intent = new Intent(ServiceActivity.this, EditServiceActivity.class);
-        startActivity(intent);
+
+        RelativeLayout card = findViewById(R.id.card_id);
+        card.setOnClickListener(v -> {
+            Intent intent = new Intent(ServiceActivity.this, EditServiceActivity.class);
+            startActivity(intent);
+        });
     }
 }

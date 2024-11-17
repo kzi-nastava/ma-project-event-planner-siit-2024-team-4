@@ -15,7 +15,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.example.eventplanner.R;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class AddServiceActivity extends AppCompatActivity {
 

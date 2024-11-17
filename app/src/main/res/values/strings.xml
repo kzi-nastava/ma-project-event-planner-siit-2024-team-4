@@ -64,6 +64,16 @@
     <string name="add_category_name">Add category name</string>
     <string name="add_category_description">Add category description</string>
     <string name="cancel">Cancel</string>
+    <string name="edit_service">EDIT SERVICE</string>
+    <string name="name">Something name</string>
+    <string name="example_price">15.69</string>
+    <string name="example_discount">10.00</string>
+    <string name="URL_example">www.example.com</string>
+    <string name="duration_time_example">02:00</string>
+    <string name="min_engage">01:00</string>
+    <string name="max_engage">05:00</string>
+    <string name="five">5</string>
+    <string name="ten">10</string>
     <string-array name="rangeSliderValues">
         <item>20</item>
         <item>70</item>
