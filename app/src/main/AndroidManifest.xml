@@ -2,6 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -12,6 +18,28 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.EventPlanner"
         tools:targetApi="31">
+      
+        <activity
+
+            android:name=".activities.HomeActivity"
+            android:exported="false" />
+        <activity
+
+            android:name=".activities.AddServiceActivity"
+            android:exported="true" />
+        <activity
+            android:name=".activities.EditServiceActivity"
+            android:exported="true" />
+        <activity
+            android:name=".activities.ServiceActivity"
+            android:exported="true"/>
+        <activity     
+
+            android:name=".activities.RegistrationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.ChooseRoleActivity"
+            android:exported="false" />
         <activity
             android:name=".activities.SplashScreenActivity"
             android:exported="true">
@@ -20,7 +48,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".activities.LogInActivity"
             android:exported="true" />

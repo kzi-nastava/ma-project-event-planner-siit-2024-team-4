@@ -3,9 +3,9 @@ package com.example.eventplanner.activities;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.TextView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -16,7 +16,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import com.example.eventplanner.R;
 import com.google.android.material.navigation.NavigationView;
 
-public class LogInActivity extends AppCompatActivity {
+public class ChooseRoleActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,13 +40,13 @@ public class LogInActivity extends AppCompatActivity {
             if (id == R.id.nav_homepage) {
                 // Intent intent = new Intent(); nemamo homepage
             } else if (id == R.id.nav_service) {
-                Intent intent = new Intent(LogInActivity.this, ServiceActivity.class);
+                Intent intent = new Intent(ChooseRoleActivity.this, ServiceActivity.class);
                 startActivity(intent);
             } else if (id == R.id.nav_login) {
-                Intent intent = new Intent(LogInActivity.this, LogInActivity.class);
+                Intent intent = new Intent(ChooseRoleActivity.this, LogInActivity.class);
                 startActivity(intent);
             } else if (id == R.id.nav_registration) {
-                Intent intent = new Intent(LogInActivity.this, ChooseRoleActivity.class);
+                Intent intent = new Intent(ChooseRoleActivity.this, ChooseRoleActivity.class);
                 startActivity(intent);
             }
 
@@ -54,22 +54,35 @@ public class LogInActivity extends AppCompatActivity {
             return true;
         });
 
-        getLayoutInflater().inflate(R.layout.activity_login, findViewById(R.id.content_frame), true);
+        getLayoutInflater().inflate(R.layout.activity_choose_role, findViewById(R.id.content_frame), true);
 
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button logInBtn = findViewById(R.id.loginBtn);
-        logInBtn.setOnClickListener(v ->
-                Toast.makeText(LogInActivity.this, "Login button clicked", Toast.LENGTH_SHORT).show()
-        );
+        Spinner spinner = findViewById(R.id.dropdown_menu);
+        String[] options = new String[] {"-", "Event organizer", "Service and product provider"};
 
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) TextView myTextView = findViewById(R.id.forgotPasswordText);
-        myTextView.setOnClickListener(v ->
-                Toast.makeText(LogInActivity.this, "Check your email for a link to reset your password.", Toast.LENGTH_SHORT).show()
-        );
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, options) {
+            @Override
+            public boolean isEnabled(int position) {
+                return position != 0;
+            }
+        };
+        spinner.setAdapter(adapter);
 
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button registerBtn = findViewById(R.id.registerBtn);
-        registerBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(LogInActivity.this, ChooseRoleActivity.class);
+        Button backBtn = findViewById(R.id.backBtn);
+        backBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(ChooseRoleActivity.this, LogInActivity.class);
             startActivity(intent);
+        });
+
+        Button nextButton = findViewById(R.id.nextBtn);
+        nextButton.setOnClickListener(v -> {
+            String selectedRole = spinner.getSelectedItem().toString();
+            if (!"-".equals(selectedRole)) {
+                Intent intent = new Intent(ChooseRoleActivity.this, RegistrationActivity.class);
+                intent.putExtra("ROLE", selectedRole);
+                startActivity(intent);
+            } else {
+                Toast.makeText(ChooseRoleActivity.this, "You have to select a valid role.", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 }

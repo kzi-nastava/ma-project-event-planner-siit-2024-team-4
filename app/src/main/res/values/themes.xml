@@ -6,4 +6,12 @@
     </style>
 
     <style name="Theme.EventPlanner" parent="Base.Theme.EventPlanner" />
+
+    <style name="FullScreenBottomSheetDialog" parent="Theme.Design.BottomSheetDialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowMinWidthMajor">100%</item>
+        <item name="android:windowMinWidthMinor">100%</item>
+    </style>
 </resources>

@@ -1,22 +1,21 @@
 package com.example.eventplanner.activities;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import android.widget.FrameLayout;
 
 import com.example.eventplanner.R;
 import com.google.android.material.navigation.NavigationView;
 
-public class LogInActivity extends AppCompatActivity {
+import fragments.EORegistrationFragment;
+import fragments.SPPRegistrationFragment;
+
+public class RegistrationActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +32,12 @@ public class LogInActivity extends AppCompatActivity {
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
+        FrameLayout contentFrame = findViewById(R.id.content_frame);
+        getLayoutInflater().inflate(R.layout.activity_registration, contentFrame, true);
+
+        String role = getIntent().getStringExtra("ROLE");
+        Fragment selectedFragment;
+
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(item -> {
             int id = item.getItemId();
@@ -40,13 +45,13 @@ public class LogInActivity extends AppCompatActivity {
             if (id == R.id.nav_homepage) {
                 // Intent intent = new Intent(); nemamo homepage
             } else if (id == R.id.nav_service) {
-                Intent intent = new Intent(LogInActivity.this, ServiceActivity.class);
+                Intent intent = new Intent(RegistrationActivity.this, ServiceActivity.class);
                 startActivity(intent);
             } else if (id == R.id.nav_login) {
-                Intent intent = new Intent(LogInActivity.this, LogInActivity.class);
+                Intent intent = new Intent(RegistrationActivity.this, LogInActivity.class);
                 startActivity(intent);
             } else if (id == R.id.nav_registration) {
-                Intent intent = new Intent(LogInActivity.this, ChooseRoleActivity.class);
+                Intent intent = new Intent(RegistrationActivity.this, ChooseRoleActivity.class);
                 startActivity(intent);
             }
 
@@ -54,22 +59,17 @@ public class LogInActivity extends AppCompatActivity {
             return true;
         });
 
-        getLayoutInflater().inflate(R.layout.activity_login, findViewById(R.id.content_frame), true);
 
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button logInBtn = findViewById(R.id.loginBtn);
-        logInBtn.setOnClickListener(v ->
-                Toast.makeText(LogInActivity.this, "Login button clicked", Toast.LENGTH_SHORT).show()
-        );
+        if ("Event organizer".equals(role)) {
+            selectedFragment = new EORegistrationFragment();
+        } else if ("Service and product provider".equals(role)) {
+            selectedFragment = new SPPRegistrationFragment();
+        } else {
+            throw new IllegalArgumentException("Invalid role: " + role);
+        }
 
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) TextView myTextView = findViewById(R.id.forgotPasswordText);
-        myTextView.setOnClickListener(v ->
-                Toast.makeText(LogInActivity.this, "Check your email for a link to reset your password.", Toast.LENGTH_SHORT).show()
-        );
-
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button registerBtn = findViewById(R.id.registerBtn);
-        registerBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(LogInActivity.this, ChooseRoleActivity.class);
-            startActivity(intent);
-        });
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, selectedFragment)
+                .commit();
     }
 }
