@@ -16,7 +16,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:src="@drawable/calendar"
-        android:layout_marginTop="20dp"/>
+        android:layout_marginTop="?attr/actionBarSize"/>
 
     <Spinner
         android:id="@+id/dropdown_menu"
@@ -64,4 +64,5 @@
         app:layout_constraintTop_toBottomOf="@id/nextBtn"
         app:layout_constraintVertical_bias="0.154"
         tools:ignore="MissingConstraints" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

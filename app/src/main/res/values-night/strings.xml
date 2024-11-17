@@ -93,4 +93,8 @@
     <string name="upload_image">Upload image</string>
     <string name="enter_your_company_name">Enter your company name</string>
     <string name="about_your_company">About your company</string>
+    <string name="homepage">Homepage</string>
+    <string name="service">Services</string>
+    <string name="login">Login</string>
+    <string name="registration">Registration</string>
 </resources>
