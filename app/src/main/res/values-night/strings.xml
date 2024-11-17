@@ -73,4 +73,24 @@
         <item>20</item>
         <item>70</item>
     </string-array>
+    <string name="app_name">Event Planner</string>
+    <string name="log_in">Log in</string>
+    <string name="logo">LOGO</string>
+    <string name="enter_your_email">Enter your email</string>
+    <string name="enter_your_password">Enter your password</string>
+    <string name="event_planner">Event Planner</string>
+    <string name="choose_your_role">Choose your role</string>
+    <string name="next">Next</string>
+    <string name="back">Back</string>
+    <string name="forgot_password">Forgot password</string>
+    <string name="create_new_account">Create new account</string>
+    <string name="confirm_your_password">Confirm your password</string>
+    <string name="enter_your_first_name">Enter your first name</string>
+    <string name="enter_your_last_name">Enter your last name</string>
+    <string name="enter_your_address">Enter your address</string>
+    <string name="enter_your_phone_number">Enter your phone number</string>
+    <string name="submit">Submit</string>
+    <string name="upload_image">Upload image</string>
+    <string name="enter_your_company_name">Enter your company name</string>
+    <string name="about_your_company">About your company</string>
 </resources>
