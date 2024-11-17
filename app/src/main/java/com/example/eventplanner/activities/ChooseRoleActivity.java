@@ -8,12 +8,14 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
 
 import com.example.eventplanner.R;
 
@@ -60,20 +62,20 @@ public class ChooseRoleActivity extends AppCompatActivity {
         });
 
         Button nextButton = findViewById(R.id.nextBtn);
-
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String selectedOption = spinner.getSelectedItem().toString();
+                String selectedRole = spinner.getSelectedItem().toString();
 
-                if (selectedOption.equals("Event organizer")) {
-                    // Radnja za Event organizer
-                } else if (selectedOption.equals("Service and product provider")) {
-                    // Radnja za Service and product provider
+                if (!"-".equals(selectedRole)) {
+                    Intent intent = new Intent(ChooseRoleActivity.this, RegistrationActivity.class);
+                    intent.putExtra("ROLE", selectedRole);
+                    startActivity(intent);
                 } else {
-                    // Radnja za "Choose role"
+                    Toast.makeText(ChooseRoleActivity.this, "You have to select a valid role.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+
     }
 }
