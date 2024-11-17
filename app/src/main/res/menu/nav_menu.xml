@@ -4,7 +4,7 @@
         android:title="@string/homepage" />
     <item
         android:id="@+id/nav_service"
-        android:title="@string/service" />
+        android:title="@string/services" />
     <item
         android:id="@+id/nav_login"
         android:title="@string/login" />
