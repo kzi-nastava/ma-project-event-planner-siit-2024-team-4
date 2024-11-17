@@ -40,11 +40,14 @@ public class ChooseRoleActivity extends AppCompatActivity {
             if (id == R.id.nav_homepage) {
                 // Intent intent = new Intent(); nemamo homepage
             } else if (id == R.id.nav_service) {
-                // za service
+                Intent intent = new Intent(ChooseRoleActivity.this, ServiceActivity.class);
+                startActivity(intent);
             } else if (id == R.id.nav_login) {
-                // za login
+                Intent intent = new Intent(ChooseRoleActivity.this, LogInActivity.class);
+                startActivity(intent);
             } else if (id == R.id.nav_registration) {
-                // za ChooseRoleActity!!!!!!!!!
+                Intent intent = new Intent(ChooseRoleActivity.this, ChooseRoleActivity.class);
+                startActivity(intent);
             }
 
             drawerLayout.closeDrawer(navigationView);
