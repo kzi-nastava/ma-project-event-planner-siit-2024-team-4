@@ -12,8 +12,8 @@ import android.widget.FrameLayout;
 import com.example.eventplanner.R;
 import com.google.android.material.navigation.NavigationView;
 
-import fragments.EORegistrationFragment;
-import fragments.SPPRegistrationFragment;
+import com.example.eventplanner.activities.fragments.EORegistrationFragment;
+import com.example.eventplanner.activities.fragments.SPPRegistrationFragment;
 
 public class RegistrationActivity extends AppCompatActivity {
 

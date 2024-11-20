@@ -98,6 +98,7 @@
     <string name="homepage">Homepage</string>
     <string name="login">Login</string>
     <string name="registration">Registration</string>
+    <string name="event_name">Event Name</string>
 
 
 </resources>
