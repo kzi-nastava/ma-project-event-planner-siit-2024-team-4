@@ -1,3 +1,4 @@
+
 <resources>
     <string name="app_name">Event Planner</string>
     <string name="log_in">Log in</string>
@@ -100,5 +101,13 @@
     <string name="registration">Registration</string>
     <string name="event_name">Event Name</string>
 
+    <string-array name="filter_options">
+        <item>All</item>
+        <item>Concert</item>
+        <item>Festival</item>
+        <item>Exhibition</item>
+        <item>Workshop</item>
+        <item>Theater</item>
+    </string-array>
 
 </resources>

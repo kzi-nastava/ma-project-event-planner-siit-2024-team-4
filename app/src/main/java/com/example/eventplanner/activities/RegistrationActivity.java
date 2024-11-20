@@ -43,7 +43,8 @@ public class RegistrationActivity extends AppCompatActivity {
             int id = item.getItemId();
 
             if (id == R.id.nav_homepage) {
-                // Intent intent = new Intent(); nemamo homepage
+                Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
+                startActivity(intent);
             } else if (id == R.id.nav_service) {
                 Intent intent = new Intent(RegistrationActivity.this, ServiceActivity.class);
                 startActivity(intent);

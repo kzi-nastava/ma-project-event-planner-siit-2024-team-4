@@ -68,4 +68,10 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             eventImage = itemView.findViewById(R.id.eventImage);
         }
     }
+
+    public void updateEvents(List<Event> newEvents) {
+        events.clear();
+        events.addAll(newEvents);
+        notifyDataSetChanged();
+    }
 }
