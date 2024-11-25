@@ -1,48 +1,45 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.example.eventplanner.activities.MainActivity">
+    android:layout_height="match_parent">
 
-    <!-- RecyclerView for Top 5 Events -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvTopEvents"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <!-- Search View for Filtering Events -->
-    <android.widget.SearchView
-        android:id="@+id/searchView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:queryHint="Search events"
-        app:layout_constraintTop_toBottomOf="@id/rvTopEvents"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <!-- Naslov za Top 5 događaja -->
+        <TextView
+            android:id="@+id/top5Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Top 5 Events"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
 
-    <!-- RecyclerView for All Events -->
-    <Spinner
-        android:id="@+id/spinnerFilter"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/searchView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <!-- Horizontal ScrollView za Top 5 događaja -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="16dp">
 
-    <!-- RecyclerView for All Events -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvAllEvents"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/spinnerFilter"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+            <LinearLayout
+                android:id="@+id/topEventsContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
+        </HorizontalScrollView>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- Button za prikaz svih događaja -->
+        <Button
+            android:id="@+id/viewAllButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="View All Events"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/design_default_color_primary"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
+</ScrollView>
