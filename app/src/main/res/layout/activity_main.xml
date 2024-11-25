@@ -41,5 +41,39 @@
             android:backgroundTint="@color/design_default_color_primary"
             android:textColor="@android:color/white" />
 
+        <!-- Naslov za Top 5 Products and Services -->
+        <TextView
+            android:id="@+id/top5ProductsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Top 5 Products and Services"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Horizontal ScrollView za Top 5 Products and Services -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="16dp">
+
+            <LinearLayout
+                android:id="@+id/topProductsContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
+        </HorizontalScrollView>
+
+        <!-- Button za prikaz svih Products and Services -->
+        <Button
+            android:id="@+id/viewAllProductsButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="View All Products and Services"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/design_default_color_primary"
+            android:textColor="@android:color/white" />
+
     </LinearLayout>
 </ScrollView>

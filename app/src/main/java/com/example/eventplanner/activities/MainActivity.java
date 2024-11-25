@@ -13,15 +13,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.eventplanner.R;
 import java.util.ArrayList;
 import java.util.List;
-import androidx.appcompat.widget.SearchView;
-
-
 
 public class MainActivity extends AppCompatActivity {
 
     private LinearLayout topEventsContainer;
+    private LinearLayout topProductsContainer;
     private Button viewAllButton;
+    private Button viewAllProductsButton;
     private List<Event> topEventsList;
+    private List<Event> topProductsList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +29,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         topEventsContainer = findViewById(R.id.topEventsContainer);
+        topProductsContainer = findViewById(R.id.topProductsContainer);
         viewAllButton = findViewById(R.id.viewAllButton);
+        viewAllProductsButton = findViewById(R.id.viewAllProductsButton);
 
         // Top 5 Events data
         topEventsList = new ArrayList<>();
@@ -52,10 +54,39 @@ public class MainActivity extends AppCompatActivity {
             topEventsContainer.addView(eventView);
         }
 
+        // Top 5 Products and Services data
+        topProductsList = new ArrayList<>();
+        topProductsList.add(new Event("Product A", R.drawable.service_band, "Product"));
+        topProductsList.add(new Event("Service B", R.drawable.service_band, "Service"));
+        topProductsList.add(new Event("Product C", R.drawable.service_band, "Product"));
+        topProductsList.add(new Event("Service D", R.drawable.service_band, "Service"));
+        topProductsList.add(new Event("Product E", R.drawable.service_band, "Product"));
 
+        // Populate Top 5 Products and Services dynamically
+        for (Event product : topProductsList) {
+            View productView = getLayoutInflater().inflate(R.layout.item_event_card, topProductsContainer, false);
+
+            TextView productName = productView.findViewById(R.id.eventName);
+            ImageView productImage = productView.findViewById(R.id.eventImage);
+
+            productName.setText(product.getName());
+            productImage.setImageResource(product.getImageResId());
+
+            topProductsContainer.addView(productView);
+        }
+
+        // OnClickListener za "View All Events" button
         viewAllButton.setOnClickListener(v -> {
             Log.d("MainActivity", "View All button clicked");
             Intent intent = new Intent(MainActivity.this, AllEventsActivity.class);
+            startActivity(intent);
+        });
+
+        // OnClickListener za "View All Products and Services" button
+        viewAllProductsButton.setOnClickListener(v -> {
+            Log.d("MainActivity", "View All Products button clicked");
+            // Implementiraj navigaciju za proizvode i usluge
+            Intent intent = new Intent(MainActivity.this, AllProductsAndServicesActivity.class);
             startActivity(intent);
         });
     }
