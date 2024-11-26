@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         // OnClickListener za "View All Products and Services" button
         viewAllProductsButton.setOnClickListener(v -> {
             Log.d("MainActivity", "View All Products button clicked");
-            // Implementiraj navigaciju za proizvode i usluge
+
             Intent intent = new Intent(MainActivity.this, AllProductsAndServicesActivity.class);
             startActivity(intent);
         });

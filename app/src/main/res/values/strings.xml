@@ -108,5 +108,12 @@
         <item>Workshop</item>
         <item>Theater</item>
     </string-array>
+    <string-array name="product_filter_options">
+        <item>All</item>
+        <item>Catering</item>
+        <item>Entertainment</item>
+        <item>Decoration</item>
+        <item>Service</item>
+    </string-array>
 
 </resources>
