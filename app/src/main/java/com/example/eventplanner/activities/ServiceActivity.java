@@ -1,5 +1,6 @@
 package com.example.eventplanner.activities;
 
+import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -43,7 +44,8 @@ public class ServiceActivity extends AppCompatActivity {
             int id = item.getItemId();
 
             if (id == R.id.nav_homepage) {
-                // Intent intent = new Intent(); nemamo homepage
+                Intent intent = new Intent(ServiceActivity.this, MainActivity.class);
+                startActivity(intent);
             } else if (id == R.id.nav_service) {
                 Intent intent = new Intent(ServiceActivity.this, ServiceActivity.class);
                 startActivity(intent);

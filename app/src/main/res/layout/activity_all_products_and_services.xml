@@ -1,0 +1,40 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Search Bar -->
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/searchViewProducts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:queryHint="Search products or services"
+        android:iconifiedByDefault="false"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Filter Spinner -->
+    <Spinner
+        android:id="@+id/spinnerFilterProducts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp" />
+
+    <!-- All Products and Services Section -->
+    <TextView
+        android:id="@+id/allProductsServicesTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="All Products and Services"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <!-- RecyclerView for All Products and Services -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvAllProductsServices"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>
