@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:queryHint="Search events"
         android:iconifiedByDefault="false"
+        android:layout_marginTop="?attr/actionBarSize"
         android:layout_marginBottom="8dp" />
 
     <!-- Filter Spinner -->

@@ -5,12 +5,19 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
+
 import com.example.eventplanner.R;
+import com.google.android.material.navigation.NavigationView;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +33,43 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
+        setContentView(R.layout.base_layout);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("");
+
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.nav_homepage) {
+                Intent intent = new Intent(MainActivity.this, MainActivity.class);
+                startActivity(intent);
+            } else if (id == R.id.nav_service) {
+                Intent intent = new Intent(MainActivity.this, ServiceActivity.class);
+                startActivity(intent);
+            } else if (id == R.id.nav_login) {
+                Intent intent = new Intent(MainActivity.this, LogInActivity.class);
+                startActivity(intent);
+            } else if (id == R.id.nav_registration) {
+                Intent intent = new Intent(MainActivity.this, ChooseRoleActivity.class);
+                startActivity(intent);
+            }
+
+            drawerLayout.closeDrawer(navigationView);
+            return true;
+        });
+
+        FrameLayout contentFrame = findViewById(R.id.content_frame);
+        getLayoutInflater().inflate(R.layout.activity_main, contentFrame, true);
 
         topEventsContainer = findViewById(R.id.topEventsContainer);
         topProductsContainer = findViewById(R.id.topProductsContainer);

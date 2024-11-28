@@ -1,4 +1,4 @@
-package com.example.eventplanner.activities.fragments;
+package com.example.eventplanner.fragments;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
