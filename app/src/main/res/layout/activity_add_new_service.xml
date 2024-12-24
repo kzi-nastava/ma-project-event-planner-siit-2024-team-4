@@ -536,7 +536,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="@string/due_for_service_cancelation"
+                android:text="@string/due_for_service_cancellation"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -549,7 +549,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autofillHints=""
-                android:hint="@string/add_cancelation_due"
+                android:hint="@string/add_cancellation_due"
                 android:inputType="number"
                 android:maxLines="1"
                 android:layout_marginStart="15dp"

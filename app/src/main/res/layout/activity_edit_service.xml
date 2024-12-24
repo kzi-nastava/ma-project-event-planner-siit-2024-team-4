@@ -482,7 +482,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="@string/due_for_service_cancelation"
+                android:text="@string/due_for_service_cancellation"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -556,6 +556,14 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/edit_service"/>
+
+                <Button
+                    android:id="@+id/delete"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="15dp"
+                    android:text="@string/delete"/>
 
                 <Button
                     android:id="@+id/cancel"

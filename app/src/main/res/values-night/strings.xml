@@ -50,16 +50,16 @@
     <string name="min_engagement">Min. engagement</string>
     <string name="max_engagement">Max. engagement</string>
     <string name="due_for_service_reservation">Due for service reservation (days)</string>
-    <string name="due_for_service_cancelation">Due for service cancelation (days)</string>
+    <string name="due_for_service_cancellation">Due for service cancellation (days)</string>
     <string name="add_reservation_due">Add reservation due</string>
-    <string name="add_cancelation_due">Add cancelation due</string>
+    <string name="add_cancellation_due">Add cancellation due</string>
     <string name="reservation_type">Reservation type</string>
     <string name="manual">Manual</string>
     <string name="automatic">Automatic</string>
     <string name="add_category_name">Add category name</string>
     <string name="add_category_description">Add category description</string>
     <string name="cancel">Cancel</string>
-    <string name="edit_service">EDIT SERVICE</string>
+    <string name="edit_service">Edit</string>
     <string name="name">Something name</string>
     <string name="example_price">15.69</string>
     <string name="example_discount">10.00</string>
@@ -96,4 +96,5 @@
     <string name="homepage">Homepage</string>
     <string name="login">Login</string>
     <string name="registration">Registration</string>
+    <string name="delete">Delete</string>
 </resources>
