@@ -12,8 +12,7 @@ import android.widget.FrameLayout;
 import com.example.eventplanner.R;
 import com.google.android.material.navigation.NavigationView;
 
-import fragments.EORegistrationFragment;
-import fragments.SPPRegistrationFragment;
+import com.example.eventplanner.fragments.*;
 
 public class RegistrationActivity extends AppCompatActivity {
 
@@ -43,7 +42,8 @@ public class RegistrationActivity extends AppCompatActivity {
             int id = item.getItemId();
 
             if (id == R.id.nav_homepage) {
-                // Intent intent = new Intent(); nemamo homepage
+                Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
+                startActivity(intent);
             } else if (id == R.id.nav_service) {
                 Intent intent = new Intent(RegistrationActivity.this, ServiceActivity.class);
                 startActivity(intent);
