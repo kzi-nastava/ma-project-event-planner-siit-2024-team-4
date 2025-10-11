@@ -13,10 +13,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.eventplanner.R;
+import com.example.eventplanner.activities.LogInActivity;
+import com.example.eventplanner.network.ApiClient;
+import com.example.eventplanner.network.AuthService;
+import com.example.eventplanner.network.MultipartHelper;
+import com.example.eventplanner.network.dto.RegistrationRequest;
+import com.example.eventplanner.network.dto.RegistrationResponse;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -35,6 +49,8 @@ public class EORegistrationFragment extends Fragment {
     private String mParam2;
 
     private static final int PICK_IMAGE_REQUEST = 1;
+    private Bitmap selectedBitmap;
+
     private ImageView profileImageView;
 
     public EORegistrationFragment() {
@@ -76,8 +92,34 @@ public class EORegistrationFragment extends Fragment {
 
         Button registerBtn = view.findViewById(R.id.registerBtn);
         registerBtn.setOnClickListener(v -> {
-            Toast.makeText(getActivity(), "An activation link has been sent to your email.", Toast.LENGTH_SHORT).show();
+            EditText email = view.findViewById(R.id.enterEmailText);
+            EditText firstName = view.findViewById(R.id.enterFirstNameText);
+            EditText lastName = view.findViewById(R.id.enterLastNameText);
+            EditText address = view.findViewById(R.id.enterAddressText);
+            EditText phone = view.findViewById(R.id.enterPhoneNumberText);
+            EditText password = view.findViewById(R.id.enterPasswordText);
+            EditText confirmPassword = view.findViewById(R.id.confirmPasswordText);
+
+            if (!password.getText().toString().equals(confirmPassword.getText().toString())) {
+                Toast.makeText(getActivity(), "Passwords do not match", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            RegistrationRequest request = new RegistrationRequest(
+                    "EO",
+                    email.getText().toString(),
+                    password.getText().toString(),
+                    address.getText().toString(),
+                    phone.getText().toString(),
+                    null,
+                    firstName.getText().toString(),
+                    "",
+                    lastName.getText().toString()
+            );
+
+            sendRegistrationRequest(request);
         });
+
 
         profileImageView = view.findViewById(R.id.profileImageView);
         profileImageView.setOnClickListener(v -> {
@@ -88,17 +130,48 @@ public class EORegistrationFragment extends Fragment {
         return view;
     }
 
+    private void sendRegistrationRequest(RegistrationRequest request) {
+        AuthService authService = ApiClient.getClient().create(AuthService.class);
+
+        RequestBody dtoBody = RequestBody.create(
+                new com.google.gson.Gson().toJson(request),
+                okhttp3.MediaType.parse("application/json")
+        );
+
+        List<MultipartBody.Part> files = new ArrayList<>();
+        if (selectedBitmap != null) {
+            files.add(MultipartHelper.createMultipartFromBitmap(selectedBitmap, "image_0"));
+        }
+
+        Call<RegistrationResponse> call = authService.register(dtoBody, files);
+
+        call.enqueue(new retrofit2.Callback<RegistrationResponse>() {
+            @Override
+            public void onResponse(Call<RegistrationResponse> call, retrofit2.Response<RegistrationResponse> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(getActivity(), "Activation link sent to your email.", Toast.LENGTH_LONG).show();
+                    startActivity(new Intent(getActivity(), LogInActivity.class));
+                } else {
+                    Toast.makeText(getActivity(), "Registration failed: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RegistrationResponse> call, Throwable t) {
+                Toast.makeText(getActivity(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == getActivity().RESULT_OK && data != null) {
             Uri imageUri = data.getData();
             try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), imageUri);
-                profileImageView.setImageBitmap(bitmap);
-            } catch (Exception e) {
-                // e.printStackTrace();
-            }
+                selectedBitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), imageUri);
+                profileImageView.setImageBitmap(selectedBitmap);
+            } catch (Exception ignored) {}
         }
     }
 }
