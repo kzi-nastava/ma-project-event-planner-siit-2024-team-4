@@ -1,4 +1,4 @@
-package com.example.eventplanner.network.dto;
+package com.example.eventplanner.dto;
 
 public class LoginRequest {
     private String email;

@@ -1,12 +1,17 @@
-package com.example.eventplanner.network.dto;
+package com.example.eventplanner.dto;
 
 public class LoginResponse {
     private String token;
+    private Long userId;
     private String email;
     private String role;
 
     public String getToken() {
         return token;
+    }
+
+    public Long getUserId() {
+        return userId;
     }
 
     public String getEmail() {

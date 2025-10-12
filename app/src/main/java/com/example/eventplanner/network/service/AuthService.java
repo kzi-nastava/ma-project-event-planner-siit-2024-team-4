@@ -1,9 +1,8 @@
-package com.example.eventplanner.network;
+package com.example.eventplanner.network.service;
 
-import com.example.eventplanner.network.dto.LoginRequest;
-import com.example.eventplanner.network.dto.LoginResponse;
-import com.example.eventplanner.network.dto.RegistrationRequest;
-import com.example.eventplanner.network.dto.RegistrationResponse;
+import com.example.eventplanner.dto.LoginRequest;
+import com.example.eventplanner.dto.LoginResponse;
+import com.example.eventplanner.dto.RegistrationResponse;
 
 import java.util.List;
 
