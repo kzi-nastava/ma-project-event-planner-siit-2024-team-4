@@ -1,41 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:orientation="vertical" android:padding="16dp"
+    android:layout_width="match_parent" android:layout_height="match_parent">
 
-    <!-- Search Bar -->
-    <androidx.appcompat.widget.SearchView
+    <EditText
+        android:id="@+id/etQuery"
+        android:hint="Search events..."
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:imeOptions="actionSearch" android:singleLine="true"/>
 
-    android:id="@+id/searchView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:queryHint="Search events"
-        android:iconifiedByDefault="false"
-        android:layout_marginTop="?attr/actionBarSize"
-        android:layout_marginBottom="8dp" />
-
-    <!-- Filter Spinner -->
-    <Spinner
-        android:id="@+id/spinnerFilter"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp" />
-
-    <!-- All Events Section -->
-    <TextView
-        android:id="@+id/allEventsTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="All Events"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="8dp" />
-
-    <!-- RecyclerView for All Events -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvAllEvents"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:id="@+id/rv"
+        android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1" android:overScrollMode="never"/>
 
+    <ProgressBar
+        android:id="@+id/progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_gravity="center" android:visibility="gone"/>
 </LinearLayout>

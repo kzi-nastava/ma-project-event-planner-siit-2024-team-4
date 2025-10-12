@@ -8,25 +8,25 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.eventplanner.R;
-import com.example.eventplanner.network.dto.EventDTO;
+import com.example.eventplanner.network.dto.SolutionDTO;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventAdapter extends RecyclerView.Adapter<EventAdapter.VH> {
+public class AllSolutionsAdapter extends RecyclerView.Adapter<AllSolutionsAdapter.VH> {
 
-    public interface OnClick { void onClick(EventDTO item); }
-    private final List<EventDTO> items = new ArrayList<>();
+    public interface OnClick { void onClick(SolutionDTO item); }
+    private final List<SolutionDTO> items = new ArrayList<>();
     @Nullable private final OnClick onClick;
 
-    public EventAdapter(@Nullable OnClick onClick) { this.onClick = onClick; }
+    public AllSolutionsAdapter(@Nullable OnClick onClick) { this.onClick = onClick; }
 
-    public void replaceAll(@Nullable List<EventDTO> data){
+    public void replaceAll(@Nullable List<SolutionDTO> data){
         items.clear();
         if (data != null) items.addAll(data);
         notifyDataSetChanged();
     }
 
-    public void addAll(@Nullable List<EventDTO> more){
+    public void addAll(@Nullable List<SolutionDTO> more){
         if (more == null || more.isEmpty()) return;
         int start = items.size();
         items.addAll(more);
@@ -39,13 +39,11 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.VH> {
     }
 
     @Override public void onBindViewHolder(@NonNull VH h, int i) {
-        EventDTO e = items.get(i);
-        h.title.setText(e.name != null ? e.name : "(Event)");
-        String sub = (e.location!=null? e.location : "");
-        h.subtitle.setText(sub);
-        h.itemView.setOnClickListener(v -> {
-            if (onClick != null) onClick.onClick(e);
-        });
+        SolutionDTO s = items.get(i);
+        h.title.setText(s.name != null ? s.name : "(Item)");
+        String sub = (s.type!=null? s.type : "") + (s.price!=null? " • " + s.price + " RSD" : "");
+        h.subtitle.setText(sub.trim());
+        h.itemView.setOnClickListener(v -> { if (onClick != null) onClick.onClick(s); });
     }
 
     @Override public int getItemCount(){ return items.size(); }

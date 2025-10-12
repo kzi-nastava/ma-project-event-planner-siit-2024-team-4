@@ -1,144 +1,115 @@
 package com.example.eventplanner.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.FrameLayout;
-import android.widget.Spinner;
+import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
-import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
-import androidx.appcompat.widget.Toolbar;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.eventplanner.R;
-import com.example.eventplanner.adapters.ProductAdapter;
-import com.example.eventplanner.activities.Product;
-import com.google.android.material.navigation.NavigationView;
+import com.example.eventplanner.network.ApiClient;
+import com.example.eventplanner.network.ApiService;
+import com.example.eventplanner.network.dto.SolutionDTO;
 
 import java.util.ArrayList;
-import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class AllProductsAndServicesActivity extends AppCompatActivity {
 
-    private RecyclerView rvAllProductsServices;
-    private ProductAdapter productAdapter;
-    private List<Product> productList;
-    private androidx.appcompat.widget.SearchView searchViewProducts;
-    private Spinner spinnerFilterProducts;
+    private ApiService api;
+    private AllSolutionsAdapter adapter;
+    private ProgressBar progress;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    private int page = 0;
+    private final int size = 10;
+    private String sort = "price,asc"; // primer
+    private String query = null;
+
+    private EndlessScrollListener endless;
+
+    @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.base_layout);
+        setContentView(R.layout.activity_all_products_and_services);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("");
+        api = ApiClient.getClient().create(ApiService.class);
+        progress = findViewById(R.id.progress);
 
-        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
+        RecyclerView rv = findViewById(R.id.rv);
+        LinearLayoutManager lm = new LinearLayoutManager(this);
+        rv.setLayoutManager(lm);
 
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(item -> {
-            int id = item.getItemId();
-
-            if (id == R.id.nav_homepage) {
-                Intent intent = new Intent(AllProductsAndServicesActivity.this, MainActivity.class);
-                startActivity(intent);
-            } else if (id == R.id.nav_service) {
-                Intent intent = new Intent(AllProductsAndServicesActivity.this, ServiceActivity.class);
-                startActivity(intent);
-            } else if (id == R.id.nav_login) {
-                Intent intent = new Intent(AllProductsAndServicesActivity.this, LogInActivity.class);
-                startActivity(intent);
-            } else if (id == R.id.nav_registration) {
-                Intent intent = new Intent(AllProductsAndServicesActivity.this, ChooseRoleActivity.class);
-                startActivity(intent);
-            }
-
-            drawerLayout.closeDrawer(navigationView);
-            return true;
+        adapter = new AllSolutionsAdapter(item -> {
+            // TODO: otvori ServiceActivity i pošalji ID
+            Toast.makeText(this, "Item: " + item.name, Toast.LENGTH_SHORT).show();
         });
+        rv.setAdapter(adapter);
 
-        FrameLayout contentFrame = findViewById(R.id.content_frame);
-        getLayoutInflater().inflate(R.layout.activity_all_products_and_services, contentFrame, true);
+        endless = new EndlessScrollListener(lm) {
+            @Override public void onLoadMore() { loadNextPage(); }
+        };
+        rv.addOnScrollListener(endless);
 
-        // Inicijalizacija UI komponenti
-        rvAllProductsServices = findViewById(R.id.rvAllProductsServices);
-        searchViewProducts = findViewById(R.id.searchViewProducts);
-        spinnerFilterProducts = findViewById(R.id.spinnerFilterProducts);
-
-        // Kreiranje liste proizvoda
-        productList = new ArrayList<>();
-        productList.add(new Product("Wedding Cake", R.drawable.service_band, "Catering"));
-        productList.add(new Product("DJ Services", R.drawable.service_band, "Entertainment"));
-        productList.add(new Product("Floral Arrangement", R.drawable.service_band, "Decoration"));
-        productList.add(new Product("Photography", R.drawable.service_band, "Service"));
-        productList.add(new Product("Custom Flags", R.drawable.service_band, "Decoration"));
-
-        // Postavljanje RecyclerView-a
-        rvAllProductsServices.setLayoutManager(new LinearLayoutManager(this));
-        productAdapter = new ProductAdapter(productList);
-        rvAllProductsServices.setAdapter(productAdapter);
-
-        // Funkcionalnost pretrage
-        searchViewProducts.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                productAdapter.filter(newText);
-                return false;
+        EditText etQuery = findViewById(R.id.etQuery);
+        etQuery.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
+            @Override public void onTextChanged(CharSequence s, int st, int b, int c) {}
+            @Override public void afterTextChanged(Editable s) {
+                query = s.toString().trim();
+                resetAndLoad();
             }
         });
 
-        // Postavljanje filter Spinner-a
-        ArrayAdapter<CharSequence> filterAdapter = ArrayAdapter.createFromResource(
-                this,
-                R.array.product_filter_options,
-                android.R.layout.simple_spinner_item
-        );
-        filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerFilterProducts.setAdapter(filterAdapter);
-
-        spinnerFilterProducts.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedFilter = parent.getItemAtPosition(position).toString();
-                filterProducts(selectedFilter);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                filterProducts("All");
-            }
-        });
+        resetAndLoad();
     }
 
-    // Metoda za filtriranje proizvoda na osnovu kategorije
-    private void filterProducts(String filter) {
-        List<Product> filteredProducts = new ArrayList<>();
-        if (filter.equals("All")) {
-            filteredProducts.addAll(productList);
-        } else {
-            for (Product product : productList) {
-                if (product.getCategory().equalsIgnoreCase(filter)) {
-                    filteredProducts.add(product);
-                }
-            }
-        }
-        productAdapter.updateProducts(filteredProducts);
+    private void resetAndLoad() {
+        page = 0;
+        adapter.replaceAll(new ArrayList<>());
+        endless.setLastPage(false);
+        loadNextPage();
+    }
+
+    private void loadNextPage() {
+        progress.setVisibility(View.VISIBLE);
+        endless.setLoading(true);
+
+        api.getSolutions(page, size, sort, (query==null||query.isEmpty())? null : query)
+                .enqueue(new Callback<ApiService.Page<SolutionDTO>>() {
+                    @Override public void onResponse(Call<ApiService.Page<SolutionDTO>> call,
+                                                     Response<ApiService.Page<SolutionDTO>> res) {
+                        progress.setVisibility(View.GONE);
+                        endless.setLoading(false);
+
+                        if (!res.isSuccessful() || res.body() == null) {
+                            Toast.makeText(AllProductsAndServicesActivity.this, "Error loading items", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        ApiService.Page<SolutionDTO> pageRes = res.body();
+                        if (page == 0) adapter.replaceAll(pageRes.content);
+                        else adapter.addAll(pageRes.content);
+
+                        if (pageRes.last || pageRes.number >= pageRes.totalPages - 1) {
+                            endless.setLastPage(true);
+                        } else {
+                            page++;
+                        }
+                    }
+
+                    @Override public void onFailure(Call<ApiService.Page<SolutionDTO>> call, Throwable t) {
+                        progress.setVisibility(View.GONE);
+                        endless.setLoading(false);
+                        Toast.makeText(AllProductsAndServicesActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }
