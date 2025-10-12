@@ -37,5 +37,9 @@ public class SplashScreenActivity extends AppCompatActivity {
                 finish();
             }
         }, SPLASH_TIME_OUT);
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            startActivity(new android.content.Intent(SplashScreenActivity.this, HomeActivity.class));
+            finish(); // zatvara splash da se ne vratiš nazad na njega
+        }, 800);
     }
 }
