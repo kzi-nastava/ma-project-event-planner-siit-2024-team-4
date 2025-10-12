@@ -7,7 +7,9 @@ import com.example.eventplanner.network.dto.SolutionDTO;
 import java.util.Collection;
 import java.util.List;
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.Query;
 
 public interface ApiService {
@@ -45,5 +47,19 @@ public interface ApiService {
     }
     @GET("api/notifications")
     Call<List<NotificationDTO>> getNotifications();
+
+    // QUICK SIGNUP – prilagodi path imenu tvog kontrolera
+    @POST("api/auth/quick-signup")
+    Call<TokenDTO> quickSignup(@Body QuickSignupRequest body);
+
+    class QuickSignupRequest {
+        public String email;
+        public String password; // opcionalno
+    }
+
+    class TokenDTO {
+        public String token;     // očekujemo JWT iz backenda
+    }
+
 
 }
