@@ -96,5 +96,7 @@
     <string name="homepage">Homepage</string>
     <string name="login">Login</string>
     <string name="registration">Registration</string>
+    <string name="profile">Profile</string>
     <string name="delete">Delete</string>
+    <string name="email">Email:</string>
 </resources>

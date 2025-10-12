@@ -20,10 +20,10 @@ import android.widget.Toast;
 import com.example.eventplanner.R;
 import com.example.eventplanner.activities.LogInActivity;
 import com.example.eventplanner.network.ApiClient;
-import com.example.eventplanner.network.AuthService;
+import com.example.eventplanner.network.service.AuthService;
 import com.example.eventplanner.network.MultipartHelper;
-import com.example.eventplanner.network.dto.RegistrationRequest;
-import com.example.eventplanner.network.dto.RegistrationResponse;
+import com.example.eventplanner.dto.RegistrationRequest;
+import com.example.eventplanner.dto.RegistrationResponse;
 
 import java.util.ArrayList;
 import java.util.List;
