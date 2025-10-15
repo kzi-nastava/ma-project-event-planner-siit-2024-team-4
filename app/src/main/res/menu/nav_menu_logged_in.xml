@@ -1,0 +1,32 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_homepage"
+        android:title="@string/homepage" />
+    <item
+        android:id="@+id/nav_my_events"
+        android:title="@string/my_events"
+        android:visible="false" />
+    <item
+        android:id="@+id/nav_all_events"
+        android:title="@string/all_events" />
+    <item
+        android:id="@+id/nav_all_services"
+        android:title="@string/all_services" />
+    <item
+        android:id="@+id/nav_my_services"
+        android:title="@string/my_services"
+        android:visible="false" />
+    <item
+        android:id="@+id/nav_all_products"
+        android:title="@string/all_products" />
+    <item
+        android:id="@+id/nav_my_products"
+        android:title="@string/my_products"
+        android:visible="false" />
+    <item
+        android:id="@+id/nav_profile"
+        android:title="@string/profile" />
+    <item
+        android:id="@+id/nav_logout"
+        android:title="@string/logout" />
+</menu>
