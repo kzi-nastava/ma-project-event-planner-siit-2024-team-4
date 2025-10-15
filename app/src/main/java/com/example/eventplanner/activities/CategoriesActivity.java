@@ -7,12 +7,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,7 +30,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class CategoriesActivity extends AppCompatActivity implements CategoryAdapter.CategoryActionListener {
+public class CategoriesActivity extends BaseActivity implements CategoryAdapter.CategoryActionListener {
 
     private RecyclerView recyclerApprovedCategories;
     private RecyclerView recyclerPendingCategories;
@@ -43,8 +43,9 @@ public class CategoriesActivity extends AppCompatActivity implements CategoryAda
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_categories);
-        setTitle(R.string.categories);
+        
+        FrameLayout contentFrame = findViewById(R.id.content_frame);
+        getLayoutInflater().inflate(R.layout.activity_categories, contentFrame, true);
 
         recyclerApprovedCategories = findViewById(R.id.recyclerApprovedCategories);
         recyclerPendingCategories = findViewById(R.id.recyclerPendingCategories);
