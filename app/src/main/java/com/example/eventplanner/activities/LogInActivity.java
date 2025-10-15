@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -64,12 +65,17 @@ public class LogInActivity extends BaseActivity {
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     LoginResponse loginResponse = response.body();
+                    
+                    Log.d("LogInActivity", "Login response - Role: " + loginResponse.getRole());
+                    Log.d("LogInActivity", "Login response - Email: " + loginResponse.getEmail());
 
                     SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
                     SharedPreferences.Editor editor = prefs.edit();
                     editor.putString("jwt_token", loginResponse.getToken());
                     editor.putString("user_role", loginResponse.getRole());
                     editor.apply();
+                    
+                    Log.d("LogInActivity", "Saved role to SharedPreferences: " + loginResponse.getRole());
 
                     Toast.makeText(LogInActivity.this, "Welcome " + loginResponse.getEmail(), Toast.LENGTH_SHORT).show();
 

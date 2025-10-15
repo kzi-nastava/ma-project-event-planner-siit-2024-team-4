@@ -99,6 +99,7 @@
     <string name="registration">Registration</string>
     <string name="profile">Profile</string>
     <string name="delete">Delete</string>
+    <string name="categories">Categories</string>
     <string name="add_category">Add category</string>
     <string name="edit">Edit</string>
     <string name="category_name">Category name</string>
@@ -111,9 +112,24 @@
     <string name="category_deleted">Category deleted</string>
     <string name="error_delete_category">Error deleting category</string>
     <string name="fill_all_fields">Please fill all fields</string>
+    <string name="approve">Approve</string>
+    <string name="deny">Deny</string>
+    <string name="category_approved">Category approved successfully</string>
+    <string name="category_denied">Category denied successfully</string>
+    <string name="error_approve_category">Error approving category</string>
+    <string name="error_deny_category">Error denying category</string>
     <string name="event_name">Event Name</string>
     <string name="email">Email:</string>
     <string name="save">Save</string>
+    <string name="events">Events</string>
+    <string name="my_events">My Events</string>
+    <string name="all_events">All Events</string>
+    <string name="all_services">All Services</string>
+    <string name="my_services">My Services</string>
+    <string name="products">Products</string>
+    <string name="all_products">All Products</string>
+    <string name="my_products">My Products</string>
+    <string name="logout">Logout</string>
     <string name="edit_category">Edit Category</string>
     <string-array name="filter_options">
         <item>All</item>

@@ -40,6 +40,22 @@
             android:contentDescription="@string/delete"
             android:src="@android:drawable/ic_menu_delete" />
 
+        <ImageButton
+            android:id="@+id/btnApproveCategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/approve"
+            android:src="@android:drawable/ic_menu_agenda"
+            android:background="?android:attr/selectableItemBackgroundBorderless" />
+
+        <ImageButton
+            android:id="@+id/btnDenyCategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/deny"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:background="?android:attr/selectableItemBackgroundBorderless" />
+
     </LinearLayout>
 
 </LinearLayout>

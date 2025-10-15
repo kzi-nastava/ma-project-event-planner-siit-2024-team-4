@@ -13,6 +13,9 @@
         android:id="@+id/nav_all_services"
         android:title="@string/all_services" />
     <item
+        android:id="@+id/nav_categories"
+        android:title="@string/categories" />
+    <item
         android:id="@+id/nav_my_services"
         android:title="@string/my_services"
         android:visible="false" />

@@ -2,10 +2,12 @@ package com.example.eventplanner.activities;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -30,23 +32,51 @@ import retrofit2.Response;
 
 public class CategoriesActivity extends AppCompatActivity implements CategoryAdapter.CategoryActionListener {
 
-    private RecyclerView recyclerView;
-    private CategoryAdapter adapter;
-    private final List<CategoryDTO> categories = new ArrayList<>();
+    private RecyclerView recyclerApprovedCategories;
+    private RecyclerView recyclerPendingCategories;
+    private CategoryAdapter approvedAdapter;
+    private CategoryAdapter pendingAdapter;
+    private final List<CategoryDTO> approvedCategories = new ArrayList<>();
+    private final List<CategoryDTO> pendingCategories = new ArrayList<>();
+    private TextView tvPendingTitle;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_categories);
+        setTitle(R.string.categories);
 
-        recyclerView = findViewById(R.id.recyclerCategories);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new CategoryAdapter(categories, this);
-        recyclerView.setAdapter(adapter);
+        recyclerApprovedCategories = findViewById(R.id.recyclerApprovedCategories);
+        recyclerPendingCategories = findViewById(R.id.recyclerPendingCategories);
+        tvPendingTitle = findViewById(R.id.tvPendingTitle);
+        
+        recyclerApprovedCategories.setLayoutManager(new LinearLayoutManager(this));
+        recyclerPendingCategories.setLayoutManager(new LinearLayoutManager(this));
+        
+        boolean canManage = isAdmin();
+        approvedAdapter = new CategoryAdapter(approvedCategories, this, canManage, false);
+        pendingAdapter = new CategoryAdapter(pendingCategories, this, canManage, true);
+        
+        recyclerApprovedCategories.setAdapter(approvedAdapter);
+        recyclerPendingCategories.setAdapter(pendingAdapter);
 
-        findViewById(R.id.btnAddCategory).setOnClickListener(v -> openCreateDialog());
+        View btnAdd = findViewById(R.id.btnAddCategory);
+        if (canManage) {
+            btnAdd.setVisibility(View.VISIBLE);
+            btnAdd.setOnClickListener(v -> openCreateDialog());
+        } else {
+            btnAdd.setVisibility(View.GONE);
+        }
 
         loadCategories();
+    }
+
+    private boolean isAdmin() {
+        String userRole = getSharedPreferences("MyAppPrefs", MODE_PRIVATE).getString("user_role", null);
+        Log.d("CategoriesActivity", "User role: " + userRole);
+        boolean isAdmin = userRole != null && ("ADMIN".equals(userRole) || "Admin".equals(userRole));
+        Log.d("CategoriesActivity", "Is admin: " + isAdmin);
+        return isAdmin;
     }
 
     private String getAuthHeader() {
@@ -60,13 +90,41 @@ public class CategoriesActivity extends AppCompatActivity implements CategoryAda
     }
 
     private void loadCategories() {
+        // Load all categories and filter them like in IKS Angular app
         service().getAllCategories(getAuthHeader()).enqueue(new Callback<List<CategoryDTO>>() {
             @Override
             public void onResponse(Call<List<CategoryDTO>> call, Response<List<CategoryDTO>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    categories.clear();
-                    categories.addAll(response.body());
-                    adapter.notifyDataSetChanged();
+                    List<CategoryDTO> allCategories = response.body();
+                    
+                    // Filter approved categories (like in IKS: data.filter((c: any) => c.approvedByAdmin))
+                    approvedCategories.clear();
+                    for (CategoryDTO category : allCategories) {
+                        if (category.isApprovedByAdmin) {
+                            approvedCategories.add(category);
+                        }
+                    }
+                    approvedAdapter.notifyDataSetChanged();
+                    
+                    // Filter pending categories (like in IKS: data.filter((c: any) => !c.approvedByAdmin))
+                    if (isAdmin()) {
+                        pendingCategories.clear();
+                        for (CategoryDTO category : allCategories) {
+                            if (!category.isApprovedByAdmin) {
+                                pendingCategories.add(category);
+                            }
+                        }
+                        pendingAdapter.notifyDataSetChanged();
+                        
+                        // Show/hide pending section based on whether there are pending categories
+                        if (pendingCategories.isEmpty()) {
+                            tvPendingTitle.setVisibility(View.GONE);
+                            recyclerPendingCategories.setVisibility(View.GONE);
+                        } else {
+                            tvPendingTitle.setVisibility(View.VISIBLE);
+                            recyclerPendingCategories.setVisibility(View.VISIBLE);
+                        }
+                    }
                 } else {
                     Toast.makeText(CategoriesActivity.this, R.string.error_loading_categories, Toast.LENGTH_SHORT).show();
                 }
@@ -199,6 +257,61 @@ public class CategoriesActivity extends AppCompatActivity implements CategoryAda
                 Toast.makeText(CategoriesActivity.this, R.string.error_delete_category, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public void onApprove(CategoryDTO category) {
+        // Approve category by updating isApprovedByAdmin to true (like in IKS Angular app)
+        UpdateCategoryDTO updateDto = new UpdateCategoryDTO();
+        updateDto.id = category.id;
+        updateDto.name = category.name;
+        updateDto.description = category.description;
+        updateDto.isApprovedByAdmin = true;
+
+        service().updateCategory(getAuthHeader(), category.id, updateDto).enqueue(new Callback<CategoryDTO>() {
+            @Override
+            public void onResponse(Call<CategoryDTO> call, Response<CategoryDTO> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(CategoriesActivity.this, R.string.category_approved, Toast.LENGTH_SHORT).show();
+                    loadCategories();
+                } else {
+                    Toast.makeText(CategoriesActivity.this, R.string.error_approve_category, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CategoryDTO> call, Throwable t) {
+                Toast.makeText(CategoriesActivity.this, R.string.error_approve_category, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    public void onDeny(CategoryDTO category) {
+        // Deny category by deleting it (like in IKS Angular app)
+        new AlertDialog.Builder(this)
+                .setTitle("Deny Category")
+                .setMessage("Are you sure you want to deny this category? It will be permanently deleted.")
+                .setPositiveButton("Deny", (dialog, which) -> {
+                    service().deleteCategory(getAuthHeader(), category.id).enqueue(new Callback<Void>() {
+                        @Override
+                        public void onResponse(Call<Void> call, Response<Void> response) {
+                            if (response.isSuccessful()) {
+                                Toast.makeText(CategoriesActivity.this, R.string.category_denied, Toast.LENGTH_SHORT).show();
+                                loadCategories();
+                            } else {
+                                Toast.makeText(CategoriesActivity.this, R.string.error_deny_category, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<Void> call, Throwable t) {
+                            Toast.makeText(CategoriesActivity.this, R.string.error_deny_category, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 }
 
