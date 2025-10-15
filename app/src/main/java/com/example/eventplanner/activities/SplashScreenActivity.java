@@ -1,6 +1,7 @@
 package com.example.eventplanner.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -31,9 +32,20 @@ public class SplashScreenActivity extends AppCompatActivity {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                Intent intent = new Intent(SplashScreenActivity.this, LogInActivity.class);
+                // Check if user is logged in
+                SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+                String token = prefs.getString("jwt_token", null);
+                
+                Intent intent;
+                if (token != null) {
+                    // User is logged in - go to homepage
+                    intent = new Intent(SplashScreenActivity.this, MainActivity.class);
+                } else {
+                    // User is not logged in - go to login
+                    intent = new Intent(SplashScreenActivity.this, LogInActivity.class);
+                }
+                
                 startActivity(intent);
-
                 finish();
             }
         }, SPLASH_TIME_OUT);

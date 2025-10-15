@@ -66,7 +66,10 @@ public class LogInActivity extends BaseActivity {
                     LoginResponse loginResponse = response.body();
 
                     SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
-                    prefs.edit().putString("jwt_token", loginResponse.getToken()).apply();
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putString("jwt_token", loginResponse.getToken());
+                    editor.putString("user_role", loginResponse.getRole());
+                    editor.apply();
 
                     Toast.makeText(LogInActivity.this, "Welcome " + loginResponse.getEmail(), Toast.LENGTH_SHORT).show();
 

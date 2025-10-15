@@ -44,3 +44,4 @@ public final class GlideAuthModule extends AppGlideModule {
         registry.replace(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(okHttpClient));
     }
 }
+

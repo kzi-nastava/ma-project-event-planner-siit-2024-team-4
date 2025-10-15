@@ -99,4 +99,13 @@
     <string name="profile">Profile</string>
     <string name="delete">Delete</string>
     <string name="email">Email:</string>
+    <string name="events">Events</string>
+    <string name="my_events">My Events</string>
+    <string name="all_events">All Events</string>
+    <string name="all_services">All Services</string>
+    <string name="my_services">My Services</string>
+    <string name="products">Products</string>
+    <string name="all_products">All Products</string>
+    <string name="my_products">My Products</string>
+    <string name="logout">Logout</string>
 </resources>
