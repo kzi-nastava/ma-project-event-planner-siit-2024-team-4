@@ -99,17 +99,22 @@
     <string name="registration">Registration</string>
     <string name="profile">Profile</string>
     <string name="delete">Delete</string>
+    <string name="add_category">Add category</string>
+    <string name="edit">Edit</string>
+    <string name="category_name">Category name</string>
+    <string name="category_description">Category description</string>
+    <string name="error_loading_categories">Error loading categories</string>
+    <string name="category_created">Category successfully created</string>
+    <string name="error_create_category">Error creating category</string>
+    <string name="category_updated">Category successfully updated</string>
+    <string name="error_update_category">Error updating category</string>
+    <string name="category_deleted">Category deleted</string>
+    <string name="error_delete_category">Error deleting category</string>
+    <string name="fill_all_fields">Please fill all fields</string>
     <string name="event_name">Event Name</string>
     <string name="email">Email:</string>
-    <string name="events">Events</string>
-    <string name="my_events">My Events</string>
-    <string name="all_events">All Events</string>
-    <string name="all_services">All Services</string>
-    <string name="my_services">My Services</string>
-    <string name="products">Products</string>
-    <string name="all_products">All Products</string>
-    <string name="my_products">My Products</string>
-    <string name="logout">Logout</string>
+    <string name="save">Save</string>
+    <string name="edit_category">Edit Category</string>
     <string-array name="filter_options">
         <item>All</item>
         <item>Concert</item>
