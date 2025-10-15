@@ -52,7 +52,7 @@ public class AllEventsActivity extends BaseActivity {
         // Setup RecyclerView
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         rvAllEvents.setLayoutManager(linearLayoutManager);
-        allEventAdapter = new EventAdapterNoImage(new ArrayList<>());
+        allEventAdapter = new EventAdapterNoImage(new ArrayList<>(), this);
         rvAllEvents.setAdapter(allEventAdapter);
 
         // Load events from server

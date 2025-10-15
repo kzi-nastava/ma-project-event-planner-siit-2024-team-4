@@ -103,6 +103,7 @@
     <string name="email">Email:</string>
     <string name="events">Events</string>
     <string name="my_events">My Events</string>
+    <string name="favorite_events">Favorite Events</string>
     <string name="all_events">All Events</string>
     <string name="all_services">All Services</string>
     <string name="my_services">My Services</string>

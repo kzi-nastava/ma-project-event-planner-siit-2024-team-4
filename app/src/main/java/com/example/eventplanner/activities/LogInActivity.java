@@ -69,6 +69,7 @@ public class LogInActivity extends BaseActivity {
                     SharedPreferences.Editor editor = prefs.edit();
                     editor.putString("jwt_token", loginResponse.getToken());
                     editor.putString("user_role", loginResponse.getRole());
+                    editor.putString("user_id", String.valueOf(loginResponse.getUserId()));
                     editor.apply();
 
                     Toast.makeText(LogInActivity.this, "Welcome " + loginResponse.getEmail(), Toast.LENGTH_SHORT).show();

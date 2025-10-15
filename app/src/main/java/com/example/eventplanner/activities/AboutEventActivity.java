@@ -15,6 +15,7 @@ import com.example.eventplanner.R;
 import com.example.eventplanner.dto.EventDTO;
 import com.example.eventplanner.network.ApiClient;
 import com.example.eventplanner.network.service.EventService;
+import com.example.eventplanner.network.service.FavoriteService;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -32,6 +33,7 @@ public class AboutEventActivity extends BaseActivity implements OnMapReadyCallba
     private boolean isLoading = true;
     private boolean isFavorite = false;
     private String userId;
+    private FavoriteService favoriteService;
 
     // UI Components
     private ProgressBar progressBar;
@@ -69,6 +71,9 @@ public class AboutEventActivity extends BaseActivity implements OnMapReadyCallba
         // Get current user
         SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
         userId = prefs.getString("user_id", null);
+        
+        // Initialize FavoriteService
+        favoriteService = ApiClient.getClient(this).create(FavoriteService.class);
     }
 
     private void initViews() {
@@ -161,33 +166,111 @@ public class AboutEventActivity extends BaseActivity implements OnMapReadyCallba
     }
 
     private void toggleFavorite() {
-        if (event == null || userId == null) {
+        if (userId == null) {
             Toast.makeText(this, "Please log in to add favorites", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        isFavorite = !isFavorite;
-        updateFavoriteIcon();
-
-        // TODO: Implement API call to toggle favorite
-        Toast.makeText(this, isFavorite ? "Added to favorites" : "Removed from favorites", Toast.LENGTH_SHORT).show();
-    }
-
-    private void updateFavoriteIcon() {
-        favoriteIcon.setImageResource(isFavorite ? R.drawable.heart_filled : R.drawable.heart_empty);
-    }
-
-    private void checkIfFavorite() {
-        // TODO: Implement API call to check if event is favorite
-        updateFavoriteIcon();
-    }
-
-    private void generatePDF() {
         if (event == null) {
-            Toast.makeText(this, "Event details not loaded", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Event not loaded", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // Toggle favorite status locally first for better UX
+        isFavorite = !isFavorite;
+        updateFavoriteIcon();
+
+        // Get JWT token
+        SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        String token = prefs.getString("jwt_token", null);
+        
+        if (token == null) {
+            Toast.makeText(this, "Authentication required", Toast.LENGTH_SHORT).show();
+            isFavorite = !isFavorite; // Revert local change
+            updateFavoriteIcon();
+            return;
+        }
+
+        String authHeader = "Bearer " + token;
+        Call<Void> call;
+
+        if (isFavorite) {
+            // Add to favorites
+            call = favoriteService.addEventToFavorites(userId, event.getId(), authHeader);
+        } else {
+            // Remove from favorites
+            call = favoriteService.removeEventFromFavorites(userId, event.getId(), authHeader);
+        }
+
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    String message = isFavorite ? "Added to favorites" : "Removed from favorites";
+                    Toast.makeText(AboutEventActivity.this, message, Toast.LENGTH_SHORT).show();
+                } else {
+                    // Revert local change if API call failed
+                    isFavorite = !isFavorite;
+                    updateFavoriteIcon();
+                    Toast.makeText(AboutEventActivity.this, "Failed to update favorites", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                // Revert local change if API call failed
+                isFavorite = !isFavorite;
+                updateFavoriteIcon();
+                Toast.makeText(AboutEventActivity.this, "Network error", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void updateFavoriteIcon() {
+        if (favoriteIcon != null) {
+            favoriteIcon.setImageResource(isFavorite ? R.drawable.heart_filled : R.drawable.heart_empty);
+        }
+    }
+
+    private void checkIfFavorite() {
+        if (userId == null || event == null || favoriteService == null) {
+            updateFavoriteIcon();
+            return;
+        }
+
+        // Get JWT token
+        SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        String token = prefs.getString("jwt_token", null);
+        
+        if (token == null) {
+            updateFavoriteIcon();
+            return;
+        }
+
+        String authHeader = "Bearer " + token;
+        Call<Boolean> call = favoriteService.checkIfEventIsFavorite(userId, event.getId(), authHeader);
+        
+        call.enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    isFavorite = response.body();
+                    updateFavoriteIcon();
+                } else {
+                    isFavorite = false;
+                    updateFavoriteIcon();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Boolean> call, Throwable t) {
+                isFavorite = false;
+                updateFavoriteIcon();
+            }
+        });
+    }
+
+    private void generatePDF() {
         // TODO: Implement PDF generation
         Toast.makeText(this, "PDF generation - Coming Soon", Toast.LENGTH_SHORT).show();
     }
