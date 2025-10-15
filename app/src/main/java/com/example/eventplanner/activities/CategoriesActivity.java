@@ -30,7 +30,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class CategoriesActivity extends AppCompatActivity implements CategoryAdapter.CategoryActionListener {
+public class CategoriesActivity extends BaseActivity implements CategoryAdapter.CategoryActionListener {
 
     private RecyclerView recyclerApprovedCategories;
     private RecyclerView recyclerPendingCategories;
@@ -43,7 +43,9 @@ public class CategoriesActivity extends AppCompatActivity implements CategoryAda
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_categories);
+        
+        // Inflate the categories layout into the content frame
+        getLayoutInflater().inflate(R.layout.activity_categories, findViewById(R.id.content_frame));
         setTitle(R.string.categories);
 
         recyclerApprovedCategories = findViewById(R.id.recyclerApprovedCategories);
