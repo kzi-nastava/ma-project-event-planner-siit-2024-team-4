@@ -59,23 +59,24 @@ public class BaseActivity extends AppCompatActivity {
 
             // Show/hide role-specific menu items
             MenuItem myEventsItem = navigationView.getMenu().findItem(R.id.nav_my_events);
-//            MenuItem favoriteEventsItem = navigationView.getMenu().findItem(R.id.nav_favorite_events);
+            MenuItem favoriteEventsItem = navigationView.getMenu().findItem(R.id.nav_favorite_events);
             MenuItem myServicesItem = navigationView.getMenu().findItem(R.id.nav_my_services);
             MenuItem myProductsItem = navigationView.getMenu().findItem(R.id.nav_my_products);
             MenuItem categoriesItem = navigationView.getMenu().findItem(R.id.nav_categories);
-
+            
             // My Events - only for Event Organizers (EO)
             if (myEventsItem != null) {
                 myEventsItem.setVisible("EO".equals(userRole) || "EVENT_ORGANIZER".equals(userRole));
             }
             // Favorite Events - visible for all logged in users
-//            if (favoriteEventsItem != null) {
-//                favoriteEventsItem.setVisible(true);
-//            }
+            if (favoriteEventsItem != null) {
+                favoriteEventsItem.setVisible(true);
+            }
             // My Services - only for service providers
             if (myServicesItem != null) {
                 myServicesItem.setVisible("SPP".equals(userRole) || "SERVICE_PROVIDER".equals(userRole));
             }
+
             // My Products - only for service providers
             if (myProductsItem != null) {
                 myProductsItem.setVisible("SPP".equals(userRole) || "SERVICE_PROVIDER".equals(userRole));
@@ -106,8 +107,8 @@ public class BaseActivity extends AppCompatActivity {
             } else if (id == R.id.nav_my_events) {
                 // TODO: Create MyEventsActivity for Event Organizers
                 Toast.makeText(this, "My Events - Coming Soon", Toast.LENGTH_SHORT).show();
-//            } else if (id == R.id.nav_favorite_events) {
-//                startActivity(new Intent(this, FavoriteEventsActivity.class));
+            } else if (id == R.id.nav_favorite_events) {
+                startActivity(new Intent(this, FavoriteEventsActivity.class));
             } else if (id == R.id.nav_all_services) {
                 startActivity(new Intent(this, ServiceActivity.class));
             } else if (id == R.id.nav_categories) {

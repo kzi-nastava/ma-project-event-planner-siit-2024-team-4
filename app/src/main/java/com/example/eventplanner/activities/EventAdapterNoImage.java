@@ -2,10 +2,14 @@ package com.example.eventplanner.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,15 +18,36 @@ import java.util.ArrayList;
 import java.util.List;
 import com.example.eventplanner.R;
 import com.example.eventplanner.dto.EventDTO;
+import com.example.eventplanner.network.ApiClient;
+import com.example.eventplanner.network.service.FavoriteService;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class EventAdapterNoImage extends RecyclerView.Adapter<EventAdapterNoImage.EventViewHolder> {
 
     private List<EventDTO> events;
     private List<EventDTO> eventsFull;
+    private Context context;
+    private FavoriteService favoriteService;
+    private boolean isFavoriteEventsList; // Flag to indicate if this is showing favorite events
 
-    public EventAdapterNoImage(List<EventDTO> events) {
+    public EventAdapterNoImage(List<EventDTO> events, Context context) {
         this.events = events;
+        this.context = context;
         eventsFull = new ArrayList<>(events);
+        favoriteService = ApiClient.getClient(context).create(FavoriteService.class);
+        this.isFavoriteEventsList = false; // Default is false for regular event lists
+    }
+
+    // Constructor for favorite events list
+    public EventAdapterNoImage(List<EventDTO> events, Context context, boolean isFavoriteEventsList) {
+        this.events = events;
+        this.context = context;
+        eventsFull = new ArrayList<>(events);
+        favoriteService = ApiClient.getClient(context).create(FavoriteService.class);
+        this.isFavoriteEventsList = isFavoriteEventsList;
     }
 
     @NonNull
@@ -38,6 +63,19 @@ public class EventAdapterNoImage extends RecyclerView.Adapter<EventAdapterNoImag
         holder.eventName.setText(event.getName());
         holder.eventType.setText(event.getEventTypeName());
         holder.eventDescription.setText(event.getDescription());
+        
+        // Set heart icon based on context
+        if (isFavoriteEventsList) {
+            // If this is favorite events list, all events are favorites
+            holder.heartIcon.setImageResource(R.drawable.heart_filled);
+            holder.heartIcon.setTag(true);
+        } else {
+            // For regular event lists, check if event is favorite
+            checkAndSetFavoriteStatus(holder, event);
+        }
+        
+        // Set click listener for heart icon
+        holder.heartIcon.setOnClickListener(v -> toggleFavorite(holder, event));
         
         // Set click listener for the entire card
         holder.itemView.setOnClickListener(v -> {
@@ -73,12 +111,14 @@ public class EventAdapterNoImage extends RecyclerView.Adapter<EventAdapterNoImag
         TextView eventName;
         TextView eventType;
         TextView eventDescription;
+        ImageView heartIcon;
 
         public EventViewHolder(@NonNull View itemView) {
             super(itemView);
             eventName = itemView.findViewById(R.id.eventName);
             eventType = itemView.findViewById(R.id.eventType);
             eventDescription = itemView.findViewById(R.id.eventDescription);
+            heartIcon = itemView.findViewById(R.id.heartIcon);
         }
     }
 
@@ -88,5 +128,115 @@ public class EventAdapterNoImage extends RecyclerView.Adapter<EventAdapterNoImag
         eventsFull.clear();
         eventsFull.addAll(newEvents);
         notifyDataSetChanged();
+    }
+
+    private void checkAndSetFavoriteStatus(EventViewHolder holder, EventDTO event) {
+        SharedPreferences prefs = context.getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
+        String userIdStr = prefs.getString("user_id", null);
+        String token = prefs.getString("jwt_token", null);
+        
+        if (userIdStr == null || token == null) {
+            // User not logged in, show empty heart
+            holder.heartIcon.setImageResource(R.drawable.heart_empty);
+            holder.heartIcon.setTag(false);
+            return;
+        }
+        
+        String authHeader = "Bearer " + token;
+        
+        favoriteService.checkIfEventIsFavorite(userIdStr, event.getId(), authHeader).enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    boolean isFavorite = response.body();
+                    // Update UI on main thread
+                    holder.itemView.post(() -> {
+                        holder.heartIcon.setImageResource(isFavorite ? 
+                            R.drawable.heart_filled : R.drawable.heart_empty);
+                        holder.heartIcon.setTag(isFavorite);
+                    });
+                } else {
+                    // On API error, show empty heart
+                    holder.itemView.post(() -> {
+                        holder.heartIcon.setImageResource(R.drawable.heart_empty);
+                        holder.heartIcon.setTag(false);
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Boolean> call, Throwable t) {
+                // On failure, show empty heart
+                holder.itemView.post(() -> {
+                    holder.heartIcon.setImageResource(R.drawable.heart_empty);
+                    holder.heartIcon.setTag(false);
+                });
+            }
+        });
+    }
+
+
+    private void toggleFavorite(EventViewHolder holder, EventDTO event) {
+        SharedPreferences prefs = context.getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
+        String userIdStr = prefs.getString("user_id", null);
+        
+        if (userIdStr == null) {
+            Toast.makeText(context, "Please log in to add favorites", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        String authHeader = "Bearer " + context.getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE).getString("jwt_token", "");
+        
+        Boolean currentStatus = (Boolean) holder.heartIcon.getTag();
+        boolean isFavorite = currentStatus != null ? currentStatus : false;
+        
+        // Optimistic update - change UI immediately for better UX
+        boolean newStatus = !isFavorite;
+        holder.heartIcon.setImageResource(newStatus ? 
+            R.drawable.heart_filled : R.drawable.heart_empty);
+        holder.heartIcon.setTag(newStatus);
+        
+        Call<Void> call;
+        if (isFavorite) {
+            call = favoriteService.removeEventFromFavorites(userIdStr, event.getId(), authHeader);
+        } else {
+            call = favoriteService.addEventToFavorites(userIdStr, event.getId(), authHeader);
+        }
+        
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    String message = newStatus ? "Added to favorites" : "Removed from favorites";
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                    
+                    // If this is favorite events list and event was removed, remove it from the list
+                    if (isFavoriteEventsList && !newStatus) {
+                        int position = holder.getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            events.remove(position);
+                            eventsFull.remove(position);
+                            notifyItemRemoved(position);
+                            notifyItemRangeChanged(position, events.size());
+                        }
+                    }
+                } else {
+                    // Revert optimistic update on failure
+                    holder.heartIcon.setImageResource(isFavorite ? 
+                        R.drawable.heart_filled : R.drawable.heart_empty);
+                    holder.heartIcon.setTag(isFavorite);
+                    Toast.makeText(context, "Failed to update favorites", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                // Revert optimistic update on failure
+                holder.heartIcon.setImageResource(isFavorite ? 
+                    R.drawable.heart_filled : R.drawable.heart_empty);
+                holder.heartIcon.setTag(isFavorite);
+                Toast.makeText(context, "Connection error", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
