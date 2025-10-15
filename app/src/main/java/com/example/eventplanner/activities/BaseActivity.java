@@ -63,6 +63,7 @@ public class BaseActivity extends AppCompatActivity {
             MenuItem myServicesItem = navigationView.getMenu().findItem(R.id.nav_my_services);
             MenuItem myProductsItem = navigationView.getMenu().findItem(R.id.nav_my_products);
             MenuItem categoriesItem = navigationView.getMenu().findItem(R.id.nav_categories);
+            MenuItem eventTypesItem = navigationView.getMenu().findItem(R.id.nav_event_types);
             
             // My Events - only for Event Organizers (EO)
             if (myEventsItem != null) {
@@ -84,6 +85,10 @@ public class BaseActivity extends AppCompatActivity {
             // Categories - visible to all logged-in users (manage-only for ADMIN)
             if (categoriesItem != null) {
                 categoriesItem.setVisible(true);
+            }
+            // Event Types - visible to all logged-in users (manage-only for ADMIN)
+            if (eventTypesItem != null) {
+                eventTypesItem.setVisible(true);
             }
         }
     }
@@ -115,6 +120,8 @@ public class BaseActivity extends AppCompatActivity {
                 startActivity(intent);
             } else if (id == R.id.nav_categories) {
                 startActivity(new Intent(this, CategoriesActivity.class));
+            } else if (id == R.id.nav_event_types) {
+                startActivity(new Intent(this, EventTypeManagementActivity.class));
             } else if (id == R.id.nav_my_services) {
                 Intent intent = new Intent(this, ServicesActivity.class);
                 intent.putExtra("isMyServices", true);

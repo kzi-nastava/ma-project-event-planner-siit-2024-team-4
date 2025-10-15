@@ -59,3 +59,4 @@ public class ActivityDTO {
         this.location = location;
     }
 }
+

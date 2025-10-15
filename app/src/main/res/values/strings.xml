@@ -98,6 +98,7 @@
     <string name="profile">Profile</string>
     <string name="delete">Delete</string>
     <string name="categories">Categories</string>
+    <string name="event_types">Event Types</string>
     <string name="add_category">Add category</string>
     <string name="edit">Edit</string>
     <string name="category_name">Category name</string>
