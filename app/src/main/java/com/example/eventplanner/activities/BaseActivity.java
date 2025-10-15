@@ -115,14 +115,17 @@ public class BaseActivity extends AppCompatActivity {
             } else if (id == R.id.nav_favorite_events) {
                 startActivity(new Intent(this, FavoriteEventsActivity.class));
             } else if (id == R.id.nav_all_services) {
-                startActivity(new Intent(this, ServiceActivity.class));
+                Intent intent = new Intent(this, ServicesActivity.class);
+                intent.putExtra("isMyServices", false);
+                startActivity(intent);
             } else if (id == R.id.nav_categories) {
                 startActivity(new Intent(this, CategoriesActivity.class));
             } else if (id == R.id.nav_event_types) {
                 startActivity(new Intent(this, EventTypeManagementActivity.class));
             } else if (id == R.id.nav_my_services) {
-                // TODO: Create MyServicesActivity
-                Toast.makeText(this, "My Services - Coming Soon", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(this, ServicesActivity.class);
+                intent.putExtra("isMyServices", true);
+                startActivity(intent);
             } else if (id == R.id.nav_all_products) {
                 startActivity(new Intent(this, AllProductsAndServicesActivity.class));
             } else if (id == R.id.nav_my_products) {

@@ -18,7 +18,6 @@
     <string name="eventType3">Event type 3</string>
     <string name="eventType2">Event type 2</string>
     <string name="eventType1">Event type 1</string>
-    <string name="availability">Availability:</string>
     <string name="available">Available</string>
     <string name="not_available">Not available</string>
     <string name="price">Price:</string>
@@ -64,7 +63,6 @@
     <string name="add_category_name">Add category name</string>
     <string name="add_category_description">Add category description</string>
     <string name="cancel">Cancel</string>
-    <string name="edit_service">Edit</string>
     <string name="name">Something name</string>
     <string name="example_price">15.69</string>
     <string name="example_discount">10.00</string>
@@ -148,5 +146,28 @@
         <item>Decoration</item>
         <item>Service</item>
     </string-array>
+
+    <!-- Service related strings -->
+    <string name="add_service">Add Service</string>
+    <string name="search_services">Search services...</string>
+    <string name="min_price">Min Price</string>
+    <string name="max_price">Max Price</string>
+    <string name="apply_filters">Apply Filters</string>
+    <string name="view">View</string>
+    <string name="edit_service">Edit Service</string>
+    <string name="delete_service">Delete Service</string>
+    <string name="service_created">Service created successfully</string>
+    <string name="service_updated">Service updated successfully</string>
+    <string name="service_deleted">Service deleted successfully</string>
+    <string name="error_create_service">Error creating service</string>
+    <string name="error_update_service">Error updating service</string>
+    <string name="error_delete_service">Error deleting service</string>
+    <string name="error_loading_services">Error loading services</string>
+    <string name="error_searching_services">Error searching services</string>
+    <string name="event_type">Event Type</string>
+    <string name="availability">Availability</string>
+    <string name="all">All</string>
+    <string name="available_only">Available Only</string>
+    <string name="not_available_only">Not Available Only</string>
 
 </resources>

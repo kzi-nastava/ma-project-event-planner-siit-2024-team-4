@@ -19,7 +19,6 @@ public class EventTypeDTO {
         this.suggestedCategories = suggestedCategories;
     }
     
-    // Getters and setters
     public Long getId() {
         return id;
     }

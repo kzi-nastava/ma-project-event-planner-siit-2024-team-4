@@ -12,7 +12,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/edit_service"
+            android:text="@string/add_service"
             android:textSize="24sp"
             android:textStyle="bold"
             android:layout_marginBottom="24dp"
@@ -255,27 +255,11 @@
             android:checked="true"
             android:layout_marginBottom="16dp" />
 
-        <!-- Current Images -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Current Images"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
-
-        <TextView
-            android:id="@+id/tvCurrentImages"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="No images"
-            android:textSize="14sp"
-            android:layout_marginBottom="8dp" />
-
         <!-- Image Upload -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Upload New Images (optional)"
+            android:text="@string/service_pictures"
             android:textStyle="bold"
             android:layout_marginBottom="4dp" />
 
@@ -286,11 +270,11 @@
             android:text="@string/upload_image"
             android:layout_marginBottom="8dp" />
 
-            <TextView
+        <TextView
             android:id="@+id/tvImageCount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="No new images selected"
+            android:text="No images selected"
             android:textSize="14sp"
             android:layout_marginBottom="24dp" />
 
@@ -313,7 +297,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/save" />
-            </LinearLayout>
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

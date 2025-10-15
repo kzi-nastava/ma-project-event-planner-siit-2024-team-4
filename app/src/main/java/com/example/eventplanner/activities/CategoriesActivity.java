@@ -44,8 +44,9 @@ public class CategoriesActivity extends BaseActivity implements CategoryAdapter.
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        FrameLayout contentFrame = findViewById(R.id.content_frame);
-        getLayoutInflater().inflate(R.layout.activity_categories, contentFrame, true);
+        // Inflate the categories layout into the content frame
+        getLayoutInflater().inflate(R.layout.activity_categories, findViewById(R.id.content_frame));
+        setTitle(R.string.categories);
 
         recyclerApprovedCategories = findViewById(R.id.recyclerApprovedCategories);
         recyclerPendingCategories = findViewById(R.id.recyclerPendingCategories);
