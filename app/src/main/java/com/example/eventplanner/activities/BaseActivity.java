@@ -56,12 +56,13 @@ public class BaseActivity extends AppCompatActivity {
         } else {
             // User logged in - show logged in menu
             navigationView.inflateMenu(R.menu.nav_menu_logged_in);
-            
+
             // Show/hide role-specific menu items
             MenuItem myEventsItem = navigationView.getMenu().findItem(R.id.nav_my_events);
             MenuItem favoriteEventsItem = navigationView.getMenu().findItem(R.id.nav_favorite_events);
             MenuItem myServicesItem = navigationView.getMenu().findItem(R.id.nav_my_services);
             MenuItem myProductsItem = navigationView.getMenu().findItem(R.id.nav_my_products);
+            MenuItem categoriesItem = navigationView.getMenu().findItem(R.id.nav_categories);
             
             // My Events - only for Event Organizers (EO)
             if (myEventsItem != null) {
@@ -75,9 +76,14 @@ public class BaseActivity extends AppCompatActivity {
             if (myServicesItem != null) {
                 myServicesItem.setVisible("SPP".equals(userRole) || "SERVICE_PROVIDER".equals(userRole));
             }
-            // My Products - only for service providers  
+
+            // My Products - only for service providers
             if (myProductsItem != null) {
                 myProductsItem.setVisible("SPP".equals(userRole) || "SERVICE_PROVIDER".equals(userRole));
+            }
+            // Categories - visible to all logged-in users (manage-only for ADMIN)
+            if (categoriesItem != null) {
+                categoriesItem.setVisible(true);
             }
         }
     }
@@ -105,6 +111,8 @@ public class BaseActivity extends AppCompatActivity {
                 startActivity(new Intent(this, FavoriteEventsActivity.class));
             } else if (id == R.id.nav_all_services) {
                 startActivity(new Intent(this, ServiceActivity.class));
+            } else if (id == R.id.nav_categories) {
+                startActivity(new Intent(this, CategoriesActivity.class));
             } else if (id == R.id.nav_my_services) {
                 // TODO: Create MyServicesActivity
                 Toast.makeText(this, "My Services - Coming Soon", Toast.LENGTH_SHORT).show();
@@ -140,7 +148,7 @@ public class BaseActivity extends AppCompatActivity {
         editor.remove("user_role");
         editor.remove("user_id");
         editor.apply();
-        
+
         Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
         startActivity(new Intent(this, MainActivity.class));
         finish();

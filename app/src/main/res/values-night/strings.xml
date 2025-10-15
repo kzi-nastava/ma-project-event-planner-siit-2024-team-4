@@ -108,4 +108,6 @@
     <string name="all_products">All Products</string>
     <string name="my_products">My Products</string>
     <string name="logout">Logout</string>
+    <string name="save">Save</string>
+    <string name="edit_category">Edit Category</string>
 </resources>

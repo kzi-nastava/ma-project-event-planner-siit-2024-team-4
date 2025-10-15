@@ -57,6 +57,9 @@ public class AllProductsAndServicesActivity extends AppCompatActivity {
             } else if (id == R.id.nav_service) {
                 Intent intent = new Intent(AllProductsAndServicesActivity.this, ServiceActivity.class);
                 startActivity(intent);
+            } else if (id == R.id.nav_categories) {
+                Intent intent = new Intent(AllProductsAndServicesActivity.this, CategoriesActivity.class);
+                startActivity(intent);
             } else if (id == R.id.nav_login) {
                 Intent intent = new Intent(AllProductsAndServicesActivity.this, LogInActivity.class);
                 startActivity(intent);
