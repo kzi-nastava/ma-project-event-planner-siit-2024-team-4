@@ -37,6 +37,12 @@
             android:name=".activities.ServiceActivity"
             android:exported="true" />
         <activity
+            android:name=".activities.ServicesActivity"
+            android:exported="true" />
+        <activity
+            android:name=".activities.ServiceDetailsActivity"
+            android:exported="true" />
+        <activity
             android:name=".activities.RegistrationActivity"
             android:exported="false" />
         <activity
