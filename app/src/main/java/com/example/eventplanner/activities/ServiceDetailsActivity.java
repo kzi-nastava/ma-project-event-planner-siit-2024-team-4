@@ -173,6 +173,7 @@ public class ServiceDetailsActivity extends AppCompatActivity {
             if (imageUrl.startsWith("/uploads/")) {
                 imageUrl = ApiConfig.IMG_URL + imageUrl;
             }
+            Log.d("ServiceDetails", "Loading image: " + imageUrl);
             Glide.with(this)
                     .load(imageUrl)
                     .placeholder(R.drawable.placeholder_image)
