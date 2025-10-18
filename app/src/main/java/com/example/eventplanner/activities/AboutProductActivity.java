@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -30,7 +31,7 @@ import retrofit2.Response;
 
 import static com.example.eventplanner.config.ApiConfig.BASE_URL;
 
-public class AboutProductActivity extends AppCompatActivity {
+public class AboutProductActivity extends BaseActivity {
 
     private ProductDTO product;
     private String userRole;
@@ -54,7 +55,9 @@ public class AboutProductActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_about_product);
+
+        FrameLayout contentFrame = findViewById(R.id.content_frame);
+        getLayoutInflater().inflate(R.layout.activity_about_product, contentFrame, true);
 
         // Get product from intent
         product = (ProductDTO) getIntent().getSerializableExtra("product");
@@ -161,10 +164,8 @@ public class AboutProductActivity extends AppCompatActivity {
             tvProviderName.setText("Unknown Provider");
         }
 
-        // Provider email - not available in ProductDTO, so we'll show placeholder
         tvProviderEmail.setText("Contact information not available");
 
-        // Set category
         if (product.getCategory() != null && product.getCategory().getName() != null && !product.getCategory().getName().trim().isEmpty()) {
             tvCategory.setText(product.getCategory().getName());
         } else if (product.getCategoryName() != null && !product.getCategoryName().trim().isEmpty()) {
@@ -173,7 +174,6 @@ public class AboutProductActivity extends AppCompatActivity {
             tvCategory.setText("-");
         }
 
-        // Set event types
         if (product.getEventTypes() != null && !product.getEventTypes().isEmpty()) {
             StringBuilder eventTypesText = new StringBuilder();
             for (int i = 0; i < product.getEventTypes().size(); i++) {
@@ -189,7 +189,6 @@ public class AboutProductActivity extends AppCompatActivity {
             tvEventType.setText("-");
         }
 
-        // Set product images
         if (product.getImageURLs() != null && !product.getImageURLs().isEmpty()) {
             ProductImageAdapter imageAdapter = new ProductImageAdapter(product.getImageURLs());
             viewPagerImages.setAdapter(imageAdapter);
@@ -238,7 +237,6 @@ public class AboutProductActivity extends AppCompatActivity {
             public void onResponse(Call<ProfileDTO> call, Response<ProfileDTO> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     ProfileDTO profile = response.body();
-                    // Get provider name based on role
                     String providerName = getProviderName(profile);
                     tvProviderName.setText(providerName);
                 } else {
@@ -258,28 +256,14 @@ public class AboutProductActivity extends AppCompatActivity {
             return "Unknown Provider";
         }
         
-        // Check user role and get appropriate name
         String role = profile.getRole();
-        if ("EventOrganizer".equals(role)) {
-            // For Event Organizer, use name + last name
-            String name = profile.getName();
-            String lastName = profile.getLastName();
-            if (name != null && lastName != null) {
-                return name + " " + lastName;
-            } else if (name != null) {
-                return name;
-            } else if (lastName != null) {
-                return lastName;
-            }
-        } else if ("SPProvider".equals(role) || "SERVICE_PROVIDER".equals(role)) {
-            // For Service Provider, use name (company name)
+        if ("SPProvider".equals(role) || "SERVICE_PROVIDER".equals(role)) {
             String name = profile.getName();
             if (name != null && !name.trim().isEmpty()) {
                 return name;
             }
         }
         
-        // Fallback to email if no name is available
         String email = profile.getEmail();
         if (email != null && !email.trim().isEmpty()) {
             return email;
@@ -303,12 +287,10 @@ public class AboutProductActivity extends AppCompatActivity {
             layoutIndicators.addView(indicator);
         }
         
-        // Set first indicator as selected
         if (count > 0) {
             layoutIndicators.getChildAt(0).setBackgroundResource(R.drawable.indicator_selected);
         }
         
-        // Update indicators when page changes
         viewPagerImages.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
