@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background_light"
     android:padding="16dp">
 
     <LinearLayout
@@ -9,311 +11,574 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <TextView
+        <!-- Header Card -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/edit_service"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="24dp"
-            android:gravity="center" />
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@android:color/white">
 
-        <!-- Service Name -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/service_name"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
-
-        <EditText
-            android:id="@+id/etServiceName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/name_of_service"
-            android:inputType="text"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Service Description -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/service_description"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
-
-        <EditText
-            android:id="@+id/etServiceDescription"
-            android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:hint="@string/description_of_service"
-            android:inputType="textMultiLine"
-            android:gravity="top"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Price -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/service_price"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
-
-        <EditText
-            android:id="@+id/etServicePrice"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/add_service_price"
-            android:inputType="numberDecimal"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Discount -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/service_discount"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
-
-        <EditText
-            android:id="@+id/etServiceDiscount"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/add_discount"
-            android:inputType="numberDecimal"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Category -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/category"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
-
-        <Spinner
-            android:id="@+id/spinnerCategory"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Event Types -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/service_event_types"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
-
-        <Spinner
-            android:id="@+id/spinnerEventTypes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp" />
-
-        <Button
-            android:id="@+id/btnAddEventType"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Add Event Type"
-            android:layout_marginBottom="8dp" />
-
-        <TextView
-            android:id="@+id/tvSelectedEventTypes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Selected: None"
-            android:textSize="14sp"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Duration -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/duration_of_service"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
-
-        <EditText
-            android:id="@+id/etDuration"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/add_duration_of_service"
-            android:inputType="number"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Min/Max Engagement -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Engagement Range (minutes)"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="16dp">
-
-            <EditText
-                android:id="@+id/etMinEngagement"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="@string/add_min_engagement"
-                android:inputType="number"
-                android:layout_marginEnd="8dp" />
+                android:orientation="vertical"
+                android:padding="20dp">
 
-            <EditText
-                android:id="@+id/etMaxEngagement"
-                android:layout_width="0dp"
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Edit Service"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary_color"
+                    android:gravity="center"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Update your service information"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary"
+                    android:gravity="center" />
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Basic Information Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@android:color/white">
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="@string/add_max_engagement"
-                android:inputType="number" />
-        </LinearLayout>
+                android:orientation="vertical"
+                android:padding="20dp">
 
-        <!-- Reservation Due -->
-        <TextView
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Basic Information"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary_color"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Service Name -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/service_name"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="4dp" />
+
+                <EditText
+                    android:id="@+id/etServiceName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/enter_service_name"
+                    android:background="@drawable/edit_text_background"
+                    android:padding="12dp"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Service Description -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/service_description"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="4dp" />
+
+                <EditText
+                    android:id="@+id/etServiceDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/enter_service_description"
+                    android:background="@drawable/edit_text_background"
+                    android:padding="12dp"
+                    android:inputType="textMultiLine"
+                    android:minLines="3"
+                    android:gravity="top"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Price and Discount -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="16dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginEnd="8dp">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/service_price"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary"
+                            android:layout_marginBottom="4dp" />
+
+                        <EditText
+                            android:id="@+id/etServicePrice"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/enter_service_price"
+                            android:inputType="numberDecimal"
+                            android:background="@drawable/edit_text_background"
+                            android:padding="12dp" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="8dp">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/service_discount"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary"
+                            android:layout_marginBottom="4dp" />
+
+                        <EditText
+                            android:id="@+id/etServiceDiscount"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/enter_service_discount"
+                            android:inputType="numberDecimal"
+                            android:background="@drawable/edit_text_background"
+                            android:padding="12dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Category and Event Types Card -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/due_for_service_reservation"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@android:color/white">
 
-        <EditText
-            android:id="@+id/etReservationDue"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/add_reservation_due"
-            android:inputType="number"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Cancellation Due -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/due_for_service_cancellation"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
-
-        <EditText
-            android:id="@+id/etCancellationDue"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/add_cancellation_due"
-            android:inputType="number"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Reservation Type -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/reservation_type"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
-
-        <RadioGroup
-            android:id="@+id/rgReservationType"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="16dp">
-
-            <RadioButton
-                android:id="@+id/rbAutomatic"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/automatic"
-                android:checked="true" />
+                android:orientation="vertical"
+                android:padding="20dp">
 
-            <RadioButton
-                android:id="@+id/rbManual"
-                android:layout_width="0dp"
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Category &amp; Event Types"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary_color"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Category (Read-only) -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/service_category"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:id="@+id/tvCategory"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Category will be loaded here"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary"
+                    android:background="@drawable/edit_text_background"
+                    android:padding="12dp"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Event Types (Dropdown) -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/service_event_types"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="4dp" />
+
+                <Spinner
+                    android:id="@+id/spinnerEventTypes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/spinner_background"
+                    android:padding="12dp"
+                    android:layout_marginBottom="16dp" />
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Duration and Engagement Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@android:color/white">
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/manual" />
-        </RadioGroup>
+                android:orientation="vertical"
+                android:padding="20dp">
 
-        <!-- Availability -->
-        <CheckBox
-            android:id="@+id/cbAvailable"
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Duration &amp; Engagement"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary_color"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Duration Type Selection -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Duration Type"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="4dp" />
+
+                <RadioGroup
+                    android:id="@+id/rgDurationType"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="16dp">
+
+                    <RadioButton
+                        android:id="@+id/rbFixedDuration"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Fixed Duration"
+                        android:textColor="@color/text_primary" />
+
+                    <RadioButton
+                        android:id="@+id/rbEngagementRange"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Engagement Range"
+                        android:textColor="@color/text_primary" />
+
+                </RadioGroup>
+
+                <!-- Fixed Duration (Hours and Minutes) -->
+                <LinearLayout
+                    android:id="@+id/layoutFixedDuration"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp"
+                    android:visibility="visible">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Duration (Hours and Minutes)"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="4dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <EditText
+                            android:id="@+id/etDurationHours"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="Hours"
+                            android:inputType="number"
+                            android:background="@drawable/edit_text_background"
+                            android:padding="12dp"
+                            android:layout_marginEnd="8dp" />
+
+                        <EditText
+                            android:id="@+id/etDurationMinutes"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="Minutes"
+                            android:inputType="number"
+                            android:background="@drawable/edit_text_background"
+                            android:padding="12dp"
+                            android:layout_marginStart="8dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- Engagement Range (1-5 hours) -->
+                <LinearLayout
+                    android:id="@+id/layoutEngagementRange"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Engagement Range (1-5 hours)"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="4dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <EditText
+                            android:id="@+id/etMinEngagement"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="Min Hours (1-5)"
+                            android:inputType="number"
+                            android:background="@drawable/edit_text_background"
+                            android:padding="12dp"
+                            android:layout_marginEnd="8dp" />
+
+                        <EditText
+                            android:id="@+id/etMaxEngagement"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="Max Hours (1-5)"
+                            android:inputType="number"
+                            android:background="@drawable/edit_text_background"
+                            android:padding="12dp"
+                            android:layout_marginStart="8dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Reservation Settings Card -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/available"
-            android:checked="true"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@android:color/white">
 
-        <!-- Visibility -->
-        <CheckBox
-            android:id="@+id/cbVisible"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Reservation Settings"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary_color"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Reservation Due -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/due_for_service_reservation"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="4dp" />
+
+                <EditText
+                    android:id="@+id/etReservationDue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/add_reservation_due"
+                    android:inputType="number"
+                    android:background="@drawable/edit_text_background"
+                    android:padding="12dp"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Cancellation Due -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/due_for_service_cancellation"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="4dp" />
+
+                <EditText
+                    android:id="@+id/etCancellationDue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/add_cancellation_due"
+                    android:inputType="number"
+                    android:background="@drawable/edit_text_background"
+                    android:padding="12dp"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Availability -->
+                <CheckBox
+                    android:id="@+id/cbAvailable"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/available"
+                    android:textColor="@color/text_primary"
+                    android:checked="true"
+                    android:layout_marginBottom="16dp" />
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Images Card -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/visible"
-            android:checked="true"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@android:color/white">
 
-        <!-- Current Images -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Current Images"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
 
-        <TextView
-            android:id="@+id/tvCurrentImages"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="No images"
-            android:textSize="14sp"
-            android:layout_marginBottom="8dp" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Images"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary_color"
+                    android:layout_marginBottom="16dp" />
 
-        <!-- Image Upload -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Upload New Images (optional)"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
+                <!-- Current Images -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Current Images"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="4dp" />
 
-        <Button
-            android:id="@+id/btnUploadImages"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/upload_image"
-            android:layout_marginBottom="8dp" />
+                <TextView
+                    android:id="@+id/tvCurrentImages"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="No images"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary"
+                    android:background="@drawable/edit_text_background"
+                    android:padding="12dp"
+                    android:layout_marginBottom="16dp" />
 
-            <TextView
-            android:id="@+id/tvImageCount"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="No new images selected"
-            android:textSize="14sp"
-            android:layout_marginBottom="24dp" />
+                <!-- Image Upload -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Upload New Images (optional - multiple images allowed)"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="4dp" />
+
+                <Button
+                    android:id="@+id/btnUploadImages"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Select Multiple Images"
+                    android:background="@drawable/button_secondary"
+                    android:textColor="@color/primary_color"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/tvImageCount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="0 images selected"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
+                    android:gravity="center" />
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
 
         <!-- Action Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="end">
+            android:layout_marginTop="8dp">
 
             <Button
                 android:id="@+id/btnCancel"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="@string/cancel"
+                android:background="@drawable/button_secondary"
+                android:textColor="@color/text_secondary"
                 android:layout_marginEnd="8dp" />
 
             <Button
                 android:id="@+id/btnSave"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@string/save" />
-            </LinearLayout>
+                android:layout_weight="1"
+                android:text="@string/save"
+                android:background="@drawable/button_primary"
+                android:textColor="@android:color/white"
+                android:layout_marginStart="8dp" />
+
+        </LinearLayout>
 
     </LinearLayout>
+
 </ScrollView>

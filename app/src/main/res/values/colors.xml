@@ -14,13 +14,19 @@
     <color name="input_background">#F5F5F5</color>
     <color name="button_primary_color">#6750A4</color>
     <color name="button_secondary_color">#757575</color>
-    
-    <!-- Calendar colors -->
+
+    <!-- Additional colors for edit service -->
     <color name="primary_color">#6750A4</color>
+    <color name="background_light">#F8F9FA</color>
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="border_light">#E0E0E0</color>
+
+    <!-- Calendar colors -->
     <color name="gray">#757575</color>
     <color name="calendar_background">#F8F9FA</color>
     <color name="favorite_event_color">#FF6B6B</color>
-    
+
     <!-- Products colors -->
     <color name="background_color">#F5F5F5</color>
 </resources>
