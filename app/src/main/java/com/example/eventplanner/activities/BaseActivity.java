@@ -65,28 +65,22 @@ public class BaseActivity extends AppCompatActivity {
             MenuItem categoriesItem = navigationView.getMenu().findItem(R.id.nav_categories);
             MenuItem eventTypesItem = navigationView.getMenu().findItem(R.id.nav_event_types);
             
-            // My Events - only for Event Organizers (EO)
             if (myEventsItem != null) {
-                myEventsItem.setVisible("EO".equals(userRole) || "EVENT_ORGANIZER".equals(userRole));
+                myEventsItem.setVisible("EventOrganizer".equals(userRole));
             }
-            // Favorite Events - visible for all logged in users
             if (favoriteEventsItem != null) {
                 favoriteEventsItem.setVisible(true);
             }
-            // My Services - only for service providers
             if (myServicesItem != null) {
-                myServicesItem.setVisible("SPP".equals(userRole) || "SERVICE_PROVIDER".equals(userRole));
+                myServicesItem.setVisible("SPProvider".equals(userRole));
             }
 
-            // My Products - only for service providers
             if (myProductsItem != null) {
-                myProductsItem.setVisible("SPP".equals(userRole) || "SERVICE_PROVIDER".equals(userRole));
+                myProductsItem.setVisible("SPProvider".equals(userRole));
             }
-            // Categories - visible to all logged-in users (manage-only for ADMIN)
             if (categoriesItem != null) {
                 categoriesItem.setVisible(true);
             }
-            // Event Types - visible to all logged-in users (manage-only for ADMIN)
             if (eventTypesItem != null) {
                 eventTypesItem.setVisible(true);
             }
@@ -160,7 +154,7 @@ public class BaseActivity extends AppCompatActivity {
         editor.apply();
 
         Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
-        startActivity(new Intent(this, MainActivity.class));
+        startActivity(new Intent(this, LogInActivity.class));
         finish();
     }
 

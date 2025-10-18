@@ -1,5 +1,7 @@
 package com.example.eventplanner.activities;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -16,7 +18,9 @@ import com.example.eventplanner.R;
 import com.example.eventplanner.dto.EventDTO;
 import com.example.eventplanner.network.ApiClient;
 import com.example.eventplanner.network.service.EventService;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
+
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -33,6 +37,7 @@ public class AllEventsActivity extends BaseActivity {
     private Spinner spinnerFilter;
     private SearchView searchView;
     private ProgressBar progressBar;
+    private MaterialButton btnCreateEvent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,20 +50,19 @@ public class AllEventsActivity extends BaseActivity {
         searchView = findViewById(R.id.searchView);
         spinnerFilter = findViewById(R.id.spinnerFilter);
         progressBar = findViewById(R.id.progressBar);
+        btnCreateEvent = findViewById(R.id.btnCreateEvent);
 
-        // Initialize events list
         allEventsList = new ArrayList<>();
 
-        // Setup RecyclerView
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         rvAllEvents.setLayoutManager(linearLayoutManager);
         allEventAdapter = new EventAdapterNoImage(new ArrayList<>(), this);
         rvAllEvents.setAdapter(allEventAdapter);
 
-        // Load events from server
         loadEventsFromServer();
+        
+        setupCreateEventButton();
 
-        // Pretraga događaja
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -72,7 +76,6 @@ public class AllEventsActivity extends BaseActivity {
             }
         });
 
-        // Podesavanje spinnera za filtriranje
         ArrayAdapter<CharSequence> filterAdapter = ArrayAdapter.createFromResource(this,
                 R.array.filter_options, android.R.layout.simple_spinner_item);
         filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -90,6 +93,23 @@ public class AllEventsActivity extends BaseActivity {
                 filterEvents("All");
             }
         });
+    }
+    
+    private void setupCreateEventButton() {
+        SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        String userRole = prefs.getString("user_role", null);
+        
+        if ("EventOrganizer".equals(userRole)) {
+            btnCreateEvent.setVisibility(View.VISIBLE);
+            btnCreateEvent.setOnClickListener(v -> {
+                Intent intent = new Intent(AllEventsActivity.this, EventCreateActivity.class);
+                startActivityForResult(intent, 100); // Request code 100 for event creation
+            });
+            Toast.makeText(this, "Create Event button is visible for Event Organizer", Toast.LENGTH_SHORT).show();
+        } else {
+            // Hide button for non-Event Organizers
+            btnCreateEvent.setVisibility(View.GONE);
+        }
     }
 
     private void filterEvents(String filter) {
@@ -132,6 +152,15 @@ public class AllEventsActivity extends BaseActivity {
                 Toast.makeText(AllEventsActivity.this, "Connection error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        
+        if (requestCode == 100 && resultCode == RESULT_OK) {
+            loadEventsFromServer();
+        }
     }
 
 }

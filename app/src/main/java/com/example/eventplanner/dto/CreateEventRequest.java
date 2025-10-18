@@ -1,48 +1,37 @@
 package com.example.eventplanner.dto;
 
-import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
-public class EventDTO {
-    private int id;
+public class CreateEventRequest {
     private String name;
     private String description;
     private int participants;
-    @SerializedName("public")
     private boolean isPublic;
     private String startDate;
     private String endDate;
-    private LocationDTO location;
-    private String eventTypeName;
-    private List<ActivityDTO> activities;
+    private Long locationId;
+    private Long eventTypeId;
+    private List<CreateActivityRequest> agenda;
+    private Long organizerId;
 
-    // Constructors
-    public EventDTO() {}
+    public CreateEventRequest() {}
 
-    public EventDTO(int id, String name, String description, int participants, boolean isPublic, 
-                   String startDate, String endDate, LocationDTO location, String eventTypeName, 
-                   List<ActivityDTO> activities) {
-        this.id = id;
+    public CreateEventRequest(String name, String description, int participants, boolean isPublic,
+                             String startDate, String endDate, Long locationId, Long eventTypeId,
+                             List<CreateActivityRequest> agenda, Long organizerId) {
         this.name = name;
         this.description = description;
         this.participants = participants;
         this.isPublic = isPublic;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.location = location;
-        this.eventTypeName = eventTypeName;
-        this.activities = activities;
+        this.locationId = locationId;
+        this.eventTypeId = eventTypeId;
+        this.agenda = agenda;
+        this.organizerId = organizerId;
     }
 
     // Getters and Setters
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
     }
@@ -91,29 +80,35 @@ public class EventDTO {
         this.endDate = endDate;
     }
 
-    public LocationDTO getLocation() {
-        return location;
+    public Long getLocationId() {
+        return locationId;
     }
 
-    public void setLocation(LocationDTO location) {
-        this.location = location;
+    public void setLocationId(Long locationId) {
+        this.locationId = locationId;
     }
 
-    public String getEventTypeName() {
-        return eventTypeName;
+    public Long getEventTypeId() {
+        return eventTypeId;
     }
 
-    public void setEventTypeName(String eventTypeName) {
-        this.eventTypeName = eventTypeName;
+    public void setEventTypeId(Long eventTypeId) {
+        this.eventTypeId = eventTypeId;
     }
 
-    public List<ActivityDTO> getActivities() {
-        return activities;
+    public List<CreateActivityRequest> getAgenda() {
+        return agenda;
     }
 
-    public void setActivities(List<ActivityDTO> activities) {
-        this.activities = activities;
+    public void setAgenda(List<CreateActivityRequest> agenda) {
+        this.agenda = agenda;
+    }
+
+    public Long getOrganizerId() {
+        return organizerId;
+    }
+
+    public void setOrganizerId(Long organizerId) {
+        this.organizerId = organizerId;
     }
 }
-
-
