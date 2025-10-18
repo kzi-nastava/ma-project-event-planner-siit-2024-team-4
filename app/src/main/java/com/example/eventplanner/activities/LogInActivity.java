@@ -63,15 +63,17 @@ public class LogInActivity extends BaseActivity {
         service.login(request).enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                Log.d("LogInActivity", "Response code: " + response.code());
+                Log.d("LogInActivity", "Response message: " + response.message());
+                
                 if (response.isSuccessful() && response.body() != null) {
                     LoginResponse loginResponse = response.body();
-                    
 
                     SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
                     SharedPreferences.Editor editor = prefs.edit();
                     editor.putString("jwt_token", loginResponse.getToken());
                     editor.putString("user_role", loginResponse.getRole());
-                    editor.putString("user_id", String.valueOf(loginResponse.getUserId()));
+                    editor.putLong("user_id", loginResponse.getUserId());
                     editor.apply();
                     
 
@@ -82,12 +84,22 @@ public class LogInActivity extends BaseActivity {
                     startActivity(intent);
                     finish();
                 } else {
-                    Toast.makeText(LogInActivity.this, "Invalid credentials", Toast.LENGTH_SHORT).show();
+                    Log.e("LogInActivity", "Login failed - Code: " + response.code() + ", Message: " + response.message());
+                    if (response.errorBody() != null) {
+                        try {
+                            String errorBody = response.errorBody().string();
+                            Log.e("LogInActivity", "Error body: " + errorBody);
+                        } catch (Exception e) {
+                            Log.e("LogInActivity", "Error reading error body: " + e.getMessage());
+                        }
+                    }
+                    Toast.makeText(LogInActivity.this, "Login failed: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
+                Log.e("LogInActivity", "Network error: " + t.getMessage(), t);
                 Toast.makeText(LogInActivity.this, "Connection error: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
