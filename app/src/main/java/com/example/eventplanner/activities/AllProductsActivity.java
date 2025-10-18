@@ -139,8 +139,8 @@ public class AllProductsActivity extends BaseActivity implements ProductAdapter.
         btnFilter.setOnClickListener(v -> applyFilters());
         
         fabAddProduct.setOnClickListener(v -> {
-            // TODO: Navigate to add product activity
-            Toast.makeText(this, "Add Product functionality coming soon", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(AllProductsActivity.this, AddProductActivity.class);
+            startActivityForResult(intent, 200); // Request code 200 for product creation
         });
     }
     
@@ -374,7 +374,64 @@ public class AllProductsActivity extends BaseActivity implements ProductAdapter.
     
     @Override
     public void onEditClick(ProductDTO product) {
-        // TODO: Navigate to edit product activity
-        Toast.makeText(this, "Edit product: " + product.getName(), Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, EditProductActivity.class);
+        intent.putExtra("product", product);
+        startActivityForResult(intent, 300); // Request code 300 for product edit
+    }
+    
+    @Override
+    public void onDeleteClick(ProductDTO product) {
+        // Show confirmation dialog
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Delete Product")
+                .setMessage("Are you sure you want to delete \"" + product.getName() + "\"? This action cannot be undone.")
+                .setPositiveButton("Delete", (dialog, which) -> deleteProduct(product))
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+    
+    private void deleteProduct(ProductDTO product) {
+        SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        String token = prefs.getString("jwt_token", null);
+        
+        if (token == null) {
+            Toast.makeText(this, "Please log in first", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        ProductService productService = ApiClient.getClient(this).create(ProductService.class);
+        productService.deleteProduct("Bearer " + token, product.getId()).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(AllProductsActivity.this, "Product deleted successfully", Toast.LENGTH_SHORT).show();
+                    // Remove from local lists and refresh adapter
+                    allProducts.remove(product);
+                    filteredProducts.remove(product);
+                    productAdapter.updateProducts(filteredProducts);
+                    updateEmptyState();
+                } else {
+                    Toast.makeText(AllProductsActivity.this, "Failed to delete product", Toast.LENGTH_SHORT).show();
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(AllProductsActivity.this, "Error deleting product: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        
+        if (requestCode == 200 && resultCode == RESULT_OK) {
+            // Refresh products after adding new product
+            loadProducts();
+        } else if (requestCode == 300 && resultCode == RESULT_OK) {
+            // Refresh products after editing product
+            loadProducts();
+        }
     }
 }

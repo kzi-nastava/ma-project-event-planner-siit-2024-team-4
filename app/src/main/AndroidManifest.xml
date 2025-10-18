@@ -97,6 +97,12 @@
         <activity
             android:name=".activities.MyEventsActivity"
             android:exported="false" />
+        <activity
+            android:name=".activities.AddProductActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.EditProductActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
