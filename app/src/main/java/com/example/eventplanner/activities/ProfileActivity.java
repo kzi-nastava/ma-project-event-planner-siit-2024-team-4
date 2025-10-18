@@ -221,9 +221,7 @@ public class ProfileActivity extends BaseActivity {
             startActivity(intent);
         });
 
-        btnDeactivate.setOnClickListener(v ->
-                Toast.makeText(this, "Profile deactivated", Toast.LENGTH_SHORT).show()
-        );
+        btnDeactivate.setOnClickListener(v -> deactivateAccount());
 
         btnEOChangeImage.setOnClickListener(v -> selectEOImage());
         btnAddSPPImage.setOnClickListener(v -> selectSPPImages());
@@ -523,5 +521,53 @@ public class ProfileActivity extends BaseActivity {
             updateSPPImageDisplay();
             Toast.makeText(this, "Image removed", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void deactivateAccount() {
+        SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        String token = prefs.getString("jwt_token", null);
+
+        if (token == null) {
+            Toast.makeText(this, "Please log in first", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Show confirmation dialog
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("Deactivate Account")
+                .setMessage("Are you sure you want to deactivate your account? This action cannot be undone.")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    ProfileService service = ApiClient.getClient().create(ProfileService.class);
+                    service.deactivateAccount("Bearer " + token).enqueue(new Callback<Void>() {
+                        @Override
+                        public void onResponse(Call<Void> call, Response<Void> response) {
+                            if (response.isSuccessful()) {
+                                // Clear user data and logout
+                                SharedPreferences.Editor editor = prefs.edit();
+                                editor.remove("jwt_token");
+                                editor.remove("user_role");
+                                editor.remove("user_id");
+                                editor.apply();
+
+                                Toast.makeText(ProfileActivity.this, "Account deactivated successfully", Toast.LENGTH_SHORT).show();
+                                
+                                // Navigate to login
+                                Intent intent = new Intent(ProfileActivity.this, LogInActivity.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
+                                finish();
+                            } else {
+                                Toast.makeText(ProfileActivity.this, "Failed to deactivate account", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<Void> call, Throwable t) {
+                            Toast.makeText(ProfileActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                })
+                .setNegativeButton("No", null)
+                .show();
     }
 }

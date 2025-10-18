@@ -1,7 +1,12 @@
 package com.example.eventplanner.activities;
 
+import android.content.ContentValues;
 import android.content.SharedPreferences;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -16,18 +21,30 @@ import com.example.eventplanner.dto.EventDTO;
 import com.example.eventplanner.network.ApiClient;
 import com.example.eventplanner.network.service.EventService;
 import com.example.eventplanner.network.service.FavoriteService;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class AboutEventActivity extends BaseActivity implements OnMapReadyCallback {
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.properties.TextAlignment;
+import com.itextpdf.layout.properties.UnitValue;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+public class AboutEventActivity extends BaseActivity {
 
     private EventDTO event;
     private boolean isLoading = true;
@@ -35,17 +52,16 @@ public class AboutEventActivity extends BaseActivity implements OnMapReadyCallba
     private String userId;
     private FavoriteService favoriteService;
 
-    // UI Components
     private ProgressBar progressBar;
     private TextView eventName, eventDate, eventDescription, maxParticipants, locationText;
     private ImageView favoriteIcon;
     private Button downloadPdfBtn;
-    private MapView mapView;
-    private GoogleMap googleMap;
+    private WebView webViewMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        android.util.Log.d("AboutEventActivity", "onCreate() called");
         
         FrameLayout contentFrame = findViewById(R.id.content_frame);
         getLayoutInflater().inflate(R.layout.activity_about_event, contentFrame, true);
@@ -53,13 +69,6 @@ public class AboutEventActivity extends BaseActivity implements OnMapReadyCallba
         initViews();
         setupClickListeners();
         
-        // Initialize MapView with savedInstanceState
-        if (mapView != null) {
-            mapView.onCreate(savedInstanceState);
-            mapView.getMapAsync(this);
-        }
-        
-        // Get event ID from intent
         int eventId = getIntent().getIntExtra("event_id", -1);
         if (eventId != -1) {
             fetchEventDetails(eventId);
@@ -67,12 +76,12 @@ public class AboutEventActivity extends BaseActivity implements OnMapReadyCallba
             Toast.makeText(this, "Event ID not found", Toast.LENGTH_SHORT).show();
             finish();
         }
+        
+        setupMap();
 
-        // Get current user
         SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
         userId = prefs.getString("user_id", null);
         
-        // Initialize FavoriteService
         favoriteService = ApiClient.getClient(this).create(FavoriteService.class);
     }
 
@@ -85,14 +94,42 @@ public class AboutEventActivity extends BaseActivity implements OnMapReadyCallba
         locationText = findViewById(R.id.locationText);
         favoriteIcon = findViewById(R.id.favoriteIcon);
         downloadPdfBtn = findViewById(R.id.downloadPdfBtn);
-        mapView = findViewById(R.id.mapView);
+        webViewMap = findViewById(R.id.webViewMap);
     }
 
     private void setupClickListeners() {
         favoriteIcon.setOnClickListener(v -> toggleFavorite());
         downloadPdfBtn.setOnClickListener(v -> generatePDF());
     }
-
+    
+    private void setupMap() {
+        android.util.Log.d("AboutEventActivity", "setupMap() called");
+        if (webViewMap != null) {
+            android.util.Log.d("AboutEventActivity", "WebView is not null, setting up map");
+            webViewMap.getSettings().setJavaScriptEnabled(true);
+            webViewMap.getSettings().setLoadWithOverviewMode(true);
+            webViewMap.getSettings().setUseWideViewPort(true);
+            
+            webViewMap.setWebViewClient(new WebViewClient() {
+                @Override
+                public void onPageFinished(WebView view, String url) {
+                    super.onPageFinished(view, url);
+                    android.util.Log.d("AboutEventActivity", "Map loaded successfully");
+                }
+                
+                @Override
+                public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                    super.onReceivedError(view, errorCode, description, failingUrl);
+                    android.util.Log.e("AboutEventActivity", "WebView error: " + description + " for URL: " + failingUrl);
+                }
+            });
+            
+            android.util.Log.d("AboutEventActivity", "WebView configured successfully");
+        } else {
+            android.util.Log.e("AboutEventActivity", "WebView is null in setupMap()");
+        }
+    }
+    
     private void fetchEventDetails(int eventId) {
         isLoading = true;
         progressBar.setVisibility(View.VISIBLE);
@@ -102,6 +139,7 @@ public class AboutEventActivity extends BaseActivity implements OnMapReadyCallba
 
         EventService eventService = ApiClient.getClient(this).create(EventService.class);
         Call<EventDTO> call = eventService.getEventById(eventId);
+        
 
         call.enqueue(new Callback<EventDTO>() {
             @Override
@@ -111,12 +149,15 @@ public class AboutEventActivity extends BaseActivity implements OnMapReadyCallba
 
                 if (response.isSuccessful() && response.body() != null) {
                     event = response.body();
+                    
+                    
                     displayEventDetails();
                     
                     if (userId != null) {
                         checkIfFavorite();
                     }
                 } else {
+                    Log.e("AboutEventActivity", "Failed to load event details. Response code: " + response.code());
                     Toast.makeText(AboutEventActivity.this, "Failed to load event details", Toast.LENGTH_SHORT).show();
                     finish();
                 }
@@ -133,11 +174,15 @@ public class AboutEventActivity extends BaseActivity implements OnMapReadyCallba
     }
 
     private void displayEventDetails() {
-        if (event == null) return;
+        android.util.Log.d("AboutEventActivity", "displayEventDetails() called");
+        if (event == null) {
+            android.util.Log.d("AboutEventActivity", "Event is null, returning");
+            return;
+        }
 
+        android.util.Log.d("AboutEventActivity", "Displaying event: " + event.getName());
         eventName.setText(event.getName());
         
-        // Format date
         String formattedDate = formatDate(event.getStartDate());
         eventDate.setText("Date: " + formattedDate);
         
@@ -150,16 +195,12 @@ public class AboutEventActivity extends BaseActivity implements OnMapReadyCallba
             locationText.setText("Location: Not specified");
         }
         
-        // Update map if it's already ready
-        if (googleMap != null) {
-            updateMapLocation();
-        }
+        updateMapLocation();
     }
 
     private String formatDate(String dateString) {
         try {
-            // Simple date formatting - you might want to use SimpleDateFormat for better formatting
-            return dateString.split("T")[0]; // Get just the date part
+            return dateString.split("T")[0];
         } catch (Exception e) {
             return dateString;
         }
@@ -176,17 +217,15 @@ public class AboutEventActivity extends BaseActivity implements OnMapReadyCallba
             return;
         }
 
-        // Toggle favorite status locally first for better UX
         isFavorite = !isFavorite;
         updateFavoriteIcon();
 
-        // Get JWT token
         SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
         String token = prefs.getString("jwt_token", null);
         
         if (token == null) {
             Toast.makeText(this, "Authentication required", Toast.LENGTH_SHORT).show();
-            isFavorite = !isFavorite; // Revert local change
+            isFavorite = !isFavorite;
             updateFavoriteIcon();
             return;
         }
@@ -195,10 +234,8 @@ public class AboutEventActivity extends BaseActivity implements OnMapReadyCallba
         Call<Void> call;
 
         if (isFavorite) {
-            // Add to favorites
             call = favoriteService.addEventToFavorites(userId, event.getId(), authHeader);
         } else {
-            // Remove from favorites
             call = favoriteService.removeEventFromFavorites(userId, event.getId(), authHeader);
         }
 
@@ -218,7 +255,6 @@ public class AboutEventActivity extends BaseActivity implements OnMapReadyCallba
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                // Revert local change if API call failed
                 isFavorite = !isFavorite;
                 updateFavoriteIcon();
                 Toast.makeText(AboutEventActivity.this, "Network error", Toast.LENGTH_SHORT).show();
@@ -238,7 +274,6 @@ public class AboutEventActivity extends BaseActivity implements OnMapReadyCallba
             return;
         }
 
-        // Get JWT token
         SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
         String token = prefs.getString("jwt_token", null);
         
@@ -271,87 +306,149 @@ public class AboutEventActivity extends BaseActivity implements OnMapReadyCallba
     }
 
     private void generatePDF() {
-        // TODO: Implement PDF generation
-        Toast.makeText(this, "PDF generation - Coming Soon", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onMapReady(GoogleMap map) {
-        Log.d("AboutEvent", "onMapReady called");
-        googleMap = map;
-        
-        if (event != null && event.getLocation() != null) {
-            updateMapLocation();
-        }
-    }
-
-    private void updateMapLocation() {
-        if (googleMap == null) {
-            Log.d("AboutEvent", "GoogleMap is null, cannot update location");
+        if (event == null) {
+            Toast.makeText(this, "Event data not available", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        LatLng location;
-        String title;
-        String snippet;
+        try {
+            // Create PDF file using Scoped Storage
+            String fileName = event.getName().replaceAll("[^a-zA-Z0-9]", "_") + ".pdf";
+            
+            Uri pdfUri;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // Use MediaStore for Android 10+ (API 29+)
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
+                contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf");
+                contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+                
+                pdfUri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues);
+                if (pdfUri == null) {
+                    Toast.makeText(this, "Failed to create PDF file", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            } else {
+                // Fallback for older Android versions
+                File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                File pdfFile = new File(downloadsDir, fileName);
+                pdfUri = Uri.fromFile(pdfFile);
+            }
+
+            // Create PDF content
+            PdfWriter writer = new PdfWriter(getContentResolver().openOutputStream(pdfUri));
+            PdfDocument pdf = new PdfDocument(writer);
+            Document document = new Document(pdf);
+
+            // Add title
+            Paragraph title = new Paragraph("Event: " + event.getName())
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setFontSize(18)
+                    .setBold();
+            document.add(title);
+
+            // Add event details
+            document.add(new Paragraph("\nEvent Type: " + (event.getEventTypeName() != null ? event.getEventTypeName() : "N/A")));
+            
+            if (event.getDescription() != null && !event.getDescription().isEmpty()) {
+                document.add(new Paragraph("Description: " + event.getDescription()));
+            }
+            
+            document.add(new Paragraph("Max. participants: " + event.getParticipants()));
+            document.add(new Paragraph("Privacy type: " + (event.isPublic() ? "Public" : "Private")));
+            
+            if (event.getLocation() != null) {
+                document.add(new Paragraph("Location: " + event.getLocation().getAddress()));
+            } else {
+                document.add(new Paragraph("Location: Not specified"));
+            }
+            
+            String formattedDate = formatDate(event.getStartDate());
+            document.add(new Paragraph("Date: " + formattedDate));
+
+            // Add activities table if available
+            if (event.getActivities() != null && !event.getActivities().isEmpty()) {
+                document.add(new Paragraph("\nActivities:").setBold());
+                
+                Table table = new Table(UnitValue.createPercentArray(new float[]{2, 3, 4, 3}))
+                        .useAllAvailableWidth();
+                
+                // Add table headers
+                table.addHeaderCell(new Cell().add(new Paragraph("Time").setBold()));
+                table.addHeaderCell(new Cell().add(new Paragraph("Activity Name").setBold()));
+                table.addHeaderCell(new Cell().add(new Paragraph("Description").setBold()));
+                table.addHeaderCell(new Cell().add(new Paragraph("Location").setBold()));
+                
+                // Add activity data
+                for (com.example.eventplanner.dto.ActivityDTO activity : event.getActivities()) {
+                    String timeRange = "";
+                    if (activity.getStartTime() != null && activity.getEndTime() != null) {
+                        
+                        try {
+                            // Parse the time strings - they might be in different formats
+                            String startTime = activity.getStartTime();
+                            String endTime = activity.getEndTime();
+                            
+                            // If the time contains 'T' (ISO format), extract just the time part
+                            if (startTime.contains("T")) {
+                                startTime = startTime.split("T")[1].substring(0, 5); // Get HH:mm part
+                            }
+                            if (endTime.contains("T")) {
+                                endTime = endTime.split("T")[1].substring(0, 5); // Get HH:mm part
+                            }
+                            
+                            timeRange = startTime + " - " + endTime;
+                        } catch (Exception e) {
+                            timeRange = "N/A";
+                        }
+                    }
+                    
+                    table.addCell(new Cell().add(new Paragraph(timeRange)));
+                    table.addCell(new Cell().add(new Paragraph(activity.getName() != null ? activity.getName() : "N/A")));
+                    table.addCell(new Cell().add(new Paragraph(activity.getDescription() != null ? activity.getDescription() : "N/A")));
+                    table.addCell(new Cell().add(new Paragraph(activity.getLocation() != null ? activity.getLocation() : "N/A")));
+                }
+                
+                document.add(table);
+            }
+
+            document.close();
+
+            Toast.makeText(this, "PDF saved to Downloads: " + fileName, Toast.LENGTH_LONG).show();
+
+        } catch (IOException e) {
+            Log.e("PDF Generation", "Error creating PDF", e);
+            Toast.makeText(this, "Error creating PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+    private void updateMapLocation() {
+        android.util.Log.d("AboutEventActivity", "updateMapLocation() called");
+        if (webViewMap == null) {
+            android.util.Log.d("AboutEventActivity", "WebView is null, cannot update location");
+            return;
+        }
+
+        double latitude, longitude;
         
         if (event != null && event.getLocation() != null) {
-            // Use real event location
-            Log.d("AboutEvent", "Using real event location: " + event.getLocation().getLatitude() + ", " + event.getLocation().getLongitude());
-            location = new LatLng(event.getLocation().getLatitude(), event.getLocation().getLongitude());
-            title = event.getName();
-            snippet = event.getLocation().getName() + " - " + event.getLocation().getAddress();
+            latitude = event.getLocation().getLatitude();
+            longitude = event.getLocation().getLongitude();
+            android.util.Log.d("AboutEventActivity", "Using event location: " + latitude + ", " + longitude);
         } else {
-            // Use default location (Belgrade) for testing
-            Log.d("AboutEvent", "Using default location (Belgrade)");
-            location = new LatLng(44.7866, 20.4489); // Belgrade coordinates
-            title = "Default Location";
-            snippet = "Belgrade, Serbia";
+            latitude = 44.7866;
+            longitude = 20.4489;
+            android.util.Log.d("AboutEventActivity", "Using default location (Belgrade)");
         }
         
-        // Add marker for location
-        googleMap.addMarker(new MarkerOptions()
-                .position(location)
-                .title(title)
-                .snippet(snippet));
+        String mapUrl = "https://www.openstreetmap.org/export/embed.html?bbox=" + 
+                       (longitude - 0.01) + "," + (latitude - 0.01) + "," + 
+                       (longitude + 0.01) + "," + (latitude + 0.01) + 
+                       "&layer=mapnik&marker=" + latitude + "," + longitude;
         
-        // Move camera to location
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15));
-        
-        // Enable zoom controls
-        googleMap.getUiSettings().setZoomControlsEnabled(true);
-        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+        android.util.Log.d("AboutEventActivity", "Loading map URL: " + mapUrl);
+        webViewMap.loadUrl(mapUrl);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (mapView != null) {
-            mapView.onResume();
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (mapView != null) {
-            mapView.onPause();
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mapView != null) {
-            mapView.onDestroy();
-        }
-    }
-
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        if (mapView != null) {
-            mapView.onLowMemory();
-        }
-    }
 }

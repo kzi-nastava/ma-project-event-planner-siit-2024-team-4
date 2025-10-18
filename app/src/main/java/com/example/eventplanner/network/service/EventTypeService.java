@@ -52,3 +52,4 @@ public interface EventTypeService {
             @Path("id") Long id
     );
 }
+
