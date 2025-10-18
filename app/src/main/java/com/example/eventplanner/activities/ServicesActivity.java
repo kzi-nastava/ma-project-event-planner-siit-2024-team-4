@@ -71,7 +71,6 @@ public class ServicesActivity extends BaseActivity implements ServiceAdapter.Ser
         Intent intent = getIntent();
         isMyServices = intent.getBooleanExtra("isMyServices", false);
         
-        Log.d("ServicesActivity", "onCreate - isMyServices: " + isMyServices);
         
         if (isMyServices) {
             setTitle("My Services");
@@ -129,18 +128,15 @@ public class ServicesActivity extends BaseActivity implements ServiceAdapter.Ser
         serviceAdapter = new ServiceAdapter(services, this, isMyServices);
         recyclerServices.setLayoutManager(new LinearLayoutManager(this));
         recyclerServices.setAdapter(serviceAdapter);
-        Log.d("ServicesActivity", "RecyclerView setup complete with " + services.size() + " services");
     }
 
     private void loadServices() {
-        Log.d("ServicesActivity", "loadServices called");
         ServiceService service = ApiClient.getClient(this).create(ServiceService.class);
         
         Call<List<ServiceDTO>> call;
         if (isMyServices) {
             // Load my services - use getServicesByProviderId method
             Long providerId = getCurrentUserId();
-            Log.d("ServicesActivity", "Loading my services for provider ID: " + providerId);
             if (providerId == -1L) {
                 Toast.makeText(this, "User ID not found", Toast.LENGTH_SHORT).show();
                 return;
@@ -148,36 +144,23 @@ public class ServicesActivity extends BaseActivity implements ServiceAdapter.Ser
             call = service.getServicesByProviderId(getAuthHeader(), providerId);
         } else {
             // Load all services
-            Log.d("ServicesActivity", "Loading all services");
             call = service.getAllServices(getAuthHeader());
         }
 
         call.enqueue(new Callback<List<ServiceDTO>>() {
             @Override
             public void onResponse(Call<List<ServiceDTO>> call, retrofit2.Response<List<ServiceDTO>> response) {
-                Log.d("ServicesActivity", "Response received: " + response.code());
                 if (response.isSuccessful() && response.body() != null) {
                     services.clear();
                     List<ServiceDTO> allServices = response.body();
-                    Log.d("ServicesActivity", "Total services from backend: " + allServices.size());
-                    Log.d("ServicesActivity", "isMyServices: " + isMyServices);
-                    Log.d("ServicesActivity", "isServiceProvider: " + isServiceProvider());
                     
                     // Debug: Log raw response
-                    Log.d("ServicesActivity", "Raw response body: " + response.body().toString());
                     
                     // For now, show ALL services to debug the issue
                     services.addAll(allServices);
-                    Log.d("ServicesActivity", "Added " + services.size() + " services to display");
                     
                     for (ServiceDTO service : services) {
                         Long providerId = service.getProvider() != null ? service.getProvider().getId() : service.getProviderId();
-                        Log.d("ServicesActivity", "Service: " + service.getName() + 
-                              ", Available: " + service.isAvailable() + 
-                              ", Price: " + service.getPrice() + 
-                              ", Description: " + service.getDescription() +
-                              ", Provider ID: " + providerId +
-                              ", Provider Name: " + (service.getProvider() != null ? service.getProvider().getName() : "N/A"));
                     }
                     serviceAdapter.notifyDataSetChanged();
                 } else {
@@ -470,9 +453,7 @@ public class ServicesActivity extends BaseActivity implements ServiceAdapter.Ser
 
     private boolean isServiceProvider() {
         String userRole = getSharedPreferences("MyAppPrefs", MODE_PRIVATE).getString("user_role", null);
-        Log.d("ServicesActivity", "Current user role: " + userRole);
         boolean isSPP = "SPP".equals(userRole) || "SERVICE_PROVIDER".equals(userRole);
-        Log.d("ServicesActivity", "Is service provider: " + isSPP);
         return isSPP;
     }
 

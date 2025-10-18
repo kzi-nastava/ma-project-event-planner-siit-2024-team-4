@@ -66,7 +66,6 @@ public class EventCreateActivity extends BaseActivity {
     private WebView webViewMap;
     private android.widget.TextView tvMapError;
     
-    // Store location data from reverse geocoding
     private String selectedLocationName = "";
     private String selectedLocationAddress = "";
     private double selectedLatitude = 44.7866; // Default: Belgrade
@@ -132,7 +131,6 @@ public class EventCreateActivity extends BaseActivity {
     }
     
     private void setupMap() {
-        android.util.Log.d("EventCreateActivity", "Setting up OpenStreetMap...");
         
         if (webViewMap != null) {
             WebSettings webSettings = webViewMap.getSettings();
@@ -148,7 +146,6 @@ public class EventCreateActivity extends BaseActivity {
                 @Override
                 public void onPageFinished(WebView view, String url) {
                     super.onPageFinished(view, url);
-                    android.util.Log.d("EventCreateActivity", "Map loaded successfully: " + url);
                     tvMapError.setVisibility(View.GONE);
                 }
                 
@@ -163,7 +160,6 @@ public class EventCreateActivity extends BaseActivity {
             
             // Load interactive OpenStreetMap with Leaflet
             String mapHtml = getInteractiveMapHtml();
-            android.util.Log.d("EventCreateActivity", "Loading interactive map HTML");
             webViewMap.loadDataWithBaseURL("https://unpkg.com/", mapHtml, "text/html", "UTF-8", null);
         } else {
             android.util.Log.e("EventCreateActivity", "WebView is null!");
@@ -179,7 +175,6 @@ public class EventCreateActivity extends BaseActivity {
             runOnUiThread(() -> {
                 selectedLatitude = lat;
                 selectedLongitude = lng;
-                android.util.Log.d("EventCreateActivity", "Location selected: " + lat + ", " + lng);
                 
                 // Get address from coordinates
                 getAddressFromCoordinates(selectedLatitude, selectedLongitude);
@@ -271,11 +266,8 @@ public class EventCreateActivity extends BaseActivity {
         SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
         String userRole = prefs.getString("user_role", null);
         
-        // Debug: Show what role is stored
-        android.util.Log.d("EventCreateActivity", "isEventOrganizer() - User role: '" + userRole + "'");
         
         boolean isEO = "EO".equals(userRole) || "EVENT_ORGANIZER".equals(userRole) || "EventOrganizer".equals(userRole);
-        android.util.Log.d("EventCreateActivity", "isEventOrganizer() - Result: " + isEO);
         
         return isEO;
     }

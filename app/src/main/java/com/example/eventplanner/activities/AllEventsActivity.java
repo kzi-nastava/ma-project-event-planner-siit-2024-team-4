@@ -105,7 +105,6 @@ public class AllEventsActivity extends BaseActivity {
                 Intent intent = new Intent(AllEventsActivity.this, EventCreateActivity.class);
                 startActivityForResult(intent, 100); // Request code 100 for event creation
             });
-            Toast.makeText(this, "Create Event button is visible for Event Organizer", Toast.LENGTH_SHORT).show();
         } else {
             // Hide button for non-Event Organizers
             btnCreateEvent.setVisibility(View.GONE);

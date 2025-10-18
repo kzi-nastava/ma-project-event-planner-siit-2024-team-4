@@ -32,7 +32,6 @@ public final class GlideAuthModule extends AppGlideModule {
                 okhttp3.Request.Builder requestBuilder = originalRequest.newBuilder()
                         .header("Authorization", "Bearer " + finalToken);
                 
-                Log.d("GlideAuthModule", "Adding Authorization header to image request: " + originalRequest.url());
                 
                 return chain.proceed(requestBuilder.build());
             });
@@ -44,6 +43,7 @@ public final class GlideAuthModule extends AppGlideModule {
         registry.replace(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(okHttpClient));
     }
 }
+
 
 
 
