@@ -85,12 +85,8 @@ public class ServiceDetailsActivity extends AppCompatActivity {
         serviceAPI.getServiceById(getAuthHeader(), serviceId).enqueue(new Callback<ServiceDTO>() {
             @Override
             public void onResponse(Call<ServiceDTO> call, Response<ServiceDTO> response) {
-                Log.d("ServiceDetails", "Response received: " + response.code());
                 if (response.isSuccessful() && response.body() != null) {
                     service = response.body();
-                    Log.d("ServiceDetails", "Service loaded: " + service.getName());
-                    Log.d("ServiceDetails", "Provider: " + (service.getProvider() != null ? service.getProvider().getName() : "NULL"));
-                    Log.d("ServiceDetails", "Provider ID: " + (service.getProvider() != null ? service.getProvider().getId() : "NULL"));
                     populateViews();
                 } else {
                     Log.e("ServiceDetails", "Error loading service: " + response.code() + " " + response.message());
@@ -177,7 +173,6 @@ public class ServiceDetailsActivity extends AppCompatActivity {
             if (imageUrl.startsWith("/uploads/")) {
                 imageUrl = ApiConfig.IMG_URL + imageUrl;
             }
-            Log.d("ServiceDetails", "Loading image: " + imageUrl);
             Glide.with(this)
                     .load(imageUrl)
                     .placeholder(R.drawable.placeholder_image)

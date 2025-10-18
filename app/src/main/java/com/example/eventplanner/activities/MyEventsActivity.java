@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.SearchView;
@@ -19,8 +20,6 @@ import com.example.eventplanner.dto.EventDTO;
 import com.example.eventplanner.network.ApiClient;
 import com.example.eventplanner.network.service.EventService;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.navigation.NavigationView;
-
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -29,15 +28,16 @@ import retrofit2.Response;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AllEventsActivity extends BaseActivity {
+public class MyEventsActivity extends BaseActivity {
 
-    private RecyclerView rvAllEvents;
-    private EventAdapterNoImage allEventAdapter;
-    private List<EventDTO> allEventsList;
+    private RecyclerView rvMyEvents;
+    private EventAdapterNoImage myEventAdapter;
+    private List<EventDTO> myEventsList;
     private Spinner spinnerFilter;
     private SearchView searchView;
     private ProgressBar progressBar;
     private MaterialButton btnCreateEvent;
+    private TextView allEventsTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,20 +46,24 @@ public class AllEventsActivity extends BaseActivity {
         FrameLayout contentFrame = findViewById(R.id.content_frame);
         getLayoutInflater().inflate(R.layout.activity_all_events, contentFrame, true);
 
-        rvAllEvents = findViewById(R.id.rvAllEvents);
+        rvMyEvents = findViewById(R.id.rvAllEvents);
         searchView = findViewById(R.id.searchView);
         spinnerFilter = findViewById(R.id.spinnerFilter);
         progressBar = findViewById(R.id.progressBar);
         btnCreateEvent = findViewById(R.id.btnCreateEvent);
+        allEventsTitle = findViewById(R.id.allEventsTitle);
+        
+        // Change title to "My Events"
+        allEventsTitle.setText("My Events");
 
-        allEventsList = new ArrayList<>();
+        myEventsList = new ArrayList<>();
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        rvAllEvents.setLayoutManager(linearLayoutManager);
-        allEventAdapter = new EventAdapterNoImage(new ArrayList<>(), this);
-        rvAllEvents.setAdapter(allEventAdapter);
+        rvMyEvents.setLayoutManager(linearLayoutManager);
+        myEventAdapter = new EventAdapterNoImage(new ArrayList<>(), this);
+        rvMyEvents.setAdapter(myEventAdapter);
 
-        loadEventsFromServer();
+        loadMyEventsFromServer();
         
         setupCreateEventButton();
 
@@ -71,7 +75,7 @@ public class AllEventsActivity extends BaseActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                allEventAdapter.filter(newText);  // Filtrira događaje
+                myEventAdapter.filter(newText);
                 return false;
             }
         });
@@ -102,11 +106,10 @@ public class AllEventsActivity extends BaseActivity {
         if ("EventOrganizer".equals(userRole)) {
             btnCreateEvent.setVisibility(View.VISIBLE);
             btnCreateEvent.setOnClickListener(v -> {
-                Intent intent = new Intent(AllEventsActivity.this, EventCreateActivity.class);
-                startActivityForResult(intent, 100); // Request code 100 for event creation
+                Intent intent = new Intent(MyEventsActivity.this, EventCreateActivity.class);
+                startActivityForResult(intent, 100);
             });
         } else {
-            // Hide button for non-Event Organizers
             btnCreateEvent.setVisibility(View.GONE);
         }
     }
@@ -114,22 +117,32 @@ public class AllEventsActivity extends BaseActivity {
     private void filterEvents(String filter) {
         List<EventDTO> filteredEvents = new ArrayList<>();
         if (filter.equals("All")) {
-            filteredEvents.addAll(allEventsList);
+            filteredEvents.addAll(myEventsList);
         } else {
-            for (EventDTO event : allEventsList) {
+            for (EventDTO event : myEventsList) {
                 if (event.getEventTypeName().equalsIgnoreCase(filter)) {
                     filteredEvents.add(event);
                 }
             }
         }
-        allEventAdapter.updateEvents(filteredEvents);
+        myEventAdapter.updateEvents(filteredEvents);
     }
 
-    private void loadEventsFromServer() {
+    private void loadMyEventsFromServer() {
         progressBar.setVisibility(View.VISIBLE);
         
+        SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        String token = prefs.getString("jwt_token", null);
+        String userId = prefs.getString("user_id", null);
+        
+        if (token == null || userId == null) {
+            progressBar.setVisibility(View.GONE);
+            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
         EventService eventService = ApiClient.getClient(this).create(EventService.class);
-        Call<List<EventDTO>> call = eventService.getAllEvents();
+        Call<List<EventDTO>> call = eventService.getMyEvents("Bearer " + token, userId);
         
         call.enqueue(new Callback<List<EventDTO>>() {
             @Override
@@ -137,18 +150,18 @@ public class AllEventsActivity extends BaseActivity {
                 progressBar.setVisibility(View.GONE);
                 
                 if (response.isSuccessful() && response.body() != null) {
-                    allEventsList.clear();
-                    allEventsList.addAll(response.body());
-                    allEventAdapter.updateEvents(allEventsList);
+                    myEventsList.clear();
+                    myEventsList.addAll(response.body());
+                    myEventAdapter.updateEvents(myEventsList);
                 } else {
-                    Toast.makeText(AllEventsActivity.this, "Failed to load events", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MyEventsActivity.this, "Failed to load my events", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<EventDTO>> call, Throwable t) {
                 progressBar.setVisibility(View.GONE);
-                Toast.makeText(AllEventsActivity.this, "Connection error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MyEventsActivity.this, "Connection error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -158,8 +171,7 @@ public class AllEventsActivity extends BaseActivity {
         super.onActivityResult(requestCode, resultCode, data);
         
         if (requestCode == 100 && resultCode == RESULT_OK) {
-            loadEventsFromServer();
+            loadMyEventsFromServer();
         }
     }
-
 }

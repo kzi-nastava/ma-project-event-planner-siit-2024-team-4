@@ -15,10 +15,14 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
+import retrofit2.http.Path;
 
 public interface ProfileService {
     @GET("profile")
     Call<ProfileDTO> getProfile(@Header("Authorization") String token);
+    
+    @GET("profile/{id}")
+    Call<ProfileDTO> getProfileById(@Header("Authorization") String token, @Path("id") Long id);
     
     @Multipart
     @PUT("profile")

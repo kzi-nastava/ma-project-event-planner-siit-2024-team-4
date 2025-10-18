@@ -47,17 +47,13 @@ public class BaseActivity extends AppCompatActivity {
         String token = prefs.getString("jwt_token", null);
         String userRole = prefs.getString("user_role", null);
 
-        // Clear existing menu
         navigationView.getMenu().clear();
 
         if (token == null) {
-            // User not logged in - show guest menu
             navigationView.inflateMenu(R.menu.nav_menu_guest);
         } else {
-            // User logged in - show logged in menu
             navigationView.inflateMenu(R.menu.nav_menu_logged_in);
 
-            // Show/hide role-specific menu items
             MenuItem myEventsItem = navigationView.getMenu().findItem(R.id.nav_my_events);
             MenuItem favoriteEventsItem = navigationView.getMenu().findItem(R.id.nav_favorite_events);
             MenuItem myServicesItem = navigationView.getMenu().findItem(R.id.nav_my_services);
@@ -104,8 +100,7 @@ public class BaseActivity extends AppCompatActivity {
             } else if (id == R.id.nav_all_events) {
                 startActivity(new Intent(this, AllEventsActivity.class));
             } else if (id == R.id.nav_my_events) {
-                // TODO: Create MyEventsActivity for Event Organizers
-                Toast.makeText(this, "My Events - Coming Soon", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this, MyEventsActivity.class));
             } else if (id == R.id.nav_favorite_events) {
                 startActivity(new Intent(this, FavoriteEventsActivity.class));
             } else if (id == R.id.nav_all_services) {
@@ -121,10 +116,13 @@ public class BaseActivity extends AppCompatActivity {
                 intent.putExtra("isMyServices", true);
                 startActivity(intent);
             } else if (id == R.id.nav_all_products) {
-                startActivity(new Intent(this, AllProductsAndServicesActivity.class));
+                Intent intent = new Intent(this, AllProductsActivity.class);
+                intent.putExtra("isMyProducts", false);
+                startActivity(intent);
             } else if (id == R.id.nav_my_products) {
-                // TODO: Create MyProductsActivity
-                Toast.makeText(this, "My Products - Coming Soon", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(this, AllProductsActivity.class);
+                intent.putExtra("isMyProducts", true);
+                startActivity(intent);
             }
 
             drawerLayout.closeDrawer(navigationView);
@@ -161,7 +159,6 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Update menu when activity resumes (in case login state changed)
         updateNavigationMenu();
     }
 }

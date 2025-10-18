@@ -80,16 +80,13 @@ public class MainActivity extends BaseActivity {
 
         // OnClickListener za "View All Events" button
         viewAllButton.setOnClickListener(v -> {
-            Log.d("MainActivity", "View All button clicked");
             Intent intent = new Intent(MainActivity.this, AllEventsActivity.class);
             startActivity(intent);
         });
 
         // OnClickListener za "View All Products and Services" button
         viewAllProductsButton.setOnClickListener(v -> {
-            Log.d("MainActivity", "View All Products button clicked");
-
-            Intent intent = new Intent(MainActivity.this, AllProductsAndServicesActivity.class);
+            Intent intent = new Intent(MainActivity.this, AllProductsActivity.class);
             startActivity(intent);
         });
     }
