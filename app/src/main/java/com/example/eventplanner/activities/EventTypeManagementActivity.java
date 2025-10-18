@@ -228,9 +228,7 @@ public class EventTypeManagementActivity extends BaseActivity {
             }
         }
         
-        Log.d(TAG, "Selected categories count: " + selectedCategories.size());
         for (Category cat : selectedCategories) {
-            Log.d(TAG, "Selected category: " + cat.getName() + " (ID: " + cat.getId() + ")");
         }
         
         com.example.eventplanner.dto.CreateEventTypeDTO dto = 
@@ -239,23 +237,15 @@ public class EventTypeManagementActivity extends BaseActivity {
         String token = getToken();
         if (token == null) return;
         
-        Log.d(TAG, "Creating event type: " + name + " - " + description);
-        Log.d(TAG, "DTO categories count: " + dto.getSuggestedCategories().size());
         for (Category cat : dto.getSuggestedCategories()) {
-            Log.d(TAG, "DTO category: " + cat.getName() + " (ID: " + cat.getId() + ")");
         }
         
         EventTypeService service = ApiClient.getClient(this).create(EventTypeService.class);
         service.createEventType("Bearer " + token, dto).enqueue(new Callback<EventTypeDTO>() {
             @Override
             public void onResponse(Call<EventTypeDTO> call, Response<EventTypeDTO> response) {
-                Log.d(TAG, "Response code: " + response.code());
                 if (response.isSuccessful()) {
-                    Log.d(TAG, "Event type created successfully");
                     if (response.body() != null) {
-                        Log.d(TAG, "Created event type: " + response.body().getName());
-                        Log.d(TAG, "Created event type categories count: " + 
-                            (response.body().getSuggestedCategories() != null ? response.body().getSuggestedCategories().size() : 0));
                     }
                     Toast.makeText(EventTypeManagementActivity.this, "Event type created successfully", Toast.LENGTH_SHORT).show();
                     clearForm();
@@ -296,8 +286,6 @@ public class EventTypeManagementActivity extends BaseActivity {
             }
         }
         
-        Log.d(TAG, "Updating event type: " + name + " - " + description);
-        Log.d(TAG, "Updated categories count: " + selectedCategories.size());
         
         com.example.eventplanner.dto.UpdateEventTypeDTO dto = 
             new com.example.eventplanner.dto.UpdateEventTypeDTO(name, description, selectedCategories);
@@ -309,9 +297,7 @@ public class EventTypeManagementActivity extends BaseActivity {
         service.updateEventType("Bearer " + token, editingEventType.getId(), dto).enqueue(new Callback<EventTypeDTO>() {
             @Override
             public void onResponse(Call<EventTypeDTO> call, Response<EventTypeDTO> response) {
-                Log.d(TAG, "Update response code: " + response.code());
                 if (response.isSuccessful()) {
-                    Log.d(TAG, "Event type updated successfully");
                     Toast.makeText(EventTypeManagementActivity.this, "Event type updated successfully", Toast.LENGTH_SHORT).show();
                     clearForm();
                     loadEventTypes();

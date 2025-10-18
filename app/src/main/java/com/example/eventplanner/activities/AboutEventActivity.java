@@ -61,7 +61,6 @@ public class AboutEventActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        android.util.Log.d("AboutEventActivity", "onCreate() called");
         
         FrameLayout contentFrame = findViewById(R.id.content_frame);
         getLayoutInflater().inflate(R.layout.activity_about_event, contentFrame, true);
@@ -103,9 +102,7 @@ public class AboutEventActivity extends BaseActivity {
     }
     
     private void setupMap() {
-        android.util.Log.d("AboutEventActivity", "setupMap() called");
         if (webViewMap != null) {
-            android.util.Log.d("AboutEventActivity", "WebView is not null, setting up map");
             webViewMap.getSettings().setJavaScriptEnabled(true);
             webViewMap.getSettings().setLoadWithOverviewMode(true);
             webViewMap.getSettings().setUseWideViewPort(true);
@@ -114,7 +111,6 @@ public class AboutEventActivity extends BaseActivity {
                 @Override
                 public void onPageFinished(WebView view, String url) {
                     super.onPageFinished(view, url);
-                    android.util.Log.d("AboutEventActivity", "Map loaded successfully");
                 }
                 
                 @Override
@@ -124,7 +120,6 @@ public class AboutEventActivity extends BaseActivity {
                 }
             });
             
-            android.util.Log.d("AboutEventActivity", "WebView configured successfully");
         } else {
             android.util.Log.e("AboutEventActivity", "WebView is null in setupMap()");
         }
@@ -174,13 +169,10 @@ public class AboutEventActivity extends BaseActivity {
     }
 
     private void displayEventDetails() {
-        android.util.Log.d("AboutEventActivity", "displayEventDetails() called");
         if (event == null) {
-            android.util.Log.d("AboutEventActivity", "Event is null, returning");
             return;
         }
 
-        android.util.Log.d("AboutEventActivity", "Displaying event: " + event.getName());
         eventName.setText(event.getName());
         
         String formattedDate = formatDate(event.getStartDate());
@@ -424,9 +416,7 @@ public class AboutEventActivity extends BaseActivity {
 
 
     private void updateMapLocation() {
-        android.util.Log.d("AboutEventActivity", "updateMapLocation() called");
         if (webViewMap == null) {
-            android.util.Log.d("AboutEventActivity", "WebView is null, cannot update location");
             return;
         }
 
@@ -435,11 +425,9 @@ public class AboutEventActivity extends BaseActivity {
         if (event != null && event.getLocation() != null) {
             latitude = event.getLocation().getLatitude();
             longitude = event.getLocation().getLongitude();
-            android.util.Log.d("AboutEventActivity", "Using event location: " + latitude + ", " + longitude);
         } else {
             latitude = 44.7866;
             longitude = 20.4489;
-            android.util.Log.d("AboutEventActivity", "Using default location (Belgrade)");
         }
         
         String mapUrl = "https://www.openstreetmap.org/export/embed.html?bbox=" + 
@@ -447,7 +435,6 @@ public class AboutEventActivity extends BaseActivity {
                        (longitude + 0.01) + "," + (latitude + 0.01) + 
                        "&layer=mapnik&marker=" + latitude + "," + longitude;
         
-        android.util.Log.d("AboutEventActivity", "Loading map URL: " + mapUrl);
         webViewMap.loadUrl(mapUrl);
     }
 

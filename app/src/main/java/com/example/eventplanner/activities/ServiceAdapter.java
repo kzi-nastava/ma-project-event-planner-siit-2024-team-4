@@ -47,7 +47,6 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ServiceDTO service = services.get(position);
-        Log.d("ServiceAdapter", "Binding service: " + service.getName() + " at position " + position);
         
         holder.tvName.setText(service.getName());
         holder.tvDescription.setText(service.getDescription());
@@ -67,7 +66,6 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ViewHold
             if (imageUrl.startsWith("/uploads/")) {
                 imageUrl = IMG_URL + imageUrl;
             }
-            Log.d("ServiceAdapter", "Loading image: " + imageUrl);
             Glide.with(holder.itemView.getContext())
                     .load(imageUrl)
                     .placeholder(R.drawable.placeholder_image)

@@ -75,9 +75,7 @@ public class CategoriesActivity extends BaseActivity implements CategoryAdapter.
 
     private boolean isAdmin() {
         String userRole = getSharedPreferences("MyAppPrefs", MODE_PRIVATE).getString("user_role", null);
-        Log.d("CategoriesActivity", "User role: " + userRole);
         boolean isAdmin = userRole != null && ("ADMIN".equals(userRole) || "Admin".equals(userRole));
-        Log.d("CategoriesActivity", "Is admin: " + isAdmin);
         return isAdmin;
     }
 

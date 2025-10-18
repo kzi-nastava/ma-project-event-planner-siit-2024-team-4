@@ -66,8 +66,6 @@ public class LogInActivity extends BaseActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     LoginResponse loginResponse = response.body();
                     
-                    Log.d("LogInActivity", "Login response - Role: " + loginResponse.getRole());
-                    Log.d("LogInActivity", "Login response - Email: " + loginResponse.getEmail());
 
                     SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
                     SharedPreferences.Editor editor = prefs.edit();
@@ -76,7 +74,6 @@ public class LogInActivity extends BaseActivity {
                     editor.putString("user_id", String.valueOf(loginResponse.getUserId()));
                     editor.apply();
                     
-                    Log.d("LogInActivity", "Saved role to SharedPreferences: " + loginResponse.getRole());
 
                     Toast.makeText(LogInActivity.this, "Welcome " + loginResponse.getEmail(), Toast.LENGTH_SHORT).show();
 

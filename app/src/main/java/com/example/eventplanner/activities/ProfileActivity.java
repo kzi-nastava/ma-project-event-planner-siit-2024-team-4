@@ -13,9 +13,11 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CalendarView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -29,10 +31,19 @@ import com.example.eventplanner.dto.UpdateProfileDTO;
 import com.example.eventplanner.network.ApiClient;
 import com.example.eventplanner.network.MultipartHelper;
 import com.example.eventplanner.network.service.ProfileService;
+import com.example.eventplanner.network.service.EventService;
+import com.example.eventplanner.network.service.FavoriteService;
+import com.example.eventplanner.dto.EventDTO;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.text.SimpleDateFormat;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -45,6 +56,8 @@ public class ProfileActivity extends BaseActivity {
     private Button btnEditProfile, btnSaveChanges, btnCancel, btnChangePassword, btnDeactivate;
     private Button btnEOChangeImage, btnAddSPPImage, btnPrevImage, btnNextImage, btnRemoveEOImage, btnRemoveSPPImage;
     private ImageView ivEOProfile, ivSPPProfile;
+    private CalendarView calendarView;
+    private TextView tvCalendarInfo;
 
     private boolean isEditing = false;
     private String userRole;
@@ -54,6 +67,12 @@ public class ProfileActivity extends BaseActivity {
     private List<String> originalImageURLs = new ArrayList<>();
     private List<Bitmap> selectedImages = new ArrayList<>();
     private int currentImageIndex = 0;
+    
+    // Calendar variables
+    private List<EventDTO> favoriteEvents = new ArrayList<>();
+    private List<EventDTO> myEvents = new ArrayList<>();
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+    private Set<String> datesWithEvents = new HashSet<>();
     
     private ActivityResultLauncher<String> requestPermissionLauncher;
     private ActivityResultLauncher<Intent> imagePickerLauncher;
@@ -120,6 +139,9 @@ public class ProfileActivity extends BaseActivity {
         
         ivEOProfile = findViewById(R.id.ivEOProfile);
         ivSPPProfile = findViewById(R.id.ivSPPProfile);
+        
+        calendarView = findViewById(R.id.calendarView);
+        tvCalendarInfo = findViewById(R.id.tvCalendarInfo);
     }
 
     private void loadUserProfile() {
@@ -166,7 +188,6 @@ public class ProfileActivity extends BaseActivity {
         if (user.getImageURLs() != null) {
             existingImageURLs.clear();
             originalImageURLs.clear();
-            Log.d("ProfileActivity", "Loading profile - user.getImageURLs() size: " + user.getImageURLs().size());
             for (String imageUrl : user.getImageURLs()) {
                 String fullUrl;
                 if (imageUrl.startsWith("http")) {
@@ -180,11 +201,8 @@ public class ProfileActivity extends BaseActivity {
                 }
                 existingImageURLs.add(fullUrl);
                 originalImageURLs.add(fullUrl);
-                Log.d("ProfileActivity", "Added existing image to lists: " + fullUrl);
             }
-            Log.d("ProfileActivity", "existingImageURLs size after loading: " + existingImageURLs.size());
         } else {
-            Log.d("ProfileActivity", "user.getImageURLs() is null");
         }
 
         if ("EO".equals(userRole) || "EVENT_ORGANIZER".equals(userRole)) {
@@ -209,6 +227,8 @@ public class ProfileActivity extends BaseActivity {
             currentImageIndex = 0;
             updateSPPImageDisplay();
         }
+        
+        loadCalendarEvents();
     }
 
     private void setupButtons() {
@@ -229,6 +249,8 @@ public class ProfileActivity extends BaseActivity {
         btnNextImage.setOnClickListener(v -> nextImage());
         btnRemoveEOImage.setOnClickListener(v -> removeEOImage());
         btnRemoveSPPImage.setOnClickListener(v -> removeSPPImage());
+        
+        setupCalendar();
     }
 
     private void toggleEditMode(boolean enable) {
@@ -291,35 +313,26 @@ public class ProfileActivity extends BaseActivity {
         }
 
         List<String> cleanedImageURLs = new ArrayList<>();
-        Log.d("ProfileActivity", "existingImageURLs size: " + existingImageURLs.size());
         for (String url : existingImageURLs) {
-            Log.d("ProfileActivity", "Processing URL: " + url);
             if (url != null && url.startsWith(BASE_URL)) {
                 String relativePath = url.replace(BASE_URL, "");
                 cleanedImageURLs.add(relativePath);
-                Log.d("ProfileActivity", "Added existing image: " + relativePath);
             } else {
-                Log.d("ProfileActivity", "Skipped URL (not server URL): " + url);
             }
         }
-        Log.d("ProfileActivity", "cleanedImageURLs size: " + cleanedImageURLs.size());
         for (String url : cleanedImageURLs) {
-            Log.d("ProfileActivity", "cleanedImageURLs item: " + url);
         }
-        Log.d("ProfileActivity", "selectedImages size: " + selectedImages.size());
         updateDTO.setImageURLs(cleanedImageURLs);
 
         ProfileService profileService = ApiClient.getClient(this).create(ProfileService.class);
 
         String json = convertToJson(updateDTO);
-        Log.d("ProfileActivity", "Sending JSON to backend: " + json);
         okhttp3.RequestBody requestBody = okhttp3.RequestBody.create(
                 okhttp3.MediaType.parse("application/json"), json);
 
         List<okhttp3.MultipartBody.Part> fileParts = new ArrayList<>();
         if (!selectedImages.isEmpty()) {
             fileParts = MultipartHelper.createMultipartList(selectedImages);
-            Log.d("ProfileActivity", "Created " + fileParts.size() + " multipart files for new images");
         }
 
         profileService.updateProfile("Bearer " + token, requestBody, fileParts.toArray(new okhttp3.MultipartBody.Part[0])).enqueue(new Callback<ProfileDTO>() {
@@ -430,7 +443,6 @@ public class ProfileActivity extends BaseActivity {
                         selectedImages.add(bitmap);
                         String previewUrl = imageUri.toString();
                         existingImageURLs.add(previewUrl);
-                        Log.d("ProfileActivity", "Added new image to existingImageURLs: " + previewUrl);
                     } catch (IOException e) {
                         Toast.makeText(this, "Error loading image " + (i + 1), Toast.LENGTH_SHORT).show();
                         e.printStackTrace();
@@ -449,7 +461,6 @@ public class ProfileActivity extends BaseActivity {
                     selectedImages.add(bitmap);
                     String previewUrl = imageUri.toString();
                     existingImageURLs.add(previewUrl);
-                    Log.d("ProfileActivity", "Added single new image to existingImageURLs: " + previewUrl);
                     updateSPPImageDisplay();
                     Toast.makeText(this, "Image selected", Toast.LENGTH_SHORT).show();
                 } catch (IOException e) {
@@ -532,7 +543,6 @@ public class ProfileActivity extends BaseActivity {
             return;
         }
 
-        // Show confirmation dialog
         new android.app.AlertDialog.Builder(this)
                 .setTitle("Deactivate Account")
                 .setMessage("Are you sure you want to deactivate your account? This action cannot be undone.")
@@ -551,7 +561,6 @@ public class ProfileActivity extends BaseActivity {
 
                                 Toast.makeText(ProfileActivity.this, "Account deactivated successfully", Toast.LENGTH_SHORT).show();
                                 
-                                // Navigate to login
                                 Intent intent = new Intent(ProfileActivity.this, LogInActivity.class);
                                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                                 startActivity(intent);
@@ -569,5 +578,139 @@ public class ProfileActivity extends BaseActivity {
                 })
                 .setNegativeButton("No", null)
                 .show();
+    }
+    
+    private void setupCalendar() {
+        calendarView.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
+            Calendar selectedDate = Calendar.getInstance();
+            selectedDate.set(year, month, dayOfMonth);
+            String selectedDateStr = dateFormat.format(selectedDate.getTime());
+            
+            List<EventDTO> eventsOnDate = getEventsForDate(selectedDateStr);
+            
+            if (eventsOnDate.isEmpty()) {
+                tvCalendarInfo.setText("No events on " + selectedDateStr);
+            } else {
+                StringBuilder eventInfo = new StringBuilder("📅 Events on " + selectedDateStr + ":\n");
+                for (EventDTO event : eventsOnDate) {
+                    eventInfo.append("• ").append(event.getName()).append("\n");
+                }
+                tvCalendarInfo.setText(eventInfo.toString());
+            }
+        });
+        
+        loadCalendarEvents();
+    }
+    
+    private void loadCalendarEvents() {
+        SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        String token = prefs.getString("jwt_token", null);
+        String userId = prefs.getString("user_id", null);
+        
+        if (token == null || userId == null) {
+            tvCalendarInfo.setText("Please log in to view events");
+            return;
+        }
+        
+        FavoriteService favoriteService = ApiClient.getClient(this).create(FavoriteService.class);
+        favoriteService.getFavoriteEvents(userId, "Bearer " + token).enqueue(new Callback<List<EventDTO>>() {
+            @Override
+            public void onResponse(Call<List<EventDTO>> call, Response<List<EventDTO>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    favoriteEvents.clear();
+                    favoriteEvents.addAll(response.body());
+                    updateDatesWithEvents();
+                } else {
+                    Log.e("ProfileActivity", "Failed to load favorite events - Response code: " + response.code());
+                    if (response.errorBody() != null) {
+                        try {
+                            Log.e("ProfileActivity", "Error body: " + response.errorBody().string());
+                        } catch (Exception e) {
+                            Log.e("ProfileActivity", "Error reading error body: " + e.getMessage());
+                        }
+                    }
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<List<EventDTO>> call, Throwable t) {
+                Log.e("ProfileActivity", "Error loading favorite events: " + t.getMessage());
+                t.printStackTrace();
+            }
+        });
+        
+        if ("EVENT_ORGANIZER".equals(userRole)) {
+            EventService eventService = ApiClient.getClient(this).create(EventService.class);
+            eventService.getMyEvents("Bearer " + token, userId).enqueue(new Callback<List<EventDTO>>() {
+                @Override
+                public void onResponse(Call<List<EventDTO>> call, Response<List<EventDTO>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        myEvents.clear();
+                        myEvents.addAll(response.body());
+                        updateDatesWithEvents();
+                    } else {
+                        Log.e("ProfileActivity", "Failed to load my events - Response code: " + response.code());
+                        if (response.errorBody() != null) {
+                            try {
+                                Log.e("ProfileActivity", "Error body: " + response.errorBody().string());
+                            } catch (Exception e) {
+                                Log.e("ProfileActivity", "Error reading error body: " + e.getMessage());
+                            }
+                        }
+                    }
+                }
+                
+                @Override
+                public void onFailure(Call<List<EventDTO>> call, Throwable t) {
+                    Log.e("ProfileActivity", "Error loading my events: " + t.getMessage());
+                    t.printStackTrace();
+                }
+            });
+        }
+    }
+    
+    private List<EventDTO> getEventsForDate(String dateStr) {
+        List<EventDTO> eventsOnDate = new ArrayList<>();
+        
+        for (EventDTO event : favoriteEvents) {
+            if (event.getStartDate() != null && event.getStartDate().startsWith(dateStr)) {
+                eventsOnDate.add(event);
+            }
+        }
+        
+        for (EventDTO event : myEvents) {
+            if (event.getStartDate() != null && event.getStartDate().startsWith(dateStr)) {
+                eventsOnDate.add(event);
+            }
+        }
+        
+        return eventsOnDate;
+    }
+    
+    private void updateDatesWithEvents() {
+        datesWithEvents.clear();
+        
+        for (EventDTO event : favoriteEvents) {
+            if (event.getStartDate() != null && !event.getStartDate().isEmpty()) {
+                String dateStr = event.getStartDate().substring(0, Math.min(10, event.getStartDate().length()));
+                datesWithEvents.add(dateStr);
+            }
+        }
+        
+        for (EventDTO event : myEvents) {
+            if (event.getStartDate() != null && !event.getStartDate().isEmpty()) {
+                String dateStr = event.getStartDate().substring(0, Math.min(10, event.getStartDate().length()));
+                datesWithEvents.add(dateStr);
+            }
+        }
+        
+        
+        runOnUiThread(() -> {
+            if (datesWithEvents.isEmpty()) {
+                tvCalendarInfo.setText("No events found. Tap on a date to check for events.");
+            } else {
+                tvCalendarInfo.setText("Found events on " + datesWithEvents.size() + " dates. Tap on a date to view events.");
+            }
+        });
     }
 }

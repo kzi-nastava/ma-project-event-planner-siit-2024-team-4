@@ -49,7 +49,6 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         holder.tvName.setText(item.name);
         holder.tvDescription.setText(item.description);
         
-        Log.d("CategoryAdapter", "canManage: " + canManage + ", isPendingList: " + isPendingList);
         
         if (canManage) {
             if (isPendingList) {

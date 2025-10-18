@@ -47,17 +47,13 @@ public class BaseActivity extends AppCompatActivity {
         String token = prefs.getString("jwt_token", null);
         String userRole = prefs.getString("user_role", null);
 
-        // Clear existing menu
         navigationView.getMenu().clear();
 
         if (token == null) {
-            // User not logged in - show guest menu
             navigationView.inflateMenu(R.menu.nav_menu_guest);
         } else {
-            // User logged in - show logged in menu
             navigationView.inflateMenu(R.menu.nav_menu_logged_in);
 
-            // Show/hide role-specific menu items
             MenuItem myEventsItem = navigationView.getMenu().findItem(R.id.nav_my_events);
             MenuItem favoriteEventsItem = navigationView.getMenu().findItem(R.id.nav_favorite_events);
             MenuItem myServicesItem = navigationView.getMenu().findItem(R.id.nav_my_services);
@@ -161,7 +157,6 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Update menu when activity resumes (in case login state changed)
         updateNavigationMenu();
     }
 }
