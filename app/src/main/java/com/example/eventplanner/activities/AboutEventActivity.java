@@ -82,6 +82,10 @@ public class AboutEventActivity extends BaseActivity {
         userId = prefs.getString("user_id", null);
         
         favoriteService = ApiClient.getClient(this).create(FavoriteService.class);
+        
+        if (favoriteIcon != null) {
+            favoriteIcon.setImageResource(R.drawable.heart_empty);
+        }
     }
 
     private void initViews() {
@@ -144,15 +148,12 @@ public class AboutEventActivity extends BaseActivity {
 
                 if (response.isSuccessful() && response.body() != null) {
                     event = response.body();
-                    
-                    
                     displayEventDetails();
                     
                     if (userId != null) {
                         checkIfFavorite();
                     }
                 } else {
-                    Log.e("AboutEventActivity", "Failed to load event details. Response code: " + response.code());
                     Toast.makeText(AboutEventActivity.this, "Failed to load event details", Toast.LENGTH_SHORT).show();
                     finish();
                 }
@@ -238,7 +239,6 @@ public class AboutEventActivity extends BaseActivity {
                     String message = isFavorite ? "Added to favorites" : "Removed from favorites";
                     Toast.makeText(AboutEventActivity.this, message, Toast.LENGTH_SHORT).show();
                 } else {
-                    // Revert local change if API call failed
                     isFavorite = !isFavorite;
                     updateFavoriteIcon();
                     Toast.makeText(AboutEventActivity.this, "Failed to update favorites", Toast.LENGTH_SHORT).show();
@@ -304,12 +304,10 @@ public class AboutEventActivity extends BaseActivity {
         }
 
         try {
-            // Create PDF file using Scoped Storage
             String fileName = event.getName().replaceAll("[^a-zA-Z0-9]", "_") + ".pdf";
             
             Uri pdfUri;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                // Use MediaStore for Android 10+ (API 29+)
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
                 contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf");
@@ -321,25 +319,21 @@ public class AboutEventActivity extends BaseActivity {
                     return;
                 }
             } else {
-                // Fallback for older Android versions
                 File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
                 File pdfFile = new File(downloadsDir, fileName);
                 pdfUri = Uri.fromFile(pdfFile);
             }
 
-            // Create PDF content
             PdfWriter writer = new PdfWriter(getContentResolver().openOutputStream(pdfUri));
             PdfDocument pdf = new PdfDocument(writer);
             Document document = new Document(pdf);
 
-            // Add title
             Paragraph title = new Paragraph("Event: " + event.getName())
                     .setTextAlignment(TextAlignment.CENTER)
                     .setFontSize(18)
                     .setBold();
             document.add(title);
 
-            // Add event details
             document.add(new Paragraph("\nEvent Type: " + (event.getEventTypeName() != null ? event.getEventTypeName() : "N/A")));
             
             if (event.getDescription() != null && !event.getDescription().isEmpty()) {
@@ -358,35 +352,30 @@ public class AboutEventActivity extends BaseActivity {
             String formattedDate = formatDate(event.getStartDate());
             document.add(new Paragraph("Date: " + formattedDate));
 
-            // Add activities table if available
             if (event.getActivities() != null && !event.getActivities().isEmpty()) {
                 document.add(new Paragraph("\nActivities:").setBold());
                 
                 Table table = new Table(UnitValue.createPercentArray(new float[]{2, 3, 4, 3}))
                         .useAllAvailableWidth();
                 
-                // Add table headers
                 table.addHeaderCell(new Cell().add(new Paragraph("Time").setBold()));
                 table.addHeaderCell(new Cell().add(new Paragraph("Activity Name").setBold()));
                 table.addHeaderCell(new Cell().add(new Paragraph("Description").setBold()));
                 table.addHeaderCell(new Cell().add(new Paragraph("Location").setBold()));
                 
-                // Add activity data
                 for (com.example.eventplanner.dto.ActivityDTO activity : event.getActivities()) {
                     String timeRange = "";
                     if (activity.getStartTime() != null && activity.getEndTime() != null) {
                         
                         try {
-                            // Parse the time strings - they might be in different formats
                             String startTime = activity.getStartTime();
                             String endTime = activity.getEndTime();
                             
-                            // If the time contains 'T' (ISO format), extract just the time part
                             if (startTime.contains("T")) {
-                                startTime = startTime.split("T")[1].substring(0, 5); // Get HH:mm part
+                                startTime = startTime.split("T")[1].substring(0, 5);
                             }
                             if (endTime.contains("T")) {
-                                endTime = endTime.split("T")[1].substring(0, 5); // Get HH:mm part
+                                endTime = endTime.split("T")[1].substring(0, 5); 
                             }
                             
                             timeRange = startTime + " - " + endTime;

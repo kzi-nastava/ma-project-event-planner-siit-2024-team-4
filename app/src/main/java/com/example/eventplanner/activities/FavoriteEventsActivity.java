@@ -33,23 +33,19 @@ public class FavoriteEventsActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Inflate the layout into the content frame
         getLayoutInflater().inflate(R.layout.activity_favorite_events, findViewById(R.id.content_frame), true);
 
         rvFavoriteEvents = findViewById(R.id.rvFavoriteEvents);
         progressBar = findViewById(R.id.progressBar);
         noFavoritesText = findViewById(R.id.noFavoritesText);
 
-        // Initialize events list
         favoriteEventsList = new ArrayList<>();
 
-        // Setup RecyclerView
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         rvFavoriteEvents.setLayoutManager(linearLayoutManager);
-        favoriteEventAdapter = new EventAdapterNoImage(new ArrayList<>(), this, true); // true = favorite events list
+        favoriteEventAdapter = new EventAdapterNoImage(new ArrayList<>(), this, true); 
         rvFavoriteEvents.setAdapter(favoriteEventAdapter);
 
-        // Load favorite events from server
         loadFavoriteEvents();
     }
 
@@ -103,8 +99,6 @@ public class FavoriteEventsActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Refresh the list when returning to this activity
-        // This ensures that if user removes favorites from other activities, the list is updated
         if (favoriteEventsList != null) {
             loadFavoriteEvents();
         }

@@ -31,7 +31,7 @@ public interface FavoriteService {
             @Header("Authorization") String token
     );
     
-    @GET("favorites/events/{userId}/{eventId}")
+    @GET("favorites/events/events/{userId}/{eventId}")
     Call<Boolean> checkIfEventIsFavorite(
             @Path("userId") String userId,
             @Path("eventId") int eventId,

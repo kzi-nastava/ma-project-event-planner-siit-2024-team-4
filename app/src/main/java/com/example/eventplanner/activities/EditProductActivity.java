@@ -75,7 +75,6 @@ public class EditProductActivity extends BaseActivity {
     private String token;
     private String userId;
 
-    // Image picker variables
     private ActivityResultLauncher<String> requestPermissionLauncher;
     private ActivityResultLauncher<Intent> imagePickerLauncher;
 
@@ -86,7 +85,6 @@ public class EditProductActivity extends BaseActivity {
         FrameLayout contentFrame = findViewById(R.id.content_frame);
         getLayoutInflater().inflate(R.layout.activity_edit_product, contentFrame, true);
 
-        // Get product from intent
         product = (ProductDTO) getIntent().getSerializableExtra("product");
         if (product == null) {
             Toast.makeText(this, "Product not found", Toast.LENGTH_SHORT).show();
@@ -146,20 +144,17 @@ public class EditProductActivity extends BaseActivity {
         token = prefs.getString("jwt_token", null);
         userId = prefs.getString("user_id", null);
         
-        // Initialize lists
         selectedEventTypes = new ArrayList<>();
         currentImageURLs = new ArrayList<>();
         removedImageURLs = new ArrayList<>();
         newImageURIs = new ArrayList<>();
         
-        // Load current images
         if (product.getImageURLs() != null) {
             currentImageURLs.addAll(product.getImageURLs());
         }
     }
 
     private void setupAdapters() {
-        // Setup Event Types RecyclerView
         eventTypeChipAdapter = new EventTypeChipAdapter(selectedEventTypes, eventType -> {
             selectedEventTypes.remove(eventType);
             eventTypeChipAdapter.updateEventTypes(selectedEventTypes);
@@ -167,9 +162,7 @@ public class EditProductActivity extends BaseActivity {
         rvEventTypes.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         rvEventTypes.setAdapter(eventTypeChipAdapter);
 
-        // Setup Current Images RecyclerView
         currentImageAdapter = new ImageAdapter(currentImageURLs, position -> {
-            // Remove image from current images and add to removed list
             String removedURL = currentImageURLs.remove(position);
             removedImageURLs.add(removedURL);
             currentImageAdapter.updateImages(currentImageURLs);
@@ -177,7 +170,6 @@ public class EditProductActivity extends BaseActivity {
         rvCurrentImages.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         rvCurrentImages.setAdapter(currentImageAdapter);
 
-        // Setup New Images RecyclerView
         newImageAdapter = new ImageAdapter(newImageURIs, position -> {
             newImageURIs.remove(position);
             newImageAdapter.updateImages(newImageURIs);
@@ -193,7 +185,6 @@ public class EditProductActivity extends BaseActivity {
             public void onResponse(Call<List<EventTypeDTO>> call, Response<List<EventTypeDTO>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     eventTypes = response.body();
-                    // Set selected event types from product
                     if (product.getEventTypes() != null) {
                         for (EventTypeDTO productEventType : product.getEventTypes()) {
                             for (EventTypeDTO availableEventType : eventTypes) {
@@ -210,7 +201,7 @@ public class EditProductActivity extends BaseActivity {
 
             @Override
             public void onFailure(Call<List<EventTypeDTO>> call, Throwable t) {
-                android.util.Log.e("EditProduct", "EventTypes network error: " + t.getMessage());
+                Toast.makeText(EditProductActivity.this, "Failed to load event types", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -226,7 +217,6 @@ public class EditProductActivity extends BaseActivity {
         }
         cbProductAvailable.setChecked(product.getAvailable() != null ? product.getAvailable() : true);
         
-        // Update current images adapter
         currentImageAdapter.updateImages(currentImageURLs);
     }
 
@@ -249,17 +239,14 @@ public class EditProductActivity extends BaseActivity {
             return;
         }
 
-        // Create dialog similar to AddProductActivity
         androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_select_event_types, null);
         builder.setView(dialogView);
 
-        // Setup RecyclerView
         RecyclerView rvEventTypes = dialogView.findViewById(R.id.rvEventTypes);
         Button btnCancel = dialogView.findViewById(R.id.btnCancel);
         Button btnSelect = dialogView.findViewById(R.id.btnSelect);
 
-        // Create a copy of selected event types for the dialog
         List<EventTypeDTO> tempSelectedEventTypes = new ArrayList<>(selectedEventTypes);
         EventTypeCheckboxAdapter adapter = new EventTypeCheckboxAdapter(eventTypes, tempSelectedEventTypes);
         rvEventTypes.setLayoutManager(new LinearLayoutManager(this));
@@ -305,7 +292,6 @@ public class EditProductActivity extends BaseActivity {
 
     private void handleImageSelection(Intent data) {
         if (data.getClipData() != null) {
-            // Multiple images selected
             int count = data.getClipData().getItemCount();
             
             for (int i = 0; i < count; i++) {
@@ -318,7 +304,6 @@ public class EditProductActivity extends BaseActivity {
                 Toast.makeText(this, count + " images selected", Toast.LENGTH_SHORT).show();
             }
         } else if (data.getData() != null) {
-            // Single image selected
             Uri imageUri = data.getData();
             newImageURIs.add(imageUri.toString());
             newImageAdapter.updateImages(newImageURIs);
@@ -373,7 +358,6 @@ public class EditProductActivity extends BaseActivity {
     private void saveChanges() {
         showLoading(true);
 
-        // Create UpdateProductDTO like Angular does
         UpdateProductDTO updateProductDTO = new UpdateProductDTO();
         updateProductDTO.setProductId(product.getId());
         updateProductDTO.setName(etProductName.getText().toString().trim());
@@ -388,11 +372,10 @@ public class EditProductActivity extends BaseActivity {
         }
         
         updateProductDTO.setAvailable(cbProductAvailable.isChecked());
-        updateProductDTO.setVisible(true); // Default to visible
+        updateProductDTO.setVisible(true);
         updateProductDTO.setProviderId(Long.parseLong(userId));
         updateProductDTO.setCategoryId(product.getCategoryId());
         
-        // Convert event types to list of Long IDs
         List<Long> eventTypeIds = new ArrayList<>();
         if (selectedEventTypes != null && !selectedEventTypes.isEmpty()) {
             for (EventTypeDTO eventType : selectedEventTypes) {
@@ -401,7 +384,6 @@ public class EditProductActivity extends BaseActivity {
         }
         updateProductDTO.setEventTypes(eventTypeIds);
         
-        // Set image URLs (current images minus removed ones)
         List<String> finalImageURLs = new ArrayList<>();
         for (String url : currentImageURLs) {
             if (!removedImageURLs.contains(url)) {
@@ -410,18 +392,13 @@ public class EditProductActivity extends BaseActivity {
         }
         updateProductDTO.setImageURLs(finalImageURLs);
         
-        // Convert to JSON like Angular does
         String dtoJson = new Gson().toJson(updateProductDTO);
         RequestBody dtoBody = RequestBody.create(
                 MediaType.parse("application/json"), dtoJson);
         
-        // Debug log
-        android.util.Log.d("EditProduct", "UpdateProductDTO: " + dtoJson);
 
-        // Create multipart files from new images
         List<MultipartBody.Part> fileParts = new ArrayList<>();
         if (newImageURIs != null && !newImageURIs.isEmpty()) {
-            // Convert URI strings to Bitmaps and create multipart parts
             List<Bitmap> bitmaps = new ArrayList<>();
             for (int i = 0; i < newImageURIs.size(); i++) {
                 try {
@@ -429,11 +406,10 @@ public class EditProductActivity extends BaseActivity {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
                     bitmaps.add(bitmap);
                 } catch (IOException e) {
-                    android.util.Log.e("EditProduct", "Error loading image: " + e.getMessage());
+                    Toast.makeText(EditProductActivity.this, "Error loading image", Toast.LENGTH_SHORT).show();
                 }
             }
             
-            // Use the same approach as ProfileActivity
             if (!bitmaps.isEmpty()) {
                 fileParts = MultipartHelper.createMultipartList(bitmaps);
             }

@@ -30,7 +30,6 @@ public class ServiceDetailsActivity extends AppCompatActivity {
     private ServiceDTO service;
     private Long serviceId;
     
-    // Views
     private ImageView imageViewService;
     private TextView tvName, tvDescription, tvPrice, tvDiscount, tvCategory;
     private TextView tvAvailability, tvVisibility, tvDuration, tvReservationType;
@@ -43,7 +42,6 @@ public class ServiceDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_service_details);
         
-        // Get service ID from intent
         serviceId = getIntent().getLongExtra("serviceId", -1L);
         if (serviceId == -1L) {
             Toast.makeText(this, "Service ID not found", Toast.LENGTH_SHORT).show();
@@ -73,7 +71,6 @@ public class ServiceDetailsActivity extends AppCompatActivity {
         btnDelete = findViewById(R.id.btnDeleteServiceDetails);
         btnBook = findViewById(R.id.btnBookServiceDetails);
         
-        // Set up button listeners
         btnEdit.setOnClickListener(v -> editService());
         btnDelete.setOnClickListener(v -> deleteService());
         btnBook.setOnClickListener(v -> bookService());
@@ -89,14 +86,13 @@ public class ServiceDetailsActivity extends AppCompatActivity {
                     service = response.body();
                     populateViews();
                 } else {
-                    Log.e("ServiceDetails", "Error loading service: " + response.code() + " " + response.message());
+                    Toast.makeText(ServiceDetailsActivity.this, "Failed to load service", Toast.LENGTH_SHORT).show();
                     Toast.makeText(ServiceDetailsActivity.this, "Error loading service details", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ServiceDTO> call, Throwable t) {
-                Log.e("ServiceDetails", "Network error loading service: " + t.getMessage(), t);
                 Toast.makeText(ServiceDetailsActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -105,12 +101,10 @@ public class ServiceDetailsActivity extends AppCompatActivity {
     private void populateViews() {
         if (service == null) return;
         
-        // Basic info
         tvName.setText(service.getName());
         tvDescription.setText(service.getDescription());
         tvPrice.setText(String.format("%.2f RSD", service.getPrice()));
         
-        // Discount
         if (service.getDiscount() > 0) {
             tvDiscount.setText(String.format("%.0f%% OFF", service.getDiscount()));
             tvDiscount.setVisibility(View.VISIBLE);
@@ -118,18 +112,15 @@ public class ServiceDetailsActivity extends AppCompatActivity {
             tvDiscount.setVisibility(View.GONE);
         }
         
-        // Category
         if (service.getCategory() != null) {
             tvCategory.setText(service.getCategory().name);
         } else {
             tvCategory.setText("No category");
         }
         
-        // Availability and visibility
         tvAvailability.setText(service.isAvailable() ? "Available" : "Not Available");
         tvVisibility.setText(service.isVisible() ? "Visible" : "Not Visible");
         
-        // Duration info
         if (service.getDuration() != null) {
             tvDuration.setText("Duration: " + service.getDuration() + " minutes");
         } else if (service.getMinEngagement() != null && service.getMaxEngagement() != null) {
@@ -138,14 +129,12 @@ public class ServiceDetailsActivity extends AppCompatActivity {
             tvDuration.setText("Duration: Not specified");
         }
         
-        // Reservation type
         if (service.getReservationType() != null) {
             tvReservationType.setText("Reservation: " + service.getReservationType());
         } else {
             tvReservationType.setText("Reservation: Not specified");
         }
         
-        // Event types
         if (service.getEventTypes() != null && !service.getEventTypes().isEmpty()) {
             StringBuilder eventTypesText = new StringBuilder("Event Types: ");
             for (int i = 0; i < service.getEventTypes().size(); i++) {
@@ -157,7 +146,6 @@ public class ServiceDetailsActivity extends AppCompatActivity {
             tvEventTypes.setText("Event Types: Not specified");
         }
         
-        // Provider info
         if (service.getProvider() != null && service.getProvider().getName() != null) {
             tvProviderInfo.setText("Provider: " + service.getProvider().getName());
         } else if (service.getProviderId() != null) {
@@ -166,10 +154,8 @@ public class ServiceDetailsActivity extends AppCompatActivity {
             tvProviderInfo.setText("Provider: Not specified");
         }
         
-        // Load first image
         if (service.getImageURLs() != null && !service.getImageURLs().isEmpty()) {
             String imageUrl = service.getImageURLs().get(0);
-            // Convert relative path to full URL
             if (imageUrl.startsWith("/uploads/")) {
                 imageUrl = ApiConfig.IMG_URL + imageUrl;
             }
@@ -182,27 +168,22 @@ public class ServiceDetailsActivity extends AppCompatActivity {
             imageViewService.setImageResource(R.drawable.placeholder_image);
         }
         
-        // Show/hide buttons based on user role and service ownership
         setupButtons();
     }
     
     private void setupButtons() {
-        // Check if current user is the service provider
         boolean isServiceProvider = isServiceProvider();
         boolean isOwner = isServiceOwner();
         
         if (isServiceProvider && isOwner) {
-            // Service provider viewing their own service
             btnEdit.setVisibility(View.VISIBLE);
             btnDelete.setVisibility(View.VISIBLE);
             btnBook.setVisibility(View.GONE);
         } else if (isServiceProvider) {
-            // Service provider viewing someone else's service
             btnEdit.setVisibility(View.GONE);
             btnDelete.setVisibility(View.GONE);
             btnBook.setVisibility(View.GONE);
         } else {
-            // Regular user viewing service
             btnEdit.setVisibility(View.GONE);
             btnDelete.setVisibility(View.GONE);
             btnBook.setVisibility(service.isAvailable() ? View.VISIBLE : View.GONE);

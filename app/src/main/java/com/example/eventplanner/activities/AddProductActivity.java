@@ -83,7 +83,6 @@ public class AddProductActivity extends BaseActivity {
     private String userId;
     private String userRole;
 
-    // Image picker variables
     private ActivityResultLauncher<String> requestPermissionLauncher;
     private ActivityResultLauncher<Intent> imagePickerLauncher;
 
@@ -98,7 +97,6 @@ public class AddProductActivity extends BaseActivity {
         initImagePicker();
         loadUserInfo();
         
-        // Check if user has SPP role
         if (!isSPPUser()) {
             Toast.makeText(this, "Only Service Providers can add products", Toast.LENGTH_LONG).show();
             finish();
@@ -152,7 +150,6 @@ public class AddProductActivity extends BaseActivity {
     private boolean isSPPUser() {
         SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
         userRole = prefs.getString("user_role", null);
-        // Map SPProvider to SERVICE_PROVIDER for server compatibility
         if ("SPProvider".equals(userRole)) {
             userRole = "SERVICE_PROVIDER";
         }
@@ -164,10 +161,8 @@ public class AddProductActivity extends BaseActivity {
             return false;
         }
         
-        // Check if the category is newly created (not approved by admin)
         for (CategoryDTO category : categories) {
             if (category.getId().equals(categoryId)) {
-                // If category doesn't have approval status or is not approved, it's new
                 return !category.isApprovedByAdmin();
             }
         }
@@ -179,13 +174,11 @@ public class AddProductActivity extends BaseActivity {
         token = prefs.getString("jwt_token", null);
         userId = prefs.getString("user_id", null);
         
-        // Initialize lists
         selectedEventTypes = new ArrayList<>();
         selectedImages = new ArrayList<>();
     }
 
     private void setupAdapters() {
-        // Setup Event Types RecyclerView
         eventTypeChipAdapter = new EventTypeChipAdapter(selectedEventTypes, eventType -> {
             selectedEventTypes.remove(eventType);
             eventTypeChipAdapter.updateEventTypes(selectedEventTypes);
@@ -193,7 +186,6 @@ public class AddProductActivity extends BaseActivity {
         rvEventTypes.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         rvEventTypes.setAdapter(eventTypeChipAdapter);
 
-        // Setup Images RecyclerView
         imageAdapter = new ImageAdapter(selectedImages, position -> {
             selectedImages.remove(position);
             imageAdapter.updateImages(selectedImages);
@@ -207,19 +199,15 @@ public class AddProductActivity extends BaseActivity {
         categoryService.getAllApprovedCategories("Bearer " + token).enqueue(new Callback<List<CategoryDTO>>() {
             @Override
             public void onResponse(Call<List<CategoryDTO>> call, Response<List<CategoryDTO>> response) {
-                android.util.Log.d("AddProduct", "Categories response code: " + response.code());
                 if (response.isSuccessful() && response.body() != null) {
                     categories = response.body();
                     setupCategorySpinner();
-                    android.util.Log.d("AddProduct", "Categories loaded successfully: " + categories.size());
-                } else {
-                    android.util.Log.e("AddProduct", "Failed to load categories: " + response.code());
                 }
             }
 
             @Override
             public void onFailure(Call<List<CategoryDTO>> call, Throwable t) {
-                android.util.Log.e("AddProduct", "Categories network error: " + t.getMessage());
+                Toast.makeText(AddProductActivity.this, "Failed to load categories", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -229,19 +217,15 @@ public class AddProductActivity extends BaseActivity {
         eventTypeService.getAllEventTypes("Bearer " + token).enqueue(new Callback<List<EventTypeDTO>>() {
             @Override
             public void onResponse(Call<List<EventTypeDTO>> call, Response<List<EventTypeDTO>> response) {
-                android.util.Log.d("AddProduct", "EventTypes response code: " + response.code());
                 if (response.isSuccessful() && response.body() != null) {
                     eventTypes = response.body();
                     setupEventTypeSpinner();
-                    android.util.Log.d("AddProduct", "EventTypes loaded successfully: " + eventTypes.size());
-                } else {
-                    android.util.Log.e("AddProduct", "Failed to load event types: " + response.code());
                 }
             }
 
             @Override
             public void onFailure(Call<List<EventTypeDTO>> call, Throwable t) {
-                android.util.Log.e("AddProduct", "EventTypes network error: " + t.getMessage());
+                Toast.makeText(AddProductActivity.this, "Failed to load event types", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -267,8 +251,6 @@ public class AddProductActivity extends BaseActivity {
                 eventTypeNames.add(eventType.getName());
             }
             
-            // Event types are now handled by the RecyclerView with chips
-            // No need to set up spinner adapter
         }
     }
 
@@ -283,7 +265,6 @@ public class AddProductActivity extends BaseActivity {
 
         showLoading(true);
 
-        // Get selected category and event type
         CategoryDTO selectedCategory = null;
         EventTypeDTO selectedEventType = null;
         
@@ -291,13 +272,10 @@ public class AddProductActivity extends BaseActivity {
             selectedCategory = categories.get(spinnerCategory.getSelectedItemPosition());
         }
         
-        // Use selected event types from the new system
         if (selectedEventTypes != null && !selectedEventTypes.isEmpty()) {
-            // For now, use the first selected event type
             selectedEventType = selectedEventTypes.get(0);
         }
 
-        // Create product
         ProductDTO product = new ProductDTO();
         product.setName(etProductName.getText().toString().trim());
         product.setDescription(etProductDescription.getText().toString().trim());
@@ -314,14 +292,7 @@ public class AddProductActivity extends BaseActivity {
         product.setCategoryId(selectedCategory != null ? selectedCategory.getId() : null);
         product.setEventTypeId(selectedEventType != null ? selectedEventType.getId() : null);
         product.setServiceProviderId(Long.parseLong(userId));
-        
-        // Don't set imageURLs in the product DTO for multipart request
-        // Images will be sent as separate parts
 
-        // Debug log
-        android.util.Log.d("AddProduct", "Creating product: " + product.toString());
-
-        // Create CreateProductDTO like Angular does
         CreateProductDTO createProductDTO = new CreateProductDTO();
         createProductDTO.setName(product.getName());
         createProductDTO.setDescription(product.getDescription());
@@ -329,14 +300,12 @@ public class AddProductActivity extends BaseActivity {
         createProductDTO.setDiscount(product.getDiscount());
         createProductDTO.setAvailable(product.getAvailable());
         
-        // Check if we're using a new category (pending approval)
         boolean isNewCategory = isUsingNewCategory(product.getCategoryId());
-        createProductDTO.setVisible(!isNewCategory); // Invisible if using new category like Angular
+        createProductDTO.setVisible(!isNewCategory);
         
         createProductDTO.setProviderId(Long.parseLong(userId));
         createProductDTO.setCategoryId(product.getCategoryId());
         
-        // Convert event types to list of Long IDs
         List<Long> eventTypeIds = new ArrayList<>();
         if (selectedEventTypes != null && !selectedEventTypes.isEmpty()) {
             for (EventTypeDTO eventType : selectedEventTypes) {
@@ -345,30 +314,21 @@ public class AddProductActivity extends BaseActivity {
         }
         createProductDTO.setEventTypes(eventTypeIds);
         
-        // Ensure we have at least one event type (required by backend)
         if (eventTypeIds.isEmpty() && eventTypes != null && !eventTypes.isEmpty()) {
-            // If no event types selected, use the first available one
             eventTypeIds.add(eventTypes.get(0).getId());
             createProductDTO.setEventTypes(eventTypeIds);
         }
         
-        // Convert to JSON like Angular does
         String dtoJson = new Gson().toJson(createProductDTO);
         RequestBody dtoBody = RequestBody.create(
                 MediaType.parse("application/json"), dtoJson);
         
-        // Debug log
-        android.util.Log.d("AddProduct", "CreateProductDTO: " + dtoJson);
-        
-        // Show warning if using new category
         if (isNewCategory) {
             Toast.makeText(this, "Product will be invisible until the new category is approved by admin.", Toast.LENGTH_LONG).show();
         }
 
-        // Create multipart files from selected images - using ProfileActivity approach
         List<MultipartBody.Part> fileParts = new ArrayList<>();
         if (selectedImages != null && !selectedImages.isEmpty()) {
-            // Convert URI strings to Bitmaps and create multipart parts
             List<Bitmap> bitmaps = new ArrayList<>();
             for (int i = 0; i < selectedImages.size(); i++) {
                 try {
@@ -376,42 +336,17 @@ public class AddProductActivity extends BaseActivity {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
                     bitmaps.add(bitmap);
                 } catch (IOException e) {
-                    android.util.Log.e("AddProduct", "Error loading image: " + e.getMessage());
+                    Toast.makeText(AddProductActivity.this, "Error loading image", Toast.LENGTH_SHORT).show();
                 }
             }
             
-            // Use the same approach as ProfileActivity
             if (!bitmaps.isEmpty()) {
                 fileParts = MultipartHelper.createMultipartList(bitmaps);
             }
         }
 
-        // Debug: Log the authorization header
         String authHeader = "Bearer " + token;
-        android.util.Log.d("AddProduct", "Authorization header: " + authHeader);
-        android.util.Log.d("AddProduct", "Token length: " + (token != null ? token.length() : "null"));
-        android.util.Log.d("AddProduct", "User ID: " + userId);
-        android.util.Log.d("AddProduct", "User Role: " + userRole);
         
-        // Debug: Try to decode JWT token to see what role it contains
-        if (token != null && token.contains(".")) {
-            try {
-                String[] parts = token.split("\\.");
-                if (parts.length >= 2) {
-                    // Decode the payload (second part)
-                    String payload = parts[1];
-                    // Add padding if needed
-                    while (payload.length() % 4 != 0) {
-                        payload += "=";
-                    }
-                    byte[] decodedBytes = android.util.Base64.decode(payload, android.util.Base64.DEFAULT);
-                    String decodedPayload = new String(decodedBytes);
-                    android.util.Log.d("AddProduct", "JWT Payload: " + decodedPayload);
-                }
-            } catch (Exception e) {
-                android.util.Log.e("AddProduct", "Error decoding JWT: " + e.getMessage());
-            }
-        }
 
         ProductService productService = ApiClient.getClient(this).create(ProductService.class);
         productService.createProduct(authHeader, dtoBody,
@@ -507,12 +442,10 @@ public class AddProductActivity extends BaseActivity {
     }
 
     private void showAddCategoryDialog() {
-        // Create dialog
         androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_category, null);
         builder.setView(dialogView);
 
-        // Get views
         EditText etCategoryName = dialogView.findViewById(R.id.etCategoryName);
         EditText etCategoryDescription = dialogView.findViewById(R.id.etCategoryDescription);
         Button btnCancel = dialogView.findViewById(R.id.btnCancel);
@@ -553,7 +486,7 @@ public class AddProductActivity extends BaseActivity {
         CreateCategoryDTO createCategoryDTO = new CreateCategoryDTO();
         createCategoryDTO.name = name;
         createCategoryDTO.description = description;
-        createCategoryDTO.isApprovedByAdmin = false; // Will be pending approval
+        createCategoryDTO.isApprovedByAdmin = false;
 
         CategoryService categoryService = ApiClient.getClient(this).create(CategoryService.class);
         categoryService.createCategory("Bearer " + token, createCategoryDTO).enqueue(new Callback<CategoryDTO>() {
@@ -599,17 +532,14 @@ public class AddProductActivity extends BaseActivity {
             return;
         }
 
-        // Create dialog
         androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_select_event_types, null);
         builder.setView(dialogView);
 
-        // Setup RecyclerView
         RecyclerView rvEventTypes = dialogView.findViewById(R.id.rvEventTypes);
         Button btnCancel = dialogView.findViewById(R.id.btnCancel);
         Button btnSelect = dialogView.findViewById(R.id.btnSelect);
 
-        // Create a copy of selected event types for the dialog
         List<EventTypeDTO> tempSelectedEventTypes = new ArrayList<>(selectedEventTypes);
         EventTypeCheckboxAdapter adapter = new EventTypeCheckboxAdapter(eventTypes, tempSelectedEventTypes);
         rvEventTypes.setLayoutManager(new LinearLayoutManager(this));
@@ -655,7 +585,6 @@ public class AddProductActivity extends BaseActivity {
 
     private void handleImageSelection(Intent data) {
         if (data.getClipData() != null) {
-            // Multiple images selected
             int count = data.getClipData().getItemCount();
             
             for (int i = 0; i < count; i++) {
@@ -668,7 +597,6 @@ public class AddProductActivity extends BaseActivity {
                 Toast.makeText(this, count + " images selected", Toast.LENGTH_SHORT).show();
             }
         } else if (data.getData() != null) {
-            // Single image selected
             Uri imageUri = data.getData();
             selectedImages.add(imageUri.toString());
             imageAdapter.updateImages(selectedImages);

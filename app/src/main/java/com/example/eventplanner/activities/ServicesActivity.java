@@ -17,7 +17,6 @@ public class ServicesActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Check if this is "My Services" mode
         Intent intent = getIntent();
         isMyServices = intent.getBooleanExtra("isMyServices", false);
         
@@ -27,7 +26,6 @@ public class ServicesActivity extends BaseActivity {
             setTitle("Available Services");
         }
         
-        // Create and add fragment
         Fragment fragment = AllServicesFragment.newInstance(isMyServices);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.content_frame, fragment)

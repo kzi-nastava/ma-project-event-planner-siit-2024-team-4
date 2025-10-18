@@ -62,13 +62,11 @@ public class ProfileActivity extends BaseActivity {
     private boolean isEditing = false;
     private String userRole;
     
-    // Image handling variables
     private List<String> existingImageURLs = new ArrayList<>();
     private List<String> originalImageURLs = new ArrayList<>();
     private List<Bitmap> selectedImages = new ArrayList<>();
     private int currentImageIndex = 0;
     
-    // Calendar variables
     private List<EventDTO> favoriteEvents = new ArrayList<>();
     private List<EventDTO> myEvents = new ArrayList<>();
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
@@ -552,7 +550,6 @@ public class ProfileActivity extends BaseActivity {
                         @Override
                         public void onResponse(Call<Void> call, Response<Void> response) {
                             if (response.isSuccessful()) {
-                                // Clear user data and logout
                                 SharedPreferences.Editor editor = prefs.edit();
                                 editor.remove("jwt_token");
                                 editor.remove("user_role");
@@ -620,22 +617,12 @@ public class ProfileActivity extends BaseActivity {
                     favoriteEvents.clear();
                     favoriteEvents.addAll(response.body());
                     updateDatesWithEvents();
-                } else {
-                    Log.e("ProfileActivity", "Failed to load favorite events - Response code: " + response.code());
-                    if (response.errorBody() != null) {
-                        try {
-                            Log.e("ProfileActivity", "Error body: " + response.errorBody().string());
-                        } catch (Exception e) {
-                            Log.e("ProfileActivity", "Error reading error body: " + e.getMessage());
-                        }
-                    }
                 }
             }
-            
+
             @Override
             public void onFailure(Call<List<EventDTO>> call, Throwable t) {
-                Log.e("ProfileActivity", "Error loading favorite events: " + t.getMessage());
-                t.printStackTrace();
+                Toast.makeText(ProfileActivity.this, "Failed to load favorite events", Toast.LENGTH_SHORT).show();
             }
         });
         
@@ -648,22 +635,12 @@ public class ProfileActivity extends BaseActivity {
                         myEvents.clear();
                         myEvents.addAll(response.body());
                         updateDatesWithEvents();
-                    } else {
-                        Log.e("ProfileActivity", "Failed to load my events - Response code: " + response.code());
-                        if (response.errorBody() != null) {
-                            try {
-                                Log.e("ProfileActivity", "Error body: " + response.errorBody().string());
-                            } catch (Exception e) {
-                                Log.e("ProfileActivity", "Error reading error body: " + e.getMessage());
-                            }
-                        }
                     }
                 }
-                
+
                 @Override
                 public void onFailure(Call<List<EventDTO>> call, Throwable t) {
-                    Log.e("ProfileActivity", "Error loading my events: " + t.getMessage());
-                    t.printStackTrace();
+                    Toast.makeText(ProfileActivity.this, "Failed to load my events", Toast.LENGTH_SHORT).show();
                 }
             });
         }
