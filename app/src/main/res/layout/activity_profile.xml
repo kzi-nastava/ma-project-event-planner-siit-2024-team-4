@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    android:background="@color/white">
+    android:background="?android:attr/colorBackground">
 
     <LinearLayout
         android:id="@+id/profileLayout"
@@ -19,13 +19,15 @@
             android:text="My Profile"
             android:textSize="22sp"
             android:textStyle="bold"
-            android:layout_marginBottom="12dp" />
+            android:layout_marginBottom="12dp"
+            android:textColor="?android:attr/textColorPrimary" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Email:"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary" />
         <EditText
             android:id="@+id/etEmail"
             android:layout_width="match_parent"
@@ -43,8 +45,9 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="First name:"
-                android:textStyle="bold" />
+            android:text="First name:"
+            android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary" />
             <EditText
                 android:id="@+id/etNameEO"
                 android:layout_width="match_parent"
@@ -55,8 +58,9 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Last name:"
-                android:textStyle="bold" />
+            android:text="Last name:"
+            android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary" />
             <EditText
                 android:id="@+id/etLastNameEO"
                 android:layout_width="match_parent"
@@ -75,8 +79,9 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Company name:"
-                android:textStyle="bold" />
+            android:text="Company name:"
+            android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary" />
             <EditText
                 android:id="@+id/etCompanyName"
                 android:layout_width="match_parent"
@@ -87,8 +92,9 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Description:"
-                android:textStyle="bold" />
+            android:text="Description:"
+            android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary" />
             <EditText
                 android:id="@+id/etDescription"
                 android:layout_width="match_parent"
@@ -103,7 +109,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Address:"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary" />
         <EditText
             android:id="@+id/etAddress"
             android:layout_width="match_parent"
@@ -115,7 +122,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Phone number:"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary" />
         <EditText
             android:id="@+id/etPhone"
             android:layout_width="match_parent"
@@ -279,7 +287,7 @@
                         android:layout_height="wrap_content"
                         android:text="My Events"
                         android:textSize="10sp"
-                        android:textColor="@color/gray" />
+                        android:textColor="?android:attr/textColorSecondary" />
                 </LinearLayout>
                 
                 <LinearLayout
@@ -299,7 +307,7 @@
                         android:layout_height="wrap_content"
                         android:text="Favorite Events"
                         android:textSize="10sp"
-                        android:textColor="@color/gray" />
+                        android:textColor="?android:attr/textColorSecondary" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -310,7 +318,7 @@
                 android:text="Tap on a date to view events"
                 android:textSize="12sp"
                 android:gravity="center"
-                android:textColor="@color/gray"
+                android:textColor="?android:attr/textColorSecondary"
                 android:visibility="visible" />
 
         </LinearLayout>

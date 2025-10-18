@@ -100,8 +100,7 @@ public class BaseActivity extends AppCompatActivity {
             } else if (id == R.id.nav_all_events) {
                 startActivity(new Intent(this, AllEventsActivity.class));
             } else if (id == R.id.nav_my_events) {
-                // TODO: Create MyEventsActivity for Event Organizers
-                Toast.makeText(this, "My Events - Coming Soon", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this, MyEventsActivity.class));
             } else if (id == R.id.nav_favorite_events) {
                 startActivity(new Intent(this, FavoriteEventsActivity.class));
             } else if (id == R.id.nav_all_services) {
@@ -117,10 +116,13 @@ public class BaseActivity extends AppCompatActivity {
                 intent.putExtra("isMyServices", true);
                 startActivity(intent);
             } else if (id == R.id.nav_all_products) {
-                startActivity(new Intent(this, AllProductsAndServicesActivity.class));
+                Intent intent = new Intent(this, AllProductsActivity.class);
+                intent.putExtra("isMyProducts", false);
+                startActivity(intent);
             } else if (id == R.id.nav_my_products) {
-                // TODO: Create MyProductsActivity
-                Toast.makeText(this, "My Products - Coming Soon", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(this, AllProductsActivity.class);
+                intent.putExtra("isMyProducts", true);
+                startActivity(intent);
             }
 
             drawerLayout.closeDrawer(navigationView);
