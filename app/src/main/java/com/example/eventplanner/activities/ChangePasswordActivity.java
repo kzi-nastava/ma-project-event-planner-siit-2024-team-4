@@ -80,7 +80,6 @@ public class ChangePasswordActivity extends BaseActivity {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    // Backend returns a string message
                     String message = response.body();
                     Toast.makeText(ChangePasswordActivity.this, message, Toast.LENGTH_SHORT).show();
                     finish();

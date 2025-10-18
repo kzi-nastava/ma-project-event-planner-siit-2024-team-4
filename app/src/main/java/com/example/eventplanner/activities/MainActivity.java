@@ -36,7 +36,6 @@ public class MainActivity extends BaseActivity {
         viewAllButton = findViewById(R.id.viewAllButton);
         viewAllProductsButton = findViewById(R.id.viewAllProductsButton);
 
-        // Top 5 Events data
         topEventsList = new ArrayList<>();
         topEventsList.add(new Event("Concert A", R.drawable.event, "Concert"));
         topEventsList.add(new Event("Festival B", R.drawable.event, "Festival"));
@@ -44,7 +43,6 @@ public class MainActivity extends BaseActivity {
         topEventsList.add(new Event("Exhibition D", R.drawable.event, "Exhibition"));
         topEventsList.add(new Event("Workshop E", R.drawable.event, "Workshop"));
 
-        // Populate Top 5 Events dynamically
         for (Event event : topEventsList) {
             View eventView = getLayoutInflater().inflate(R.layout.item_event_card, topEventsContainer, false);
 
@@ -57,7 +55,6 @@ public class MainActivity extends BaseActivity {
             topEventsContainer.addView(eventView);
         }
 
-        // Top 5 Products and Services data
         topProductsList = new ArrayList<>();
         topProductsList.add(new Event("Product A", R.drawable.service_band, "Product"));
         topProductsList.add(new Event("Service B", R.drawable.service_band, "Service"));
@@ -65,7 +62,6 @@ public class MainActivity extends BaseActivity {
         topProductsList.add(new Event("Service D", R.drawable.service_band, "Service"));
         topProductsList.add(new Event("Product E", R.drawable.service_band, "Product"));
 
-        // Populate Top 5 Products and Services dynamically
         for (Event product : topProductsList) {
             View productView = getLayoutInflater().inflate(R.layout.item_event_card, topProductsContainer, false);
 
@@ -78,13 +74,11 @@ public class MainActivity extends BaseActivity {
             topProductsContainer.addView(productView);
         }
 
-        // OnClickListener za "View All Events" button
         viewAllButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, AllEventsActivity.class);
             startActivity(intent);
         });
 
-        // OnClickListener za "View All Products and Services" button
         viewAllProductsButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, AllProductsActivity.class);
             startActivity(intent);

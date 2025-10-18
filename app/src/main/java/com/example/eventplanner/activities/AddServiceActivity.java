@@ -49,7 +49,6 @@ public class AddServiceActivity extends AppCompatActivity {
 
     private static final int PICK_IMAGES_REQUEST = 1;
 
-    // Form views
     private EditText etServiceName, etServiceDescription, etServicePrice, etServiceDiscount;
     private EditText etDuration, etMinEngagement, etMaxEngagement;
     private EditText etReservationDue, etCancellationDue;
@@ -59,7 +58,6 @@ public class AddServiceActivity extends AppCompatActivity {
     private Button btnUploadImages, btnAddEventType, btnSave, btnCancel;
     private TextView tvImageCount, tvSelectedEventTypes;
 
-    // Data
     private List<CategoryDTO> categories = new ArrayList<>();
     private List<EventTypeDTO> eventTypes = new ArrayList<>();
     private List<EventTypeDTO> selectedEventTypes = new ArrayList<>();
@@ -212,14 +210,12 @@ public class AddServiceActivity extends AppCompatActivity {
             selectedImageUris.clear();
             
             if (data.getClipData() != null) {
-                // Multiple images selected
                 int count = data.getClipData().getItemCount();
                 for (int i = 0; i < count; i++) {
                     Uri imageUri = data.getClipData().getItemAt(i).getUri();
                     selectedImageUris.add(imageUri);
                 }
             } else if (data.getData() != null) {
-                // Single image selected
                 selectedImageUris.add(data.getData());
             }
             
@@ -232,7 +228,6 @@ public class AddServiceActivity extends AppCompatActivity {
             return;
         }
 
-        // Create service DTO
         CreateServiceDTO dto = new CreateServiceDTO();
         dto.setName(etServiceName.getText().toString().trim());
         dto.setDescription(etServiceDescription.getText().toString().trim());
@@ -244,26 +239,22 @@ public class AddServiceActivity extends AppCompatActivity {
         dto.setAvailable(cbAvailable.isChecked());
         dto.setVisible(cbVisible.isChecked());
         
-        // Category
         int categoryPosition = spinnerCategory.getSelectedItemPosition();
         if (categoryPosition > 0) {
             dto.setCategoryId(categories.get(categoryPosition - 1).id);
         }
         
-        // Event types
         List<Long> eventTypeIds = new ArrayList<>();
         for (EventTypeDTO eventType : selectedEventTypes) {
             eventTypeIds.add(eventType.getId());
         }
         dto.setEventTypes(eventTypeIds);
         
-        // Duration
         String durationStr = etDuration.getText().toString().trim();
         if (!TextUtils.isEmpty(durationStr)) {
             dto.setDuration(Integer.parseInt(durationStr));
         }
         
-        // Engagement
         String minEngStr = etMinEngagement.getText().toString().trim();
         String maxEngStr = etMaxEngagement.getText().toString().trim();
         if (!TextUtils.isEmpty(minEngStr)) {
@@ -273,25 +264,20 @@ public class AddServiceActivity extends AppCompatActivity {
             dto.setMaxEngagement(Integer.parseInt(maxEngStr));
         }
         
-        // Reservation/Cancellation due
         String resDueStr = etReservationDue.getText().toString().trim();
         String cancelDueStr = etCancellationDue.getText().toString().trim();
         dto.setReservationDue(TextUtils.isEmpty(resDueStr) ? 0 : Integer.parseInt(resDueStr));
         dto.setCancelationDue(TextUtils.isEmpty(cancelDueStr) ? 0 : Integer.parseInt(cancelDueStr));
         
-        // Reservation type
         int selectedId = rgReservationType.getCheckedRadioButtonId();
         dto.setReservationType(selectedId == R.id.rbAutomatic ? "AUTOMATIC" : "MANUAL");
         
-        // Provider ID
         dto.setProviderId(getCurrentUserId());
         
-        // Prepare multipart request
         Gson gson = new Gson();
         String dtoJson = gson.toJson(dto);
         RequestBody dtoBody = RequestBody.create(MediaType.parse("application/json"), dtoJson);
         
-        // Prepare image files
         List<MultipartBody.Part> imageParts = new ArrayList<>();
         for (Uri uri : selectedImageUris) {
             try {
@@ -300,11 +286,10 @@ public class AddServiceActivity extends AppCompatActivity {
                 MultipartBody.Part part = MultipartBody.Part.createFormData("files", file.getName(), fileBody);
                 imageParts.add(part);
             } catch (IOException e) {
-                Log.e("AddService", "Error creating file from URI", e);
+                Toast.makeText(AddServiceActivity.this, "Error creating file from URI", Toast.LENGTH_SHORT).show();
             }
         }
         
-        // Call API
         ServiceService serviceAPI = ApiClient.getClient(this).create(ServiceService.class);
         serviceAPI.createService(getAuthHeader(), dtoBody, imageParts).enqueue(new Callback<ServiceDTO>() {
             @Override

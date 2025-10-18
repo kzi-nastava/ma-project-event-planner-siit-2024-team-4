@@ -146,7 +146,6 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
     }
 
     private void loadServices() {
-        Log.d("AllServicesFragment", "loadServices called");
         ServiceService service = ApiClient.getClient(getContext()).create(ServiceService.class);
         
         Call<List<ServiceDTO>> call;
@@ -164,7 +163,6 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
         call.enqueue(new Callback<List<ServiceDTO>>() {
             @Override
             public void onResponse(Call<List<ServiceDTO>> call, Response<List<ServiceDTO>> response) {
-                Log.d("AllServicesFragment", "Response received: " + response.code());
                 if (response.isSuccessful() && response.body() != null) {
                     services.clear();
                     List<ServiceDTO> allServices = response.body();
@@ -454,21 +452,14 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
             // Prvo proveri da li je usluga vidljiva - niko ne vidi nevidljive
             if (!service.isVisible()) {
                 shouldShow = false;
-                Log.d("AllServicesFragment", "Service not visible: " + service.getName());
             } else if (isMyServices && isSPP) {
                 // SPP user viewing their own services - show all visible services (available and unavailable)
                 Long currentUserId = getCurrentUserId();
                 Long serviceProviderId = service.getProvider() != null ? service.getProvider().getId() : service.getProviderId();
                 shouldShow = currentUserId.equals(serviceProviderId);
-                Log.d("AllServicesFragment", "SPP My Services - Service: " + service.getName() + 
-                      ", Should show: " + shouldShow + ", Current user: " + currentUserId + 
-                      ", Service provider: " + serviceProviderId);
             } else {
                 // Svi ostali - samo dostupne usluge
                 shouldShow = service.isAvailable();
-                Log.d("AllServicesFragment", "All Services - Service: " + service.getName() + 
-                      ", Available: " + service.isAvailable() + ", Visible: " + service.isVisible() + 
-                      ", Should show: " + shouldShow);
             }
             
             if (shouldShow) {
@@ -481,17 +472,13 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
 
     private boolean isServiceProvider() {
         String userRole = requireContext().getSharedPreferences("MyAppPrefs", getContext().MODE_PRIVATE).getString("user_role", null);
-        Log.d("AllServicesFragment", "Current user role: " + userRole);
         boolean isSPP = "SPP".equals(userRole) || "SERVICE_PROVIDER".equals(userRole);
-        Log.d("AllServicesFragment", "Is service provider: " + isSPP);
         return isSPP;
     }
 
     private boolean isAdmin() {
         String userRole = requireContext().getSharedPreferences("MyAppPrefs", getContext().MODE_PRIVATE).getString("user_role", null);
-        Log.d("AllServicesFragment", "Current user role for admin check: " + userRole);
         boolean isAdmin = "ADMIN".equals(userRole) || "admin".equals(userRole);
-        Log.d("AllServicesFragment", "Is admin: " + isAdmin);
         return isAdmin;
     }
 

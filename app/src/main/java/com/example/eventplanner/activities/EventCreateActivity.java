@@ -80,7 +80,6 @@ public class EventCreateActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Check if user is Event Organizer
         if (!isEventOrganizer()) {
             Toast.makeText(this, "Only Event Organizers can create events", Toast.LENGTH_SHORT).show();
             finish();
@@ -120,13 +119,10 @@ public class EventCreateActivity extends BaseActivity {
     }
     
     private void setupEventListeners() {
-        // Date picker
         etEventDate.setOnClickListener(v -> showDatePicker());
         
-        // Add activity button
         btnAddActivity.setOnClickListener(v -> addActivity());
         
-        // Create event button
         btnCreateEvent.setOnClickListener(v -> createEvent());
     }
     
@@ -139,7 +135,6 @@ public class EventCreateActivity extends BaseActivity {
             webSettings.setLoadWithOverviewMode(true);
             webSettings.setUseWideViewPort(true);
             
-            // Add JavaScript interface for coordinate selection
             webViewMap.addJavascriptInterface(new MapJavaScriptInterface(), "Android");
             
             webViewMap.setWebViewClient(new WebViewClient() {
@@ -152,23 +147,19 @@ public class EventCreateActivity extends BaseActivity {
                 @Override
                 public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
                     super.onReceivedError(view, errorCode, description, failingUrl);
-                    android.util.Log.e("EventCreateActivity", "Map error: " + errorCode + " - " + description);
                     tvMapError.setText("Map loading failed: " + description);
                     tvMapError.setVisibility(View.VISIBLE);
                 }
             });
             
-            // Load interactive OpenStreetMap with Leaflet
             String mapHtml = getInteractiveMapHtml();
             webViewMap.loadDataWithBaseURL("https://unpkg.com/", mapHtml, "text/html", "UTF-8", null);
         } else {
-            android.util.Log.e("EventCreateActivity", "WebView is null!");
             tvMapError.setText("Map not available");
             tvMapError.setVisibility(View.VISIBLE);
         }
     }
     
-    // JavaScript interface for coordinate selection
     public class MapJavaScriptInterface {
         @JavascriptInterface
         public void onLocationSelected(double lat, double lng) {
@@ -176,7 +167,6 @@ public class EventCreateActivity extends BaseActivity {
                 selectedLatitude = lat;
                 selectedLongitude = lng;
                 
-                // Get address from coordinates
                 getAddressFromCoordinates(selectedLatitude, selectedLongitude);
             });
         }
@@ -227,18 +217,15 @@ public class EventCreateActivity extends BaseActivity {
             if (addresses != null && !addresses.isEmpty()) {
                 Address address = addresses.get(0);
                 
-                // Build full address
                 StringBuilder addressBuilder = new StringBuilder();
                 for (int i = 0; i <= address.getMaxAddressLineIndex(); i++) {
                     if (i > 0) addressBuilder.append(", ");
                     addressBuilder.append(address.getAddressLine(i));
                 }
                 
-                // Store address data
                 selectedLocationAddress = addressBuilder.toString();
                 etLocationAddress.setText(selectedLocationAddress);
                 
-                // Store location name data - always use event name if available
                 String eventName = etEventName.getText().toString().trim();
                 if (!eventName.isEmpty()) {
                     selectedLocationName = eventName;
@@ -246,13 +233,8 @@ public class EventCreateActivity extends BaseActivity {
                     selectedLocationName = address.getLocality() != null ? address.getLocality() : "Selected Location";
                 }
                 etLocationName.setText(selectedLocationName);
-                
-                // Successfully got address - no toast needed
-            } else {
-                // Could not find address - no toast needed
             }
         } catch (IOException e) {
-            // Error getting address - no toast needed
         }
     }
     
@@ -320,7 +302,6 @@ public class EventCreateActivity extends BaseActivity {
             selectedDate.get(Calendar.DAY_OF_MONTH)
         );
         
-        // Set minimum date to today
         datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
         datePickerDialog.show();
     }
@@ -339,7 +320,6 @@ public class EventCreateActivity extends BaseActivity {
         progressBar.setVisibility(View.VISIBLE);
         btnCreateEvent.setEnabled(false);
         
-        // Create location first
         createLocation();
     }
     
@@ -348,11 +328,6 @@ public class EventCreateActivity extends BaseActivity {
             Toast.makeText(this, "Please enter event name", Toast.LENGTH_SHORT).show();
             return false;
         }
-        
-        // Location name and address are populated automatically from map - no validation needed
-        
-        // Location coordinates are always available (default: Belgrade)
-        // No need to validate since we have default coordinates
         
         if (etEventDate.getText().toString().trim().isEmpty()) {
             Toast.makeText(this, "Please select event date", Toast.LENGTH_SHORT).show();
@@ -363,7 +338,6 @@ public class EventCreateActivity extends BaseActivity {
     }
     
     private void createLocation() {
-        // Use event name as location name, fallback to address if event name is empty
         String eventName = etEventName.getText().toString().trim();
         String locationName = !eventName.isEmpty() ? eventName : (selectedLocationName.isEmpty() ? "Event Location" : selectedLocationName);
         String locationAddress = selectedLocationAddress.isEmpty() ? "Location coordinates: " + selectedLatitude + ", " + selectedLongitude : selectedLocationAddress;
@@ -409,7 +383,6 @@ public class EventCreateActivity extends BaseActivity {
         boolean isPublic = rbPublic.isChecked();
         String eventDate = etEventDate.getText().toString().trim();
         
-        // Get selected event type
         Long eventTypeId = null;
         String selectedEventType = (String) spinnerEventType.getSelectedItem();
         if (!"All".equals(selectedEventType)) {
@@ -421,7 +394,6 @@ public class EventCreateActivity extends BaseActivity {
             }
         }
         
-        // Prepare agenda with full datetime
         List<CreateActivityRequest> agendaWithDateTime = new ArrayList<>();
         for (CreateActivityRequest activity : activities) {
             CreateActivityRequest activityWithDateTime = new CreateActivityRequest();
@@ -429,7 +401,6 @@ public class EventCreateActivity extends BaseActivity {
             activityWithDateTime.setDescription(activity.getDescription());
             activityWithDateTime.setLocation(activity.getLocation());
             
-            // Combine date with time for start and end times
             if (activity.getStartTime() != null && !activity.getStartTime().isEmpty()) {
                 activityWithDateTime.setStartTime(eventDate + "T" + activity.getStartTime() + ":00");
             }
@@ -465,9 +436,8 @@ public class EventCreateActivity extends BaseActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     Toast.makeText(EventCreateActivity.this, "Event created successfully!", Toast.LENGTH_SHORT).show();
                     
-                    // Set result to indicate event was created successfully
                     setResult(RESULT_OK);
-                    finish(); // Go back to previous activity
+                    finish();
                 } else {
                     Toast.makeText(EventCreateActivity.this, "Failed to create event", Toast.LENGTH_SHORT).show();
                 }

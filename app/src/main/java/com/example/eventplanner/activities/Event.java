@@ -3,12 +3,12 @@ package com.example.eventplanner.activities;
 public class Event {
     private String name;
     private int imageResId;
-    private String type; // Dodato polje za tip događaja
+    private String type;
 
     public Event(String name, int imageResId, String type) {
         this.name = name;
         this.imageResId = imageResId;
-        this.type = type; // Inicijalizacija tipa događaja
+        this.type = type;
     }
 
     public String getName() {
@@ -20,6 +20,6 @@ public class Event {
     }
 
     public String getType() {
-        return type; // Getter za tip događaja
+        return type;
     }
 }

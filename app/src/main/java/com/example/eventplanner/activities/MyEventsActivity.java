@@ -53,7 +53,6 @@ public class MyEventsActivity extends BaseActivity {
         btnCreateEvent = findViewById(R.id.btnCreateEvent);
         allEventsTitle = findViewById(R.id.allEventsTitle);
         
-        // Change title to "My Events"
         allEventsTitle.setText("My Events");
 
         myEventsList = new ArrayList<>();

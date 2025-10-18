@@ -51,7 +51,6 @@ public class EventTypeManagementActivity extends BaseActivity {
     private List<CheckBox> categoryCheckBoxes = new ArrayList<>();
     private List<Long> selectedCategoryIds = new ArrayList<>();
     
-    // Edit mode variables
     private EventTypeDTO editingEventType = null;
     private boolean isEditMode = false;
     
@@ -65,12 +64,10 @@ public class EventTypeManagementActivity extends BaseActivity {
         FrameLayout contentFrame = findViewById(R.id.content_frame);
         getLayoutInflater().inflate(R.layout.activity_event_type_management, contentFrame, true);
         
-        // Get user role
         SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
         userRole = prefs.getString("user_role", "");
         isAdmin = "Admin".equals(userRole);
         
-        // Keep title empty like other activities
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle("");
         }
@@ -129,8 +126,7 @@ public class EventTypeManagementActivity extends BaseActivity {
             
             @Override
             public void onFailure(Call<List<EventTypeDTO>> call, Throwable t) {
-                Toast.makeText(EventTypeManagementActivity.this, "Connection error", Toast.LENGTH_SHORT).show();
-                Log.e(TAG, "Error loading event types", t);
+                Toast.makeText(EventTypeManagementActivity.this, "Failed to load event types", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -155,7 +151,7 @@ public class EventTypeManagementActivity extends BaseActivity {
             
             @Override
             public void onFailure(Call<List<CategoryDTO>> call, Throwable t) {
-                Log.e(TAG, "Error loading categories", t);
+                Toast.makeText(EventTypeManagementActivity.this, "Failed to load categories", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -212,7 +208,6 @@ public class EventTypeManagementActivity extends BaseActivity {
     
     private void createEventType(String name, String description) {
         
-        // Get selected categories and convert to Category objects
         List<Category> selectedCategories = new ArrayList<>();
         for (Long categoryId : selectedCategoryIds) {
             for (CategoryDTO categoryDTO : categories) {
@@ -270,7 +265,6 @@ public class EventTypeManagementActivity extends BaseActivity {
     }
     
     private void updateEventType(String name, String description) {
-        // Get selected categories and convert to Category objects
         List<Category> selectedCategories = new ArrayList<>();
         for (Long categoryId : selectedCategoryIds) {
             for (CategoryDTO categoryDTO : categories) {
@@ -329,12 +323,10 @@ public class EventTypeManagementActivity extends BaseActivity {
         etEventTypeDescription.setText("");
         selectedCategoryIds.clear();
         
-        // Uncheck all category checkboxes
         for (CheckBox checkBox : categoryCheckBoxes) {
             checkBox.setChecked(false);
         }
         
-        // Reset edit mode
         isEditMode = false;
         editingEventType = null;
         
@@ -392,11 +384,9 @@ public class EventTypeManagementActivity extends BaseActivity {
             isEditMode = true;
             editingEventType = eventType;
             
-            // Fill form with existing data
             etEventTypeName.setText(eventType.getName());
             etEventTypeDescription.setText(eventType.getDescription());
             
-            // Clear and set selected categories
             selectedCategoryIds.clear();
             if (eventType.getSuggestedCategories() != null) {
                 for (CategoryDTO cat : eventType.getSuggestedCategories()) {
@@ -404,7 +394,6 @@ public class EventTypeManagementActivity extends BaseActivity {
                 }
             }
             
-            // Update checkboxes
             for (CheckBox checkBox : categoryCheckBoxes) {
                 Long categoryId = (Long) checkBox.getTag();
                 checkBox.setChecked(selectedCategoryIds.contains(categoryId));

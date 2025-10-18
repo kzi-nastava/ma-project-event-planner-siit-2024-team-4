@@ -37,7 +37,6 @@ public class AboutProductActivity extends BaseActivity {
     private String userRole;
     private String currentUserId;
 
-    // Views
     private ViewPager2 viewPagerImages;
     private LinearLayout layoutIndicators;
     private TextView tvProductName;
@@ -59,7 +58,6 @@ public class AboutProductActivity extends BaseActivity {
         FrameLayout contentFrame = findViewById(R.id.content_frame);
         getLayoutInflater().inflate(R.layout.activity_about_product, contentFrame, true);
 
-        // Get product from intent
         product = (ProductDTO) getIntent().getSerializableExtra("product");
         if (product == null) {
             Toast.makeText(this, "Product not found", Toast.LENGTH_SHORT).show();
@@ -97,37 +95,31 @@ public class AboutProductActivity extends BaseActivity {
     }
 
     private void setupButtons() {
-        // Contact Provider button
         btnContactProvider.setOnClickListener(v -> {
             // TODO: Implement contact provider functionality
             Toast.makeText(this, "Contact provider functionality coming soon", Toast.LENGTH_SHORT).show();
         });
 
-        // Edit Product button - only visible for product owner
         if (product.getServiceProviderId() != null && 
             currentUserId != null && 
             product.getServiceProviderId().toString().equals(currentUserId) &&
             ("SPProvider".equals(userRole) || "SERVICE_PROVIDER".equals(userRole))) {
             btnEditProduct.setVisibility(View.VISIBLE);
             btnEditProduct.setOnClickListener(v -> {
-                // TODO: Navigate to edit product activity
                 Toast.makeText(this, "Edit product functionality coming soon", Toast.LENGTH_SHORT).show();
             });
         }
     }
 
     private void fillProductInfo() {
-        // Set product name
         tvProductName.setText(product.getName());
 
-        // Set price
         if (product.getPrice() != null) {
             tvPrice.setText("Price: " + product.getPrice().intValue() + " RSD");
         } else {
             tvPrice.setText("Price: N/A");
         }
         
-        // Set discount
         if (product.getDiscount() != null && product.getDiscount() > 0) {
             tvDiscount.setText("Discount: " + product.getDiscount().intValue() + "%");
             tvDiscount.setVisibility(View.VISIBLE);
@@ -135,7 +127,6 @@ public class AboutProductActivity extends BaseActivity {
             tvDiscount.setVisibility(View.GONE);
         }
 
-        // Set availability
         if (product.getAvailable() != null && product.getAvailable()) {
             tvAvailability.setText("Available");
             tvAvailability.setTextColor(getResources().getColor(android.R.color.white));
@@ -146,14 +137,12 @@ public class AboutProductActivity extends BaseActivity {
             tvAvailability.setBackgroundResource(R.drawable.unavailable_background);
         }
 
-        // Set description
         if (product.getDescription() != null && !product.getDescription().trim().isEmpty()) {
             tvDescription.setText(product.getDescription());
         } else {
             tvDescription.setText("No description available");
         }
 
-        // Set provider info
         if (product.getServiceProviderName() != null && !product.getServiceProviderName().trim().isEmpty()) {
             tvProviderName.setText(product.getServiceProviderName());
         } else if (product.getProviderId() != null) {
@@ -194,7 +183,6 @@ public class AboutProductActivity extends BaseActivity {
             viewPagerImages.setAdapter(imageAdapter);
             viewPagerImages.setVisibility(View.VISIBLE);
             
-            // Setup indicators if more than one image
             if (product.getImageURLs().size() > 1) {
                 setupIndicators(product.getImageURLs().size());
                 layoutIndicators.setVisibility(View.VISIBLE);
@@ -202,7 +190,6 @@ public class AboutProductActivity extends BaseActivity {
                 layoutIndicators.setVisibility(View.GONE);
             }
         } else {
-            // Show default image if no images
             viewPagerImages.setVisibility(View.GONE);
             layoutIndicators.setVisibility(View.GONE);
         }

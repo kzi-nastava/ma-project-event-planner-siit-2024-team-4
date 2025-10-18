@@ -140,7 +140,7 @@ public class AllProductsActivity extends BaseActivity implements ProductAdapter.
         
         fabAddProduct.setOnClickListener(v -> {
             Intent intent = new Intent(AllProductsActivity.this, AddProductActivity.class);
-            startActivityForResult(intent, 200); // Request code 200 for product creation
+            startActivityForResult(intent, 200);
         });
     }
     
@@ -178,7 +178,6 @@ public class AllProductsActivity extends BaseActivity implements ProductAdapter.
         String token = prefs.getString("jwt_token", null);
         
         if (token == null) {
-            // Load without event types if not logged in
             return;
         }
         
@@ -347,7 +346,7 @@ public class AllProductsActivity extends BaseActivity implements ProductAdapter.
                 if (p2.getPrice() == null) return -1;
                 return Double.compare(p2.getPrice(), p1.getPrice());
             });
-        } else { // Name
+        } else { 
             filteredProducts.sort((p1, p2) -> p1.getName().compareToIgnoreCase(p2.getName()));
         }
         
@@ -376,12 +375,11 @@ public class AllProductsActivity extends BaseActivity implements ProductAdapter.
     public void onEditClick(ProductDTO product) {
         Intent intent = new Intent(this, EditProductActivity.class);
         intent.putExtra("product", product);
-        startActivityForResult(intent, 300); // Request code 300 for product edit
+        startActivityForResult(intent, 300);
     }
     
     @Override
     public void onDeleteClick(ProductDTO product) {
-        // Show confirmation dialog
         new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Delete Product")
                 .setMessage("Are you sure you want to delete \"" + product.getName() + "\"? This action cannot be undone.")
@@ -405,7 +403,6 @@ public class AllProductsActivity extends BaseActivity implements ProductAdapter.
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(AllProductsActivity.this, "Product deleted successfully", Toast.LENGTH_SHORT).show();
-                    // Remove from local lists and refresh adapter
                     allProducts.remove(product);
                     filteredProducts.remove(product);
                     productAdapter.updateProducts(filteredProducts);
@@ -427,10 +424,8 @@ public class AllProductsActivity extends BaseActivity implements ProductAdapter.
         super.onActivityResult(requestCode, resultCode, data);
         
         if (requestCode == 200 && resultCode == RESULT_OK) {
-            // Refresh products after adding new product
             loadProducts();
         } else if (requestCode == 300 && resultCode == RESULT_OK) {
-            // Refresh products after editing product
             loadProducts();
         }
     }
