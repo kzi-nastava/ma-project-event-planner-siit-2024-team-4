@@ -1,8 +1,9 @@
 package com.example.eventplanner.dto;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class EventTypeDTO {
+public class EventTypeDTO implements Serializable {
     private Long id;
     private String name;
     private String description;

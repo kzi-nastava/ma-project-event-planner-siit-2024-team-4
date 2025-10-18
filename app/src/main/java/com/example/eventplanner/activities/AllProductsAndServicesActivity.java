@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.eventplanner.R;
-import com.example.eventplanner.adapters.ProductAdapter;
+import com.example.eventplanner.adapters.OldProductAdapter;
 import com.example.eventplanner.activities.Product;
 import com.google.android.material.navigation.NavigationView;
 
@@ -27,7 +27,7 @@ import java.util.List;
 public class AllProductsAndServicesActivity extends AppCompatActivity {
 
     private RecyclerView rvAllProductsServices;
-    private ProductAdapter productAdapter;
+    private OldProductAdapter productAdapter;
     private List<Product> productList;
     private androidx.appcompat.widget.SearchView searchViewProducts;
     private Spinner spinnerFilterProducts;
@@ -90,7 +90,7 @@ public class AllProductsAndServicesActivity extends AppCompatActivity {
 
         // Postavljanje RecyclerView-a
         rvAllProductsServices.setLayoutManager(new LinearLayoutManager(this));
-        productAdapter = new ProductAdapter(productList);
+        productAdapter = new OldProductAdapter(productList);
         rvAllProductsServices.setAdapter(productAdapter);
 
         // Funkcionalnost pretrage

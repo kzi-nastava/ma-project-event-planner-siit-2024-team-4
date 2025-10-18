@@ -88,6 +88,15 @@
         <activity
             android:name=".activities.AboutEventActivity"
             android:exported="false" />
+        <activity
+            android:name=".activities.AllProductsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.AboutProductActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.MyEventsActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

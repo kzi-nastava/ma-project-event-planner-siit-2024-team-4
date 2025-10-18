@@ -86,8 +86,7 @@ public class MainActivity extends BaseActivity {
 
         // OnClickListener za "View All Products and Services" button
         viewAllProductsButton.setOnClickListener(v -> {
-
-            Intent intent = new Intent(MainActivity.this, AllProductsAndServicesActivity.class);
+            Intent intent = new Intent(MainActivity.this, AllProductsActivity.class);
             startActivity(intent);
         });
     }
