@@ -1,35 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<<<<<<< HEAD
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <!-- Info Text -->
-        <TextView
-            android:id="@+id/tvInfo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Showing available and visible services"
-            android:textSize="12sp"
-            android:textColor="@android:color/darker_gray"
-            android:layout_marginBottom="8dp"
-            android:gravity="center" />
-
-        <!-- Add Service Button -->
-        <Button
-            android:id="@+id/btnAddService"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/add_service"
-            android:layout_gravity="end"
-            android:layout_marginBottom="16dp" />
-=======
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -44,155 +13,153 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
->>>>>>> e554bf1 ([update] services)
 
-        <!-- Search Section -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="8dp">
-
-            <EditText
-                android:id="@+id/etSearch"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="@string/search_services"
-                android:inputType="text"
-                android:maxLines="1" />
-
-            <Button
-                android:id="@+id/btnSearch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@android:string/search_go" />
-        </LinearLayout>
-
-        <!-- Filter Toggle Button -->
-        <Button
-            android:id="@+id/btnToggleFilters"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/filters"
-            android:layout_marginBottom="8dp"/>
-
-        <!-- Filter Layout (initially hidden) -->
-        <LinearLayout
-            android:id="@+id/filterLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone"
-            android:padding="8dp"
-            android:background="@drawable/card_background"
-            android:layout_marginBottom="16dp">
-
+            <!-- Info Text -->
             <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/tvInfo"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/price"
-                android:textStyle="bold"
-                android:layout_marginBottom="4dp"/>
+                android:text="Showing available and visible services"
+                android:textSize="12sp"
+                android:textColor="@android:color/darker_gray"
+                android:layout_marginBottom="8dp"
+                android:gravity="center" />
 
+            <!-- Search Section -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:gravity="center_vertical"
                 android:layout_marginBottom="8dp">
+
                 <EditText
-                    android:id="@+id/etMinPrice"
+                    android:id="@+id/etSearch"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="@string/min_price"
-                    android:inputType="numberDecimal"
-                    android:layout_marginEnd="8dp"/>
-                <EditText
-                    android:id="@+id/etMaxPrice"
-                    android:layout_width="0dp"
+                    android:hint="@string/search_services"
+                    android:inputType="text"
+                    android:maxLines="1" />
+
+                <Button
+                    android:id="@+id/btnSearch"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="@string/max_price"
-                    android:inputType="numberDecimal"/>
+                    android:text="@android:string/search_go" />
             </LinearLayout>
 
-            <!-- Category Filter -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/category"
-                android:textStyle="bold"
-                android:layout_marginBottom="4dp"/>
-            <Spinner
-                android:id="@+id/spinnerCategory"
+            <!-- Filter Toggle Button -->
+            <Button
+                android:id="@+id/btnToggleFilters"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text="@string/filters"
                 android:layout_marginBottom="8dp"/>
 
-            <!-- Event Type Filter -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/event_type"
-                android:textStyle="bold"
-                android:layout_marginBottom="4dp"/>
-            <Spinner
-                android:id="@+id/spinnerEventType"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"/>
-
-            <!-- Availability Filter -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/availability"
-                android:textStyle="bold"
-                android:layout_marginBottom="4dp"/>
-            <Spinner
-                android:id="@+id/spinnerAvailability"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"/>
-
+            <!-- Filter Layout (initially hidden) -->
             <LinearLayout
+                android:id="@+id/filterLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="end"
-                android:layout_marginTop="8dp">
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:padding="8dp"
+                android:background="@drawable/card_background"
+                android:layout_marginBottom="16dp">
 
-                <Button
-                    android:id="@+id/btnClearFilters"
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Clear Filters"
-                    android:layout_marginEnd="8dp"/>
+                    android:text="@string/price"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
 
-                <Button
-                    android:id="@+id/btnApplyFilters"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+                    <EditText
+                        android:id="@+id/etMinPrice"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="@string/min_price"
+                        android:inputType="numberDecimal"
+                        android:layout_marginEnd="8dp"/>
+                    <EditText
+                        android:id="@+id/etMaxPrice"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="@string/max_price"
+                        android:inputType="numberDecimal"/>
+                </LinearLayout>
+
+                <!-- Category Filter -->
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/apply_filters"/>
+                    android:text="@string/category"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
+                <Spinner
+                    android:id="@+id/spinnerCategory"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"/>
+
+                <!-- Event Type Filter -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/event_type"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
+                <Spinner
+                    android:id="@+id/spinnerEventType"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"/>
+
+                <!-- Availability Filter -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/availability"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
+                <Spinner
+                    android:id="@+id/spinnerAvailability"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="end"
+                    android:layout_marginTop="8dp">
+
+                    <Button
+                        android:id="@+id/btnClearFilters"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Clear Filters"
+                        android:layout_marginEnd="8dp"/>
+
+                    <Button
+                        android:id="@+id/btnApplyFilters"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/apply_filters"/>
+
+                </LinearLayout>
 
             </LinearLayout>
 
-        </LinearLayout>
-
-<<<<<<< HEAD
-        <!-- Services List -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerServices"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="200dp" />
-
-    </LinearLayout>
-
-</ScrollView>
-=======
             <!-- Services List -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerServices"
@@ -217,4 +184,3 @@
         android:elevation="8dp" />
 
 </RelativeLayout>
->>>>>>> e554bf1 ([update] services)

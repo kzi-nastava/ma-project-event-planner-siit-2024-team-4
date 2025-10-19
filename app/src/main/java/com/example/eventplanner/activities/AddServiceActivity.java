@@ -72,6 +72,7 @@ public class AddServiceActivity extends AppCompatActivity {
     private List<Uri> selectedImageUris = new ArrayList<>();
     private List<CheckBox> categoryCheckboxes = new ArrayList<>();
     private CategoryDTO selectedCategory = null;
+    private Boolean visible = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,7 +149,15 @@ public class AddServiceActivity extends AppCompatActivity {
             public void onResponse(Call<List<CategoryDTO>> call, Response<List<CategoryDTO>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     categories.clear();
-                    categories.addAll(response.body());
+                    // Only add approved categories
+                    for (CategoryDTO category : response.body()) {
+                        android.util.Log.d("AddServiceActivity", "Category: " + category.name + 
+                            ", isApprovedByAdmin: " + category.isApprovedByAdmin);
+                        if (category.isApprovedByAdmin) {
+                            categories.add(category);
+                        }
+                    }
+                    android.util.Log.d("AddServiceActivity", "Loaded " + categories.size() + " approved categories");
                     setupCategoryCheckboxes();
                 }
             }
@@ -418,6 +427,7 @@ public class AddServiceActivity extends AppCompatActivity {
                             if (cat.id.equals(createdCategory.id)) {
                                 checkbox.setChecked(true);
                                 selectedCategory = createdCategory;
+                                visible = false;
                                 break;
                             }
                         }
@@ -485,11 +495,19 @@ public class AddServiceActivity extends AppCompatActivity {
         
         dto.setAvailable(cbAvailable.isChecked());
         
-        boolean isVisible = true;
-        if (selectedCategory != null && !selectedCategory.isApprovedByAdmin) {
-            isVisible = false;
+//        boolean isVisible = true;
+//        if (selectedCategory != null && !selectedCategory.isApprovedByAdmin) {
+//            isVisible = false;
+//        }
+        
+        // Debug log
+        if (selectedCategory != null) {
+            android.util.Log.d("AddServiceActivity", "Selected category: " + selectedCategory.name + 
+                ", isApprovedByAdmin: " + selectedCategory.isApprovedByAdmin + 
+                ", will set visible: " + visible);
         }
-        dto.setVisible(isVisible);
+        
+        dto.setVisible(visible);
         
         if (selectedCategory == null) {
             Toast.makeText(this, "Please select a category", Toast.LENGTH_SHORT).show();
@@ -554,6 +572,8 @@ public class AddServiceActivity extends AppCompatActivity {
         
         Gson gson = new Gson();
         String dtoJson = gson.toJson(dto);
+        android.util.Log.d("AddServiceActivity", "=== SENDING SERVICE DTO ===");
+        android.util.Log.d("AddServiceActivity", "DTO JSON: " + dtoJson);
         RequestBody dtoBody = RequestBody.create(MediaType.parse("application/json"), dtoJson);
         
         List<MultipartBody.Part> imageParts = new ArrayList<>();
@@ -572,10 +592,24 @@ public class AddServiceActivity extends AppCompatActivity {
         serviceAPI.createService(getAuthHeader(), dtoBody, imageParts).enqueue(new Callback<ServiceDTO>() {
             @Override
             public void onResponse(Call<ServiceDTO> call, Response<ServiceDTO> response) {
+                android.util.Log.d("AddServiceActivity", "=== API RESPONSE ===");
+                android.util.Log.d("AddServiceActivity", "Response code: " + response.code());
+                android.util.Log.d("AddServiceActivity", "Response message: " + response.message());
+                
+                if (response.errorBody() != null) {
+                    try {
+                        String errorBody = response.errorBody().string();
+                        android.util.Log.e("AddServiceActivity", "Error response body: " + errorBody);
+                    } catch (Exception e) {
+                        android.util.Log.e("AddServiceActivity", "Error reading error body", e);
+                    }
+                }
+                
                 if (response.isSuccessful()) {
                     Toast.makeText(AddServiceActivity.this, "Service created successfully", Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
+                    android.util.Log.e("AddServiceActivity", "Error creating service - Code: " + response.code() + ", Message: " + response.message());
                     Toast.makeText(AddServiceActivity.this, "Error creating service: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }

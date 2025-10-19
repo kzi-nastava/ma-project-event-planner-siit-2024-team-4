@@ -25,7 +25,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.eventplanner.R;
 import com.example.eventplanner.activities.AddServiceActivity;
 import com.example.eventplanner.activities.EditServiceActivity;
-import com.example.eventplanner.activities.ServiceDetailsActivity;
 import com.example.eventplanner.activities.ServiceAdapter;
 import com.example.eventplanner.dto.CategoryDTO;
 import com.example.eventplanner.dto.EventTypeDTO;
@@ -44,29 +43,29 @@ import retrofit2.Response;
 
 public class AllServicesFragment extends Fragment implements ServiceAdapter.ServiceActionListener {
     
-    private RecyclerView recyclerServices;
-    private ServiceAdapter serviceAdapter;
-    private List<ServiceDTO> services;
+    private boolean needsRefresh = false;
     
+    private RecyclerView recyclerServices;
     private EditText etSearch;
     private Button btnSearch;
     private Button btnAddService;
     private LinearLayout filterLayout;
     private Button btnToggleFilters;
     private TextView tvInfo;
-    private boolean filtersVisible = false;
     
-    private EditText etMinPrice, etMaxPrice;
-    private Spinner spinnerCategory, spinnerEventType, spinnerAvailability;
+    private EditText etMinPrice;
+    private EditText etMaxPrice;
+    private Spinner spinnerCategory;
+    private Spinner spinnerEventType;
+    private Spinner spinnerAvailability;
     private Button btnApplyFilters;
     
-    private List<CategoryDTO> categories = new ArrayList<>();
-    private List<EventTypeDTO> eventTypes = new ArrayList<>();
+    private List<ServiceDTO> services;
+    private ServiceAdapter serviceAdapter;
+    private boolean isMyServices;
     
-    private boolean isMyServices = false;
-
-    public AllServicesFragment() {
-    }
+    private List<CategoryDTO> categories;
+    private List<EventTypeDTO> eventTypes;
 
     public static AllServicesFragment newInstance(boolean isMyServices) {
         AllServicesFragment fragment = new AllServicesFragment();
@@ -77,24 +76,37 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             isMyServices = getArguments().getBoolean("isMyServices", false);
         }
     }
 
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_all_services, container, false);
-        
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_all_services, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         initViews(view);
         setupRecyclerView();
-        loadFilterData();
+        loadCategories();
+        loadEventTypes();
         loadServices();
-        
-        return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Refresh the list when returning from edit or add activity
+        if (needsRefresh) {
+            loadServices();
+            needsRefresh = false;
+        }
     }
 
     private void initViews(View view) {
@@ -104,12 +116,8 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
         btnAddService = view.findViewById(R.id.btnAddService);
         filterLayout = view.findViewById(R.id.filterLayout);
         btnToggleFilters = view.findViewById(R.id.btnToggleFilters);
-<<<<<<< HEAD
         tvInfo = view.findViewById(R.id.tvInfo);
         
-=======
-
->>>>>>> e554bf1 ([update] services)
         etMinPrice = view.findViewById(R.id.etMinPrice);
         etMaxPrice = view.findViewById(R.id.etMaxPrice);
         spinnerCategory = view.findViewById(R.id.spinnerCategory);
@@ -117,32 +125,59 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
         spinnerAvailability = view.findViewById(R.id.spinnerAvailability);
         btnApplyFilters = view.findViewById(R.id.btnApplyFilters);
         Button btnClearFilters = view.findViewById(R.id.btnClearFilters);
+        
+        // Ensure filter button is visible for both All Services and My Services
+        btnToggleFilters.setVisibility(View.VISIBLE);
+        
+        // Setup availability spinner
+        setupAvailabilitySpinner();
 
         btnSearch.setOnClickListener(v -> searchServices());
-
         btnToggleFilters.setOnClickListener(v -> toggleFilters());
-        
         btnApplyFilters.setOnClickListener(v -> applyFilters());
-        
         btnClearFilters.setOnClickListener(v -> clearFilters());
 
-        if (isServiceProvider() && isMyServices) {
+        // Auto-apply filters when spinners change
+        spinnerAvailability.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, android.view.View view, int position, long id) {
+                applyFilters();
+            }
+            
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+        });
+        
+        spinnerCategory.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, android.view.View view, int position, long id) {
+                applyFilters();
+            }
+            
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+        });
+        
+        spinnerEventType.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, android.view.View view, int position, long id) {
+                applyFilters();
+            }
+            
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+        });
+
+        if (isMyServices) {
             btnAddService.setVisibility(View.VISIBLE);
             btnAddService.setOnClickListener(v -> {
+                needsRefresh = true; // Set flag to refresh when returning
                 Intent intent = new Intent(getActivity(), AddServiceActivity.class);
                 startActivity(intent);
             });
         } else {
             btnAddService.setVisibility(View.GONE);
         }
-<<<<<<< HEAD
-        if (isMyServices) {
-            tvInfo.setText("Showing all your visible services (available and unavailable)");
-        } else {
-            tvInfo.setText("Showing available and visible services");
-        }
-=======
->>>>>>> e554bf1 ([update] services)
     }
 
     private void setupRecyclerView() {
@@ -153,61 +188,129 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
     }
 
     private void loadServices() {
-        Log.d("AllServicesFragment", "loadServices called");
+        Log.d("AllServicesFragment", "=== loadServices START ===");
+        Log.d("AllServicesFragment", "isMyServices: " + isMyServices);
+        
         ServiceService service = ApiClient.getClient(getContext()).create(ServiceService.class);
         
         Call<List<ServiceDTO>> call;
         if (isMyServices) {
             Long providerId = getCurrentUserId();
-            if (providerId == -1L) {
-                Toast.makeText(getContext(), "User ID not found", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            call = service.getServicesByProviderId(getAuthHeader(), providerId);
+            Log.d("AllServicesFragment", "Loading MY services for providerId: " + providerId);
+            call = service.getMyServices(getAuthHeader(), providerId);
         } else {
+            Log.d("AllServicesFragment", "Loading ALL services");
             call = service.getAllServices(getAuthHeader());
         }
+        
+        Log.d("AllServicesFragment", "Auth header: " + getAuthHeader());
 
         call.enqueue(new Callback<List<ServiceDTO>>() {
             @Override
             public void onResponse(Call<List<ServiceDTO>> call, Response<List<ServiceDTO>> response) {
-                Log.d("AllServicesFragment", "Response received: " + response.code());
+                Log.d("AllServicesFragment", "=== API RESPONSE ===");
+                Log.d("AllServicesFragment", "Response code: " + response.code());
+                Log.d("AllServicesFragment", "Response message: " + response.message());
+                
+                if (response.errorBody() != null) {
+                    try {
+                        String errorBody = response.errorBody().string();
+                        Log.e("AllServicesFragment", "Error response body: " + errorBody);
+                    } catch (Exception e) {
+                        Log.e("AllServicesFragment", "Error reading error body", e);
+                    }
+                }
+                
                 if (response.isSuccessful() && response.body() != null) {
                     services.clear();
-                    List<ServiceDTO> allServices = response.body();
-<<<<<<< HEAD
-                                        List<ServiceDTO> filteredServices = filterServicesByVisibility(allServices);
-=======
-                    Log.d("AllServicesFragment", "Received " + allServices.size() + " services from backend");
-                    Log.d("AllServicesFragment", "Current user role: " + getCurrentUserRole());
-                    Log.d("AllServicesFragment", "Is admin: " + isAdmin());
-                    Log.d("AllServicesFragment", "Is SPP: " + isServiceProvider());
-                    
-                    List<ServiceDTO> filteredServices = filterServicesByVisibility(allServices);
-                    Log.d("AllServicesFragment", "After filtering: " + filteredServices.size() + " services");
-                    
->>>>>>> e554bf1 ([update] services)
-                    services.addAll(filteredServices);
-                    
+                    services.addAll(response.body());
                     serviceAdapter.notifyDataSetChanged();
+                    
+                    Log.d("AllServicesFragment", "Loaded " + services.size() + " services");
+                    
+                    if (services.isEmpty()) {
+                        tvInfo.setText("No services found");
+                    } else {
+                        tvInfo.setText("Showing " + services.size() + " services");
+                    }
                 } else {
-<<<<<<< HEAD
-=======
-                    Log.d("AllServicesFragment", "Error response: " + response.code() + ", body: " + response.body());
->>>>>>> e554bf1 ([update] services)
+                    Log.e("AllServicesFragment", "Response not successful - Code: " + response.code());
                     Toast.makeText(getContext(), "Error loading services: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<ServiceDTO>> call, Throwable t) {
-<<<<<<< HEAD
-=======
-                Log.e("AllServicesFragment", "Failed to load services", t);
->>>>>>> e554bf1 ([update] services)
+                Log.e("AllServicesFragment", "Network error loading services", t);
                 Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void loadCategories() {
+        CategoryService categoryService = ApiClient.getClient(getContext()).create(CategoryService.class);
+        categoryService.getAllCategories(getAuthHeader()).enqueue(new Callback<List<CategoryDTO>>() {
+            @Override
+            public void onResponse(Call<List<CategoryDTO>> call, Response<List<CategoryDTO>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    categories = response.body();
+                    setupCategorySpinner();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<CategoryDTO>> call, Throwable t) {
+                // Handle error silently
+            }
+        });
+    }
+
+    private void loadEventTypes() {
+        EventTypeService eventTypeService = ApiClient.getClient(getContext()).create(EventTypeService.class);
+        eventTypeService.getAllEventTypes(getAuthHeader()).enqueue(new Callback<List<EventTypeDTO>>() {
+            @Override
+            public void onResponse(Call<List<EventTypeDTO>> call, Response<List<EventTypeDTO>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    eventTypes = response.body();
+                    setupEventTypeSpinner();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<EventTypeDTO>> call, Throwable t) {
+                // Handle error silently
+            }
+        });
+    }
+
+    private void setupCategorySpinner() {
+        if (categories == null) return;
+        
+        List<String> categoryNames = new ArrayList<>();
+        categoryNames.add("All Categories");
+        for (CategoryDTO category : categories) {
+                categoryNames.add(category.name);
+        }
+        
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), 
+                android.R.layout.simple_spinner_item, categoryNames);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerCategory.setAdapter(adapter);
+    }
+
+    private void setupEventTypeSpinner() {
+        if (eventTypes == null) return;
+        
+        List<String> eventTypeNames = new ArrayList<>();
+        eventTypeNames.add("All Event Types");
+        for (EventTypeDTO eventType : eventTypes) {
+            eventTypeNames.add(eventType.getName());
+        }
+        
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), 
+                android.R.layout.simple_spinner_item, eventTypeNames);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerEventType.setAdapter(adapter);
     }
 
     private void searchServices() {
@@ -216,240 +319,76 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
             loadServices();
             return;
         }
-
-        ServiceService service = ApiClient.getClient(getContext()).create(ServiceService.class);
-        service.searchServices(getAuthHeader(), searchTerm).enqueue(new Callback<List<ServiceDTO>>() {
-            @Override
-            public void onResponse(Call<List<ServiceDTO>> call, Response<List<ServiceDTO>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    List<ServiceDTO> filteredServices = filterServicesByVisibility(response.body());
-                    services.clear();
-                    services.addAll(filteredServices);
-                    serviceAdapter.notifyDataSetChanged();
-                    if (filteredServices.isEmpty()) {
-                        Toast.makeText(getContext(), "No services found matching '" + searchTerm + "'", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(getContext(), "Found " + filteredServices.size() + " services matching '" + searchTerm + "'", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(getContext(), "Error searching services", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<ServiceDTO>> call, Throwable t) {
-                Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void loadFilterData() {
-        CategoryService categoryService = ApiClient.getClient(getContext()).create(CategoryService.class);
-        categoryService.getAllCategories(getAuthHeader()).enqueue(new Callback<List<CategoryDTO>>() {
-            @Override
-            public void onResponse(Call<List<CategoryDTO>> call, Response<List<CategoryDTO>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    categories.clear();
-                    categories.addAll(response.body());
-                    setupCategorySpinner();
-                }
-            }
-            @Override
-            public void onFailure(Call<List<CategoryDTO>> call, Throwable t) {
-                // Handle error silently
-            }
-        });
-
-        EventTypeService eventTypeService = ApiClient.getClient(getContext()).create(EventTypeService.class);
-        eventTypeService.getAllEventTypes(getAuthHeader()).enqueue(new Callback<List<EventTypeDTO>>() {
-            @Override
-            public void onResponse(Call<List<EventTypeDTO>> call, Response<List<EventTypeDTO>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    eventTypes.clear();
-                    eventTypes.addAll(response.body());
-                    setupEventTypeSpinner();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<EventTypeDTO>> call, Throwable t) {
-            }
-        });
-        setupAvailabilitySpinner();
-    }
-
-    private void setupCategorySpinner() {
-        List<String> categoryNames = new ArrayList<>();
-        categoryNames.add("All Categories");
-        for (CategoryDTO category : categories) {
-            if (category.isApprovedByAdmin) {
-                categoryNames.add(category.name);
+        
+        // Filter services by search term
+        List<ServiceDTO> filteredServices = new ArrayList<>();
+        for (ServiceDTO service : services) {
+            if (service.getName().toLowerCase().contains(searchTerm.toLowerCase()) ||
+                service.getDescription().toLowerCase().contains(searchTerm.toLowerCase())) {
+                filteredServices.add(service);
             }
         }
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, categoryNames);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerCategory.setAdapter(adapter);
-    }
-
-    private void setupEventTypeSpinner() {
-        List<String> eventTypeNames = new ArrayList<>();
-        eventTypeNames.add("All Event Types");
-        for (EventTypeDTO eventType : eventTypes) {
-            eventTypeNames.add(eventType.getName());
-        }
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, eventTypeNames);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerEventType.setAdapter(adapter);
-    }
-
-    private void setupAvailabilitySpinner() {
-        String[] availabilityOptions = {"All", "Available Only", "Not Available Only"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, availabilityOptions);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerAvailability.setAdapter(adapter);
+        
+        services.clear();
+        services.addAll(filteredServices);
+        serviceAdapter.notifyDataSetChanged();
+        
+        tvInfo.setText("Found " + filteredServices.size() + " services matching '" + searchTerm + "'");
     }
 
     private void toggleFilters() {
-        filtersVisible = !filtersVisible;
-        filterLayout.setVisibility(filtersVisible ? View.VISIBLE : View.GONE);
+        if (filterLayout.getVisibility() == View.GONE) {
+            filterLayout.setVisibility(View.VISIBLE);
+            btnToggleFilters.setText("Hide Filters");
+        } else {
+            filterLayout.setVisibility(View.GONE);
+            btnToggleFilters.setText("Show Filters");
+        }
     }
 
     private void applyFilters() {
-        ServiceService service = ApiClient.getClient(getContext()).create(ServiceService.class);
-        final Long categoryId;
-        if (spinnerCategory.getSelectedItemPosition() > 0) {
-            String selectedCategory = (String) spinnerCategory.getSelectedItem();
-            Long tempCategoryId = null;
-            for (CategoryDTO category : categories) {
-                if (category.name.equals(selectedCategory)) {
-                    tempCategoryId = category.id;
-                    break;
-                }
+        // Apply price filter
+        String minPriceStr = etMinPrice.getText().toString().trim();
+        String maxPriceStr = etMaxPrice.getText().toString().trim();
+        
+        double minPrice = TextUtils.isEmpty(minPriceStr) ? 0 : Double.parseDouble(minPriceStr);
+        double maxPrice = TextUtils.isEmpty(maxPriceStr) ? Double.MAX_VALUE : Double.parseDouble(maxPriceStr);
+        
+        // Apply category filter
+        int categoryPosition = spinnerCategory.getSelectedItemPosition();
+        Long categoryId = (categoryPosition > 0 && categories != null) ? 
+                categories.get(categoryPosition - 1).id : null;
+        
+        // Apply event type filter
+        int eventTypePosition = spinnerEventType.getSelectedItemPosition();
+        Long eventTypeId = (eventTypePosition > 0 && eventTypes != null) ? 
+                eventTypes.get(eventTypePosition - 1).getId() : null;
+        
+        // Apply availability filter
+        int availabilityPosition = spinnerAvailability.getSelectedItemPosition();
+        Boolean available = null;
+        if (availabilityPosition == 1) available = true;
+        else if (availabilityPosition == 2) available = false;
+        
+        // Filter services
+        List<ServiceDTO> filteredServices = new ArrayList<>();
+        for (ServiceDTO service : services) {
+            boolean matchesPrice = service.getPrice() >= minPrice && service.getPrice() <= maxPrice;
+            boolean matchesCategory = categoryId == null || service.getCategory().getId().equals(categoryId);
+            boolean matchesEventType = eventTypeId == null || 
+                    service.getEventTypes().stream().anyMatch(et -> et.getId().equals(eventTypeId));
+            boolean matchesAvailability = available == null || service.isAvailable() == available;
+            
+            if (matchesPrice && matchesCategory && matchesEventType && matchesAvailability) {
+                filteredServices.add(service);
             }
-            categoryId = tempCategoryId;
-        } else {
-            categoryId = null;
-        }
-
-        final Long eventTypeId;
-        if (spinnerEventType.getSelectedItemPosition() > 0) {
-            String selectedEventType = (String) spinnerEventType.getSelectedItem();
-            Long tempEventTypeId = null;
-            for (EventTypeDTO eventType : eventTypes) {
-                if (eventType.getName().equals(selectedEventType)) {
-                    tempEventTypeId = eventType.getId();
-                    break;
-                }
-            }
-            eventTypeId = tempEventTypeId;
-        } else {
-            eventTypeId = null;
-        }
-
-        Double tempMinPrice = null;
-        if (!TextUtils.isEmpty(etMinPrice.getText().toString())) {
-            try {
-                tempMinPrice = Double.parseDouble(etMinPrice.getText().toString());
-            } catch (NumberFormatException e) {
-                // Keep null
-            }
-        }
-        final Double minPrice = tempMinPrice;
-        Double tempMaxPrice = null;
-        if (!TextUtils.isEmpty(etMaxPrice.getText().toString())) {
-            try {
-                tempMaxPrice = Double.parseDouble(etMaxPrice.getText().toString());
-            } catch (NumberFormatException e) {
-                // Keep null
-            }
-        }
-        final Double maxPrice = tempMaxPrice;
-
-        final Boolean isAvailable;
-        int availabilitySelection = spinnerAvailability.getSelectedItemPosition();
-        if (availabilitySelection == 1) {
-            isAvailable = true;
-        } else if (availabilitySelection == 2) {
-            isAvailable = false;
-        } else {
-            isAvailable = null;
-        }
-
-        // Apply filters - client-side filtering
-        // First, we need to reload all services to get fresh data
-        ServiceService serviceAPI = ApiClient.getClient(getContext()).create(ServiceService.class);
-        Call<List<ServiceDTO>> call;
-        if (isMyServices) {
-            Long providerId = getCurrentUserId();
-            if (providerId == -1L) {
-                Toast.makeText(getContext(), "User ID not found", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            call = serviceAPI.getServicesByProviderId(getAuthHeader(), providerId);
-        } else {
-            call = serviceAPI.getAllServices(getAuthHeader());
         }
         
-        call.enqueue(new Callback<List<ServiceDTO>>() {
-            @Override
-            public void onResponse(Call<List<ServiceDTO>> call, Response<List<ServiceDTO>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    List<ServiceDTO> allServices = response.body();
-                    List<ServiceDTO> visibilityFilteredServices = filterServicesByVisibility(allServices);
-                    List<ServiceDTO> filteredServices = new ArrayList<>();
-                    
-                    for (ServiceDTO serviceItem : visibilityFilteredServices) {
-                        boolean matches = true;
-                        if (categoryId != null && (serviceItem.getCategory() == null || !serviceItem.getCategory().id.equals(categoryId))) {
-                            matches = false;
-                        }
-                                                if (eventTypeId != null) {
-                            boolean hasEventType = false;
-                            if (serviceItem.getEventTypes() != null) {
-                                for (EventTypeDTO eventType : serviceItem.getEventTypes()) {
-                                    if (eventType.getId().equals(eventTypeId)) {
-                                        hasEventType = true;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (!hasEventType) {
-                                matches = false;
-                            }
-                        }
-                        if (minPrice != null && serviceItem.getPrice() < minPrice) {
-                            matches = false;
-                        }
-                        if (maxPrice != null && serviceItem.getPrice() > maxPrice) {
-                            matches = false;
-                        }
-                        if (isAvailable != null && serviceItem.isAvailable() != isAvailable) {
-                            matches = false;
-                        }
-                        if (matches) {
-                            filteredServices.add(serviceItem);
-                        }
-                    }
                     services.clear();
                     services.addAll(filteredServices);
                     serviceAdapter.notifyDataSetChanged();
                     
-                    // Show results count
-                    if (filteredServices.isEmpty()) {
-                        Toast.makeText(getContext(), "No services found matching your criteria", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(getContext(), "Found " + filteredServices.size() + " services", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(getContext(), "Error loading services for filtering", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<ServiceDTO>> call, Throwable t) {
-                Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+        tvInfo.setText("Showing " + filteredServices.size() + " filtered services");
     }
     
     private void clearFilters() {
@@ -458,127 +397,12 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
         spinnerCategory.setSelection(0);
         spinnerEventType.setSelection(0);
         spinnerAvailability.setSelection(0);
-        
         loadServices();
-        
-        Toast.makeText(getContext(), "Filters cleared", Toast.LENGTH_SHORT).show();
     }
 
-    /**
-     * Filters services based on visibility and availability rules:
-<<<<<<< HEAD
-     * - Niko ne vidi nevidljive usluge (visible = false)
-=======
-     * - Admin vidi sve servise koje backend vraća (backend već filtrira vidljive)
-     * - Niko ne vidi nevidljive usluge (visible = false) - backend ih ne vraća
->>>>>>> e554bf1 ([update] services)
-     * - Svi mogu videti dostupne usluge (available = true)
-     * - SPP može videti i svoje nedostupne usluge (available = false, ali samo svoje)
-     */
-    private List<ServiceDTO> filterServicesByVisibility(List<ServiceDTO> allServices) {
-        List<ServiceDTO> filteredServices = new ArrayList<>();
-        boolean isSPP = isServiceProvider();
-<<<<<<< HEAD
-=======
-        boolean isAdmin = isAdmin();
->>>>>>> e554bf1 ([update] services)
-        
-        for (ServiceDTO service : allServices) {
-            boolean shouldShow = false;
-            
-<<<<<<< HEAD
-            // Prvo proveri da li je usluga vidljiva - niko ne vidi nevidljive
-            if (!service.isVisible()) {
-                shouldShow = false;
-                Log.d("AllServicesFragment", "Service not visible: " + service.getName());
-=======
-            if (isAdmin) {
-                // Admin vidi sve servise koje backend vraća - ne filtrira se ništa
-                shouldShow = true;
-                Log.d("AllServicesFragment", "Admin - Service: " + service.getName() + 
-                      ", Available: " + service.isAvailable() + ", Visible: " + service.isVisible() + 
-                      ", Should show: " + shouldShow);
->>>>>>> e554bf1 ([update] services)
-            } else if (isMyServices && isSPP) {
-                // SPP user viewing their own services - show all visible services (available and unavailable)
-                Long currentUserId = getCurrentUserId();
-                Long serviceProviderId = service.getProvider() != null ? service.getProvider().getId() : service.getProviderId();
-                shouldShow = currentUserId.equals(serviceProviderId);
-                Log.d("AllServicesFragment", "SPP My Services - Service: " + service.getName() + 
-                      ", Should show: " + shouldShow + ", Current user: " + currentUserId + 
-                      ", Service provider: " + serviceProviderId);
-<<<<<<< HEAD
-            } else {
-                // Svi ostali - samo dostupne usluge
-                shouldShow = service.isAvailable();
-                Log.d("AllServicesFragment", "All Services - Service: " + service.getName() + 
-=======
-            } else if (isSPP) {
-                // SPP korisnici vide sve servise (i dostupne i nedostupne)
-                shouldShow = true;
-                Log.d("AllServicesFragment", "SPP All Services - Service: " + service.getName() + 
-                      ", Available: " + service.isAvailable() + ", Visible: " + service.isVisible() + 
-                      ", Should show: " + shouldShow);
-            } else {
-                // Ostali korisnici - samo dostupne usluge
-                shouldShow = service.isAvailable();
-                Log.d("AllServicesFragment", "Regular User - Service: " + service.getName() + 
->>>>>>> e554bf1 ([update] services)
-                      ", Available: " + service.isAvailable() + ", Visible: " + service.isVisible() + 
-                      ", Should show: " + shouldShow);
-            }
-            
-            if (shouldShow) {
-                filteredServices.add(service);
-            }
-        }
-        
-        return filteredServices;
-    }
-
-    private boolean isServiceProvider() {
-        String userRole = requireContext().getSharedPreferences("MyAppPrefs", getContext().MODE_PRIVATE).getString("user_role", null);
-        Log.d("AllServicesFragment", "Current user role: " + userRole);
-<<<<<<< HEAD
-        boolean isSPP = "SPP".equals(userRole) || "SERVICE_PROVIDER".equals(userRole);
-=======
-        boolean isSPP = "SPP".equals(userRole) || "SERVICE_PROVIDER".equals(userRole) || "SPProvider".equals(userRole);
->>>>>>> e554bf1 ([update] services)
-        Log.d("AllServicesFragment", "Is service provider: " + isSPP);
-        return isSPP;
-    }
-
-    private boolean isAdmin() {
-        String userRole = requireContext().getSharedPreferences("MyAppPrefs", getContext().MODE_PRIVATE).getString("user_role", null);
-        Log.d("AllServicesFragment", "Current user role for admin check: " + userRole);
-<<<<<<< HEAD
-        boolean isAdmin = "ADMIN".equals(userRole) || "admin".equals(userRole);
-=======
-        boolean isAdmin = "ADMIN".equals(userRole) || "admin".equals(userRole) || "Admin".equals(userRole);
->>>>>>> e554bf1 ([update] services)
-        Log.d("AllServicesFragment", "Is admin: " + isAdmin);
-        return isAdmin;
-    }
-
-    private Long getCurrentUserId() {
-        SharedPreferences prefs = requireContext().getSharedPreferences("MyAppPrefs", getContext().MODE_PRIVATE);
-        return prefs.getLong("user_id", -1L);
-    }
-
-    private String getAuthHeader() {
-        String token = requireContext().getSharedPreferences("MyAppPrefs", getContext().MODE_PRIVATE).getString("jwt_token", null);
-        return token != null ? "Bearer " + token : "";
-    }
-
-<<<<<<< HEAD
-=======
-    private String getCurrentUserRole() {
-        return requireContext().getSharedPreferences("MyAppPrefs", getContext().MODE_PRIVATE).getString("user_role", null);
-    }
-
->>>>>>> e554bf1 ([update] services)
     @Override
     public void onEdit(ServiceDTO service) {
+        needsRefresh = true; // Set flag to refresh when returning
         Intent intent = new Intent(getActivity(), EditServiceActivity.class);
         intent.putExtra("serviceId", service.getId());
         startActivity(intent);
@@ -586,19 +410,34 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
 
     @Override
     public void onDelete(ServiceDTO service) {
-        new androidx.appcompat.app.AlertDialog.Builder(getContext())
+        new android.app.AlertDialog.Builder(getContext())
                 .setTitle("Delete Service")
-                .setMessage("Are you sure you want to delete " + service.getName() + "?")
+                .setMessage("Are you sure you want to delete '" + service.getName() + "'?")
                 .setPositiveButton("Delete", (dialog, which) -> {
+                    deleteService(service);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    @Override
+    public void onView(ServiceDTO service) {
+        // For now, just show a simple message - could be expanded to show service details
+        Toast.makeText(getContext(), "Viewing: " + service.getName(), Toast.LENGTH_SHORT).show();
+    }
+
+    private void deleteService(ServiceDTO service) {
                     ServiceService serviceAPI = ApiClient.getClient(getContext()).create(ServiceService.class);
                     serviceAPI.deleteService(getAuthHeader(), service.getId()).enqueue(new Callback<Void>() {
                         @Override
                         public void onResponse(Call<Void> call, Response<Void> response) {
                             if (response.isSuccessful()) {
-                                Toast.makeText(getContext(), "Service deleted successfully", Toast.LENGTH_SHORT).show();
-                                loadServices();
+                    // Remove from local list and refresh
+                    services.remove(service);
+                    serviceAdapter.notifyDataSetChanged();
+                    updateInfoText();
                             } else {
-                                Toast.makeText(getContext(), "Error deleting service", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Error deleting service: " + response.code(), Toast.LENGTH_SHORT).show();
                             }
                         }
 
@@ -607,23 +446,37 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
                             Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
     }
 
-    @Override
-    public void onView(ServiceDTO service) {
-        // Open ServiceDetailsActivity
-        Intent intent = new Intent(getActivity(), ServiceDetailsActivity.class);
-        intent.putExtra("serviceId", service.getId());
-        startActivity(intent);
+    private void updateInfoText() {
+        if (services.isEmpty()) {
+            tvInfo.setText("No services found");
+        } else {
+            tvInfo.setText("Showing " + services.size() + " services");
+        }
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        // Refresh services when returning from add/edit
-        loadServices();
+    private void setupAvailabilitySpinner() {
+        String[] availabilityOptions = {"All", "Available", "Not Available"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, availabilityOptions);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerAvailability.setAdapter(adapter);
+    }
+
+    private String getAuthHeader() {
+        SharedPreferences prefs = getActivity().getSharedPreferences("MyAppPrefs", 0);
+        String token = prefs.getString("jwt_token", "");
+        return "Bearer " + token;
+    }
+
+    private Long getCurrentUserId() {
+        SharedPreferences prefs = getActivity().getSharedPreferences("MyAppPrefs", 0);
+        return prefs.getLong("user_id", 0);
+    }
+
+    private boolean isServiceProvider() {
+        SharedPreferences prefs = getActivity().getSharedPreferences("MyAppPrefs", 0);
+        String role = prefs.getString("user_role", "");
+        return "SPProvider".equals(role) || "SERVICE_PROVIDER".equals(role);
     }
 }
