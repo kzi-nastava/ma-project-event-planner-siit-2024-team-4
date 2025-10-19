@@ -200,7 +200,9 @@ public class BudgetActivity extends BaseActivity implements BudgetAdapter.OnBudg
     }
     
     private void loadBudgetData() {
-        budgetService.getBudgetByEventId(eventId).enqueue(new Callback<BudgetPlanDTO>() {
+        SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        String token = prefs.getString("jwt_token", "");
+        budgetService.getBudgetByEventId("Bearer " + token, eventId).enqueue(new Callback<BudgetPlanDTO>() {
             @Override
             public void onResponse(Call<BudgetPlanDTO> call, Response<BudgetPlanDTO> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -281,7 +283,9 @@ public class BudgetActivity extends BaseActivity implements BudgetAdapter.OnBudg
             updateDTO.setItemsDTO(validItems);
             updateDTO.setTotal(total);
             
-            budgetService.updateBudgetPlan(budget.getId(), updateDTO).enqueue(new Callback<BudgetPlanDTO>() {
+            SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+            String token = prefs.getString("jwt_token", "");
+            budgetService.updateBudgetPlan("Bearer " + token, budget.getId(), updateDTO).enqueue(new Callback<BudgetPlanDTO>() {
                 @Override
                 public void onResponse(Call<BudgetPlanDTO> call, Response<BudgetPlanDTO> response) {
                     if (response.isSuccessful()) {
@@ -317,7 +321,9 @@ public class BudgetActivity extends BaseActivity implements BudgetAdapter.OnBudg
             createDTO.setItemsDTO(validItems);
             createDTO.setTotal(total);
             
-            budgetService.createBudgetPlan(createDTO).enqueue(new Callback<BudgetPlanDTO>() {
+            SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+            String token = prefs.getString("jwt_token", "");
+            budgetService.createBudgetPlan("Bearer " + token, createDTO).enqueue(new Callback<BudgetPlanDTO>() {
                 @Override
                 public void onResponse(Call<BudgetPlanDTO> call, Response<BudgetPlanDTO> response) {
                     if (response.isSuccessful()) {

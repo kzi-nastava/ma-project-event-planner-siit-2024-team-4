@@ -1,4 +1,4 @@
-package com.example.eventplanner.activities;
+package com.example.eventplanner.adapters;
 
 import android.content.Context;
 import android.content.Intent;
@@ -32,6 +32,11 @@ public class EventAdapterNoImage extends RecyclerView.Adapter<EventAdapterNoImag
     private Context context;
     private FavoriteService favoriteService;
     private boolean isFavoriteEventsList;
+    private OnEventClickListener listener;
+
+    public interface OnEventClickListener {
+        void onEventClick(EventDTO event);
+    }
 
     public EventAdapterNoImage(List<EventDTO> events, Context context) {
         this.events = events;
@@ -47,6 +52,15 @@ public class EventAdapterNoImage extends RecyclerView.Adapter<EventAdapterNoImag
         eventsFull = new ArrayList<>(events);
         favoriteService = ApiClient.getClient(context).create(FavoriteService.class);
         this.isFavoriteEventsList = isFavoriteEventsList;
+    }
+
+    public EventAdapterNoImage(List<EventDTO> events, Context context, OnEventClickListener listener) {
+        this.events = events;
+        this.context = context;
+        eventsFull = new ArrayList<>(events);
+        favoriteService = ApiClient.getClient(context).create(FavoriteService.class);
+        this.isFavoriteEventsList = false;
+        this.listener = listener;
     }
 
     @NonNull
@@ -74,10 +88,15 @@ public class EventAdapterNoImage extends RecyclerView.Adapter<EventAdapterNoImag
         holder.heartIcon.setOnClickListener(v -> toggleFavorite(holder, event));
         
         holder.itemView.setOnClickListener(v -> {
-            Context context = v.getContext();
-            Intent intent = new Intent(context, AboutEventActivity.class);
-            intent.putExtra("event_id", event.getId());
-            context.startActivity(intent);
+            if (listener != null) {
+                listener.onEventClick(event);
+            } else {
+                // Default behavior if no listener is set
+                Context context = v.getContext();
+                Intent intent = new Intent(context, com.example.eventplanner.activities.AboutEventActivity.class);
+                intent.putExtra("event_id", event.getId());
+                context.startActivity(intent);
+            }
         });
     }
 

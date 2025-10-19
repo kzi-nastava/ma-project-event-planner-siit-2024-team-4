@@ -60,6 +60,7 @@ public class AboutProductActivity extends BaseActivity {
     private Button btnEditProduct;
     private Button btnProviderProfile;
     private Button btnChatWithProvider;
+    private Button btnBuyProduct;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +103,7 @@ public class AboutProductActivity extends BaseActivity {
         btnEditProduct = findViewById(R.id.btnEditProduct);
         btnProviderProfile = findViewById(R.id.btnProviderProfile);
         btnChatWithProvider = findViewById(R.id.btnChatWithProvider);
+        btnBuyProduct = findViewById(R.id.btnBuyProduct);
     }
 
     private void loadUserInfo() {
@@ -128,6 +130,17 @@ public class AboutProductActivity extends BaseActivity {
             Toast.makeText(this, "Chat functionality coming soon", Toast.LENGTH_SHORT).show();
         });
 
+        // Setup buy product button
+        btnBuyProduct.setOnClickListener(v -> {
+            if (product.getAvailable() != null && product.getAvailable()) {
+                Intent intent = new Intent(this, PurchaseActivity.class);
+                intent.putExtra("product", product);
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "This product is not available for purchase", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         // Setup heart icon for favorites
         if (!"SPProvider".equals(userRole) && !"SERVICE_PROVIDER".equals(userRole)) {
             Log.d("AboutProductActivity", "Setting heart icon visible for user role: " + userRole);
@@ -136,6 +149,13 @@ public class AboutProductActivity extends BaseActivity {
             heartIcon.setOnClickListener(v -> toggleFavorite());
         } else {
             Log.d("AboutProductActivity", "Heart icon not visible for user role: " + userRole);
+        }
+
+        // Setup buy product button - only visible for Event Organizers
+        if ("EventOrganizer".equals(userRole)) {
+            btnBuyProduct.setVisibility(View.VISIBLE);
+        } else {
+            btnBuyProduct.setVisibility(View.GONE);
         }
 
         if (product.getServiceProviderId() != null && 

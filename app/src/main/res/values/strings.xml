@@ -200,5 +200,27 @@
     <string name="error_loading_event_types">Error loading event types</string>
     <string name="failed_to_load_categories">Failed to load categories</string>
     <string name="maximum_budget_items">Maximum number of budget items reached for this event type</string>
+    
+    <!-- Purchase and Review strings -->
+    <string name="buy_product">Buy Product</string>
+    <string name="purchase_product">Purchase Product</string>
+    <string name="select_event">Select Event:</string>
+    <string name="purchase_successful">Purchase successful!</string>
+    <string name="purchase_failed">Purchase failed</string>
+    <string name="product_not_available">This product is not available for purchase</string>
+    <string name="only_event_organizers_can_purchase">Only event organizers can purchase products</string>
+    <string name="leave_review">Leave a Review</string>
+    <string name="rate_product">Rate: %1$s</string>
+    <string name="rating_scale">Rating (0-10):</string>
+    <string name="comment">Comment:</string>
+    <string name="write_comment">Write your comment here...</string>
+    <string name="submit_review">Submit Review</string>
+    <string name="skip_review">Skip</string>
+    <string name="thank_you_for_review">Thank you for your review!</string>
+    <string name="review_skipped">Review skipped</string>
+    <string name="failed_to_submit_review">Failed to submit review</string>
+    <string name="enter_comment">Please enter a comment</string>
+    <string name="select_rating">Please select a rating</string>
+    <string name="purchase_note">Note: Product will be automatically added to your event budget as an expense in the appropriate category.</string>
 
 </resources>
