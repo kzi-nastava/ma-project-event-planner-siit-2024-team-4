@@ -129,7 +129,8 @@ public class EventAdapterNoImage extends RecyclerView.Adapter<EventAdapterNoImag
         holder.heartIcon.setTag(false);
         
         SharedPreferences prefs = context.getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
-        String userIdStr = prefs.getString("user_id", null);
+        Long userIdLong = prefs.getLong("user_id", -1L);
+        String userIdStr = userIdLong != -1L ? userIdLong.toString() : null;
         String token = prefs.getString("jwt_token", null);
         
         if (userIdStr == null || token == null) {
@@ -170,7 +171,8 @@ public class EventAdapterNoImage extends RecyclerView.Adapter<EventAdapterNoImag
 
     private void toggleFavorite(EventViewHolder holder, EventDTO event) {
         SharedPreferences prefs = context.getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
-        String userIdStr = prefs.getString("user_id", null);
+        Long userIdLong = prefs.getLong("user_id", -1L);
+        String userIdStr = userIdLong != -1L ? userIdLong.toString() : null;
         
         if (userIdStr == null) {
             Toast.makeText(context, "Please log in to add favorites", Toast.LENGTH_SHORT).show();

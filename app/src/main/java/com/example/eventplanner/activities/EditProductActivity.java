@@ -142,7 +142,8 @@ public class EditProductActivity extends BaseActivity {
     private void loadUserInfo() {
         SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
         token = prefs.getString("jwt_token", null);
-        userId = prefs.getString("user_id", null);
+        Long userIdLong = prefs.getLong("user_id", -1L);
+        userId = userIdLong != -1L ? userIdLong.toString() : null;
         
         selectedEventTypes = new ArrayList<>();
         currentImageURLs = new ArrayList<>();

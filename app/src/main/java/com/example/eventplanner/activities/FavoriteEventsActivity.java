@@ -51,7 +51,8 @@ public class FavoriteEventsActivity extends BaseActivity {
 
     private void loadFavoriteEvents() {
         SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
-        String userIdStr = prefs.getString("user_id", null);
+        Long userIdLong = prefs.getLong("user_id", -1L);
+        String userIdStr = userIdLong != -1L ? userIdLong.toString() : null;
         
         if (userIdStr == null) {
             Toast.makeText(this, "Please log in to view favorites", Toast.LENGTH_SHORT).show();

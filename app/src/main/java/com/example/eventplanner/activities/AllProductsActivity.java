@@ -252,7 +252,8 @@ public class AllProductsActivity extends BaseActivity implements ProductAdapter.
     private void loadMyProducts(ProductService productService) {
         SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
         String token = prefs.getString("jwt_token", null);
-        String userId = prefs.getString("user_id", null);
+        Long userIdLong = prefs.getLong("user_id", -1L);
+        String userId = userIdLong != -1L ? userIdLong.toString() : null;
         
         if (token == null || userId == null) {
             Toast.makeText(this, "Please log in first", Toast.LENGTH_SHORT).show();
