@@ -28,4 +28,8 @@
     <color name="secondary_color">#FF6B6B</color>
     <color name="discount_color">#FF9800</color>
     <color name="success_color">#4CAF50</color>
+    
+    <!-- Purchase and Review colors -->
+    <color name="primary_color_light">#E8DEF8</color>
+    <color name="text_secondary">#757575</color>
 </resources>

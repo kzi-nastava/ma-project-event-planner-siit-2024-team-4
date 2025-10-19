@@ -112,6 +112,12 @@
         <activity
             android:name=".activities.BudgetActivity"
             android:exported="false" />
+        <activity
+            android:name=".activities.PurchaseActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.ReviewActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

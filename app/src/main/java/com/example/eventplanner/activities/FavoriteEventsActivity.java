@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.eventplanner.R;
+import com.example.eventplanner.adapters.EventAdapterNoImage;
 import com.example.eventplanner.dto.EventDTO;
 import com.example.eventplanner.network.ApiClient;
 import com.example.eventplanner.network.service.FavoriteService;
