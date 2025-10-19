@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:padding="16dp"
+        android:layout_above="@+id/btnAddService">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
         <!-- Info Text -->
         <TextView
@@ -19,15 +24,6 @@
             android:textColor="@android:color/darker_gray"
             android:layout_marginBottom="8dp"
             android:gravity="center" />
-
-        <!-- Add Service Button -->
-        <Button
-            android:id="@+id/btnAddService"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/add_service"
-            android:layout_gravity="end"
-            android:layout_marginBottom="16dp" />
 
         <!-- Search Section -->
         <LinearLayout
@@ -164,13 +160,27 @@
 
         </LinearLayout>
 
-        <!-- Services List -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerServices"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="200dp" />
+            <!-- Services List -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerServices"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="200dp" />
 
-    </LinearLayout>
+        </LinearLayout>
 
-</ScrollView>
+    </ScrollView>
+
+    <!-- Add Service Button - Floating at bottom -->
+    <Button
+        android:id="@+id/btnAddService"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/add_service"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="16dp"
+        android:background="@drawable/button_primary"
+        android:textColor="@android:color/white"
+        android:elevation="8dp" />
+
+</RelativeLayout>

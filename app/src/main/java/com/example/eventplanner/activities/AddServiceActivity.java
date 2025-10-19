@@ -62,6 +62,10 @@ public class AddServiceActivity extends AppCompatActivity {
     private List<EventTypeDTO> eventTypes = new ArrayList<>();
     private List<EventTypeDTO> selectedEventTypes = new ArrayList<>();
     private List<Uri> selectedImageUris = new ArrayList<>();
+    private List<CheckBox> categoryCheckboxes = new ArrayList<>();
+    private CategoryDTO selectedCategory = null;
+    boolean isVisible = true;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -186,10 +190,83 @@ public class AddServiceActivity extends AppCompatActivity {
         if (selectedEventTypes.isEmpty()) {
             tvSelectedEventTypes.setText("Selected: None");
         } else {
-            StringBuilder sb = new StringBuilder("Selected: ");
-            for (int i = 0; i < selectedEventTypes.size(); i++) {
-                if (i > 0) sb.append(", ");
-                sb.append(selectedEventTypes.get(i).getName());
+            // Only enable "Add Category" button if no category is selected
+            btnAddCategory.setEnabled(selectedCategory == null);
+        }
+    }
+
+    private void showAddCategoryDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_category, null);
+        builder.setView(dialogView);
+
+        EditText etCategoryName = dialogView.findViewById(R.id.etCategoryName);
+        EditText etCategoryDescription = dialogView.findViewById(R.id.etCategoryDescription);
+        Button btnCancelCategory = dialogView.findViewById(R.id.btnCancelCategory);
+        Button btnAddCategory = dialogView.findViewById(R.id.btnAddCategory);
+
+        AlertDialog dialog = builder.create();
+
+        btnCancelCategory.setOnClickListener(v -> dialog.dismiss());
+
+        btnAddCategory.setOnClickListener(v -> {
+            String categoryName = etCategoryName.getText().toString().trim();
+            String categoryDescription = etCategoryDescription.getText().toString().trim();
+
+            if (TextUtils.isEmpty(categoryName)) {
+                etCategoryName.setError("Category name is required");
+                return;
+            }
+
+            if (TextUtils.isEmpty(categoryDescription)) {
+                etCategoryDescription.setError("Category description is required");
+                return;
+            }
+
+            createNewCategory(categoryName, categoryDescription);
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
+    private void createNewCategory(String name, String description) {
+        CategoryService categoryService = ApiClient.getClient(this).create(CategoryService.class);
+        
+        CreateCategoryDTO newCategory = new CreateCategoryDTO();
+        newCategory.name = name;
+        newCategory.description = description;
+        newCategory.isApprovedByAdmin = false; // New categories need admin approval
+
+        categoryService.createCategory(getAuthHeader(), newCategory).enqueue(new Callback<CategoryDTO>() {
+            @Override
+            public void onResponse(Call<CategoryDTO> call, Response<CategoryDTO> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    CategoryDTO createdCategory = response.body();
+                    categories.add(createdCategory);
+                    
+                    // Add to suggested categories if event types are selected
+                    if (!selectedEventTypes.isEmpty()) {
+                        suggestedCategories.add(createdCategory);
+                        setupCategoryCheckboxes();
+                        
+                        for (CheckBox checkbox : categoryCheckboxes) {
+                            CategoryDTO cat = (CategoryDTO) checkbox.getTag();
+                            if (cat.id.equals(createdCategory.id)) {
+                                checkbox.setChecked(true);
+                                selectedCategory = createdCategory;
+                                break;
+                            }
+                        }
+                        
+                        updateAddCategoryButtonState();
+                    }
+                    isVisible = false;
+                    Toast.makeText(AddServiceActivity.this, "Category created successfully and added to selected event types", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(AddServiceActivity.this, "Error creating category", Toast.LENGTH_SHORT).show();
+                    isVisible = true;
+                }
             }
             tvSelectedEventTypes.setText(sb.toString());
         }
@@ -237,11 +314,13 @@ public class AddServiceActivity extends AppCompatActivity {
         dto.setDiscount(TextUtils.isEmpty(discountStr) ? 0 : Double.parseDouble(discountStr));
         
         dto.setAvailable(cbAvailable.isChecked());
-        dto.setVisible(cbVisible.isChecked());
+        dto.setVisible(isVisible);
         
-        int categoryPosition = spinnerCategory.getSelectedItemPosition();
-        if (categoryPosition > 0) {
-            dto.setCategoryId(categories.get(categoryPosition - 1).id);
+        if (selectedCategory == null) {
+            Toast.makeText(this, "Please select a category", Toast.LENGTH_SHORT).show();
+            return;
+        } else {
+            dto.setCategoryId(selectedCategory.id);
         }
         
         List<Long> eventTypeIds = new ArrayList<>();
