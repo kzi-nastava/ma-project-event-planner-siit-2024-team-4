@@ -83,20 +83,6 @@
             android:inputType="numberDecimal"
             android:layout_marginBottom="16dp" />
 
-        <!-- Category -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/category"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
-
-        <Spinner
-            android:id="@+id/spinnerCategory"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp" />
-
         <!-- Event Types -->
         <TextView
             android:layout_width="match_parent"
@@ -111,44 +97,54 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp" />
 
-        <Button
-            android:id="@+id/btnAddEventType"
-            android:layout_width="wrap_content"
+
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Add Event Type"
-            android:layout_marginBottom="8dp" />
+            android:text="Selected Event Types:"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp" />
+
+        <LinearLayout
+            android:id="@+id/layoutSelectedEventTypes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp" />
 
         <TextView
             android:id="@+id/tvSelectedEventTypes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Selected: None"
+            android:text="No event types selected"
             android:textSize="14sp"
+            android:textStyle="italic"
             android:layout_marginBottom="16dp" />
 
-        <!-- Duration -->
+        <!-- Category -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/duration_of_service"
+            android:text="@string/category"
             android:textStyle="bold"
             android:layout_marginBottom="4dp" />
 
-        <EditText
-            android:id="@+id/etDuration"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/add_duration_of_service"
-            android:inputType="number"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Min/Max Engagement -->
         <TextView
+            android:id="@+id/tvCategoryInstruction"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Engagement Range (minutes)"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
+            android:text="Please select an event type first to see its categories"
+            android:textSize="14sp"
+            android:textStyle="italic"
+            android:textColor="@android:color/darker_gray"
+            android:layout_marginBottom="8dp" />
+
+        <LinearLayout
+            android:id="@+id/layoutCategoryCheckboxes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="8dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -156,22 +152,164 @@
             android:orientation="horizontal"
             android:layout_marginBottom="16dp">
 
-            <EditText
-                android:id="@+id/etMinEngagement"
-                android:layout_width="0dp"
+            <Button
+                android:id="@+id/btnAddCategory"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="@string/add_min_engagement"
-                android:inputType="number"
-                android:layout_marginEnd="8dp" />
+                android:text="+ Add New Category" />
 
-            <EditText
-                android:id="@+id/etMaxEngagement"
+            <TextView
+                android:id="@+id/tvCategoryInfo"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:hint="@string/add_max_engagement"
-                android:inputType="number" />
+                android:text=""
+                android:textSize="12sp"
+                android:textStyle="italic"
+                android:gravity="end"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="8dp" />
+
+        </LinearLayout>
+
+        <!-- Duration and Engagement -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Duration &amp; Engagement"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_color"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Duration Type Selection -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Duration Type"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="4dp" />
+
+        <RadioGroup
+            android:id="@+id/rgDurationType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <RadioButton
+                android:id="@+id/rbFixedDuration"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Fixed Duration"
+                android:textColor="@color/text_primary" />
+
+            <RadioButton
+                android:id="@+id/rbEngagementRange"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Engagement Range"
+                android:textColor="@color/text_primary" />
+
+        </RadioGroup>
+
+        <!-- Fixed Duration (Hours and Minutes) -->
+        <LinearLayout
+            android:id="@+id/layoutFixedDuration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp"
+            android:visibility="visible">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Duration (Hours and Minutes)"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="4dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/etDurationHours"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Hours"
+                    android:inputType="number"
+                    android:background="@drawable/edit_text_background"
+                    android:padding="12dp"
+                    android:layout_marginEnd="8dp" />
+
+                <EditText
+                    android:id="@+id/etDurationMinutes"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Minutes"
+                    android:inputType="number"
+                    android:background="@drawable/edit_text_background"
+                    android:padding="12dp"
+                    android:layout_marginStart="8dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Engagement Range (1-5 hours) -->
+        <LinearLayout
+            android:id="@+id/layoutEngagementRange"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Engagement Range (1-5 hours)"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="4dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/etMinEngagement"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Min Hours (1-5)"
+                    android:inputType="number"
+                    android:background="@drawable/edit_text_background"
+                    android:padding="12dp"
+                    android:layout_marginEnd="8dp" />
+
+                <EditText
+                    android:id="@+id/etMaxEngagement"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Max Hours (1-5)"
+                    android:inputType="number"
+                    android:background="@drawable/edit_text_background"
+                    android:padding="12dp"
+                    android:layout_marginStart="8dp" />
+
+            </LinearLayout>
+
         </LinearLayout>
 
         <!-- Reservation Due -->
@@ -246,14 +384,6 @@
             android:checked="true"
             android:layout_marginBottom="8dp" />
 
-        <!-- Visibility -->
-        <CheckBox
-            android:id="@+id/cbVisible"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/visible"
-            android:checked="true"
-            android:layout_marginBottom="16dp" />
 
         <!-- Image Upload -->
         <TextView

@@ -19,9 +19,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.eventplanner.R;
 import com.example.eventplanner.dto.CategoryDTO;
 import com.example.eventplanner.dto.CreateCategoryDTO;
+import com.example.eventplanner.dto.ServiceDTO;
 import com.example.eventplanner.dto.UpdateCategoryDTO;
+import com.example.eventplanner.dto.UpdateServiceDTO;
 import com.example.eventplanner.network.ApiClient;
 import com.example.eventplanner.network.service.CategoryService;
+import com.example.eventplanner.network.service.ServiceService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +32,8 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import okhttp3.RequestBody;
 
 public class CategoriesActivity extends BaseActivity implements CategoryAdapter.CategoryActionListener {
 
@@ -260,20 +265,193 @@ public class CategoriesActivity extends BaseActivity implements CategoryAdapter.
         updateDto.description = category.description;
         updateDto.isApprovedByAdmin = true;
 
+        android.util.Log.d("CategoriesActivity", "Updating category with DTO: " + new com.google.gson.Gson().toJson(updateDto));
+
         service().updateCategory(getAuthHeader(), category.id, updateDto).enqueue(new Callback<CategoryDTO>() {
             @Override
             public void onResponse(Call<CategoryDTO> call, Response<CategoryDTO> response) {
+                android.util.Log.d("CategoriesActivity", "=== updateCategory RESPONSE ===");
+                android.util.Log.d("CategoriesActivity", "Response code: " + response.code());
+                android.util.Log.d("CategoriesActivity", "Response successful: " + response.isSuccessful());
+                
                 if (response.isSuccessful()) {
+                    android.util.Log.d("CategoriesActivity", "✅ Category approved successfully, now making services visible...");
+                    // After approving category, make all services with this category visible
+                    makeServicesVisibleForCategory(category.id);
                     Toast.makeText(CategoriesActivity.this, R.string.category_approved, Toast.LENGTH_SHORT).show();
                     loadCategories();
                 } else {
+                    android.util.Log.e("CategoriesActivity", "❌ Failed to approve category");
+                    if (response.errorBody() != null) {
+                        try {
+                            String errorBody = response.errorBody().string();
+                            android.util.Log.e("CategoriesActivity", "Error response body: " + errorBody);
+                        } catch (Exception e) {
+                            android.util.Log.e("CategoriesActivity", "Error reading error body", e);
+                        }
+                    }
                     Toast.makeText(CategoriesActivity.this, R.string.error_approve_category, Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<CategoryDTO> call, Throwable t) {
+                android.util.Log.e("CategoriesActivity", "❌ Error approving category", t);
                 Toast.makeText(CategoriesActivity.this, R.string.error_approve_category, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void makeServicesVisibleForCategory(Long categoryId) {
+        android.util.Log.d("CategoriesActivity", "=== STARTING makeServicesVisibleForCategory for category ID: " + categoryId + " ===");
+        
+        // Get all services and find those with the approved category
+        ServiceService serviceService = ApiClient.getClient(this).create(ServiceService.class);
+        serviceService.getAllServices(getAuthHeader()).enqueue(new Callback<List<ServiceDTO>>() {
+            @Override
+            public void onResponse(Call<List<ServiceDTO>> call, Response<List<ServiceDTO>> response) {
+                android.util.Log.d("CategoriesActivity", "=== API RESPONSE for getAllServices ===");
+                android.util.Log.d("CategoriesActivity", "Response code: " + response.code());
+                android.util.Log.d("CategoriesActivity", "Response successful: " + response.isSuccessful());
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    List<ServiceDTO> allServices = response.body();
+                    android.util.Log.d("CategoriesActivity", "Total services loaded: " + allServices.size());
+                    
+                    int updatedCount = 0;
+                    
+                    for (ServiceDTO service : allServices) {
+                        android.util.Log.d("CategoriesActivity", "Checking service: " + service.getName() + 
+                            ", Category ID: " + (service.getCategory() != null ? service.getCategory().getId() : "null") +
+                            ", Visible: " + service.isVisible());
+                            
+                        // Check if service has the approved category
+                        if (service.getCategory() != null && service.getCategory().getId().equals(categoryId)) {
+                            android.util.Log.d("CategoriesActivity", "Found service with category ID " + categoryId + ": " + service.getName() + 
+                                " (ID: " + service.getId() + "), Visible: " + service.isVisible());
+                            
+                            if (!service.isVisible()) {
+                                android.util.Log.d("CategoriesActivity", "Service is not visible, updating to visible: " + service.getName());
+                                // Update service to be visible
+                                updateServiceVisibility(service.getId(), true);
+                                updatedCount++;
+                            } else {
+                                android.util.Log.d("CategoriesActivity", "Service is already visible: " + service.getName());
+                            }
+                        }
+                    }
+                    
+                    android.util.Log.d("CategoriesActivity", "=== FINAL RESULT ===");
+                    android.util.Log.d("CategoriesActivity", "Updated " + updatedCount + " services for category ID: " + categoryId);
+                    
+                    if (updatedCount > 0) {
+                        android.util.Log.d("CategoriesActivity", "Made " + updatedCount + " services visible for category ID: " + categoryId);
+                    } else {
+                        android.util.Log.d("CategoriesActivity", "No services found to update for category ID: " + categoryId);
+                    }
+                } else {
+                    android.util.Log.e("CategoriesActivity", "Failed to load services - Response not successful or body is null");
+                    if (response.errorBody() != null) {
+                        try {
+                            String errorBody = response.errorBody().string();
+                            android.util.Log.e("CategoriesActivity", "Error response body: " + errorBody);
+                        } catch (Exception e) {
+                            android.util.Log.e("CategoriesActivity", "Error reading error body", e);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<ServiceDTO>> call, Throwable t) {
+                android.util.Log.e("CategoriesActivity", "Error loading services for category approval", t);
+            }
+        });
+    }
+
+    private void updateServiceVisibility(Long serviceId, boolean visible) {
+        android.util.Log.d("CategoriesActivity", "=== STARTING updateServiceVisibility for service ID: " + serviceId + ", visible: " + visible + " ===");
+        
+        ServiceService serviceService = ApiClient.getClient(this).create(ServiceService.class);
+        
+        // Get the service first to preserve all its data
+        serviceService.getServiceById(getAuthHeader(), serviceId).enqueue(new Callback<ServiceDTO>() {
+            @Override
+            public void onResponse(Call<ServiceDTO> call, Response<ServiceDTO> response) {
+                android.util.Log.d("CategoriesActivity", "=== getServiceById RESPONSE ===");
+                android.util.Log.d("CategoriesActivity", "Response code: " + response.code());
+                android.util.Log.d("CategoriesActivity", "Response successful: " + response.isSuccessful());
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    ServiceDTO service = response.body();
+                    android.util.Log.d("CategoriesActivity", "Service loaded: " + service.getName() + ", current visible: " + service.isVisible());
+                    
+                    // Create update DTO with all existing data but change visibility
+                    UpdateServiceDTO updateDto = new UpdateServiceDTO();
+                    updateDto.setName(service.getName());
+                    updateDto.setDescription(service.getDescription());
+                    updateDto.setPrice(service.getPrice());
+                    updateDto.setDiscount(service.getDiscount());
+                    updateDto.setDuration(service.getDuration());
+                    updateDto.setMinEngagement(service.getMinEngagement());
+                    updateDto.setMaxEngagement(service.getMaxEngagement());
+                    updateDto.setReservationDue(service.getReservationDue());
+                    updateDto.setCancelationDue(service.getCancelationDue());
+                    updateDto.setReservationType(service.getReservationType());
+                    updateDto.setAvailable(service.isAvailable());
+                    updateDto.setVisible(visible); // Set to visible
+                    updateDto.setCategoryId(service.getCategory().getId());
+                    updateDto.setEventTypeIds(service.getEventTypes().stream().map(et -> et.getId()).collect(java.util.stream.Collectors.toList()));
+                    
+                    android.util.Log.d("CategoriesActivity", "Update DTO created - setting visible to: " + visible);
+                    android.util.Log.d("CategoriesActivity", "Update DTO JSON: " + new com.google.gson.Gson().toJson(updateDto));
+                    
+                    // Update the service
+                    serviceService.updateService(getAuthHeader(), serviceId, 
+                        RequestBody.create(okhttp3.MediaType.parse("application/json"), new com.google.gson.Gson().toJson(updateDto)), 
+                        new java.util.ArrayList<>()).enqueue(new Callback<ServiceDTO>() {
+                        @Override
+                        public void onResponse(Call<ServiceDTO> call, Response<ServiceDTO> response) {
+                            android.util.Log.d("CategoriesActivity", "=== updateService RESPONSE ===");
+                            android.util.Log.d("CategoriesActivity", "Response code: " + response.code());
+                            android.util.Log.d("CategoriesActivity", "Response successful: " + response.isSuccessful());
+                            
+                            if (response.isSuccessful()) {
+                                android.util.Log.d("CategoriesActivity", "✅ Service " + serviceId + " successfully made visible");
+                            } else {
+                                android.util.Log.e("CategoriesActivity", "❌ Failed to update service " + serviceId + " visibility");
+                                if (response.errorBody() != null) {
+                                    try {
+                                        String errorBody = response.errorBody().string();
+                                        android.util.Log.e("CategoriesActivity", "Error response body: " + errorBody);
+                                    } catch (Exception e) {
+                                        android.util.Log.e("CategoriesActivity", "Error reading error body", e);
+                                    }
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ServiceDTO> call, Throwable t) {
+                            android.util.Log.e("CategoriesActivity", "❌ Error updating service " + serviceId + " visibility", t);
+                        }
+                    });
+                } else {
+                    android.util.Log.e("CategoriesActivity", "❌ Failed to get service " + serviceId + " for visibility update");
+                    if (response.errorBody() != null) {
+                        try {
+                            String errorBody = response.errorBody().string();
+                            android.util.Log.e("CategoriesActivity", "Error response body: " + errorBody);
+                        } catch (Exception e) {
+                            android.util.Log.e("CategoriesActivity", "Error reading error body", e);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ServiceDTO> call, Throwable t) {
+                android.util.Log.e("CategoriesActivity", "❌ Error getting service " + serviceId + " for visibility update", t);
             }
         });
     }
