@@ -171,5 +171,34 @@
     <string name="available_only">Available Only</string>
     <string name="not_available_only">Not Available Only</string>
     <string name="price_list">Price List</string>
+    <string name="budget">Budget</string>
+    <string name="budget_planning">Budget Planning</string>
+    <string name="budget_items">Budget Items</string>
+    <string name="add_budget_item">Add Budget Item</string>
+    <string name="total_budget">Total Budget</string>
+    <string name="confirm_budget">Confirm Budget</string>
+    <string name="reset_budget">Reset Budget</string>
+    <string name="select_category">Select category</string>
+    <string name="enter_amount">Enter amount</string>
+    <string name="details">Details</string>
+    <string name="remove">Remove</string>
+    <string name="cannot_remove">Cannot Remove</string>
+    <string name="add_valid_budget_item">Please add at least one valid budget item</string>
+    <string name="budget_updated_successfully">Budget updated successfully</string>
+    <string name="budget_created_successfully">Budget created successfully</string>
+    <string name="failed_to_update_budget">Failed to update budget</string>
+    <string name="failed_to_create_budget">Failed to create budget</string>
+    <string name="error_creating_budget">Error creating budget</string>
+    <string name="error_updating_budget">Error updating budget</string>
+    <string name="cannot_remove_item_with_purchases">Cannot remove item with purchases or reservations</string>
+    <string name="select_category_first">Please select a category first</string>
+    <string name="only_event_organizers_budget">Only Event Organizers can manage budgets</string>
+    <string name="event_id_not_provided">Event ID not provided</string>
+    <string name="failed_to_load_event_data">Failed to load event data</string>
+    <string name="error_loading_event_data">Error loading event data</string>
+    <string name="failed_to_load_event_types">Failed to load event types</string>
+    <string name="error_loading_event_types">Error loading event types</string>
+    <string name="failed_to_load_categories">Failed to load categories</string>
+    <string name="maximum_budget_items">Maximum number of budget items reached for this event type</string>
 
 </resources>

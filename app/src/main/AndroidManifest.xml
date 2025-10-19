@@ -109,6 +109,9 @@
         <activity
             android:name=".activities.PriceListActivity"
             android:exported="false" />
+        <activity
+            android:name=".activities.BudgetActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

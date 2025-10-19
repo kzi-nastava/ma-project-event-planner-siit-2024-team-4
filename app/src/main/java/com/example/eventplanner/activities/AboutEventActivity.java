@@ -1,6 +1,7 @@
 package com.example.eventplanner.activities;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
@@ -56,6 +57,7 @@ public class AboutEventActivity extends BaseActivity {
     private TextView eventName, eventDate, eventDescription, maxParticipants, locationText;
     private ImageView favoriteIcon;
     private Button downloadPdfBtn;
+    private Button btnBudget;
     private WebView webViewMap;
 
     @Override
@@ -79,7 +81,8 @@ public class AboutEventActivity extends BaseActivity {
         setupMap();
 
         SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
-        userId = prefs.getString("user_id", null);
+        Long userIdLong = prefs.getLong("user_id", -1L);
+        userId = userIdLong != -1L ? userIdLong.toString() : null;
         
         favoriteService = ApiClient.getClient(this).create(FavoriteService.class);
         
@@ -97,12 +100,14 @@ public class AboutEventActivity extends BaseActivity {
         locationText = findViewById(R.id.locationText);
         favoriteIcon = findViewById(R.id.favoriteIcon);
         downloadPdfBtn = findViewById(R.id.downloadPdfBtn);
+        btnBudget = findViewById(R.id.btnBudget);
         webViewMap = findViewById(R.id.webViewMap);
     }
 
     private void setupClickListeners() {
         favoriteIcon.setOnClickListener(v -> toggleFavorite());
         downloadPdfBtn.setOnClickListener(v -> generatePDF());
+        btnBudget.setOnClickListener(v -> openBudget());
     }
     
     private void setupMap() {
@@ -425,6 +430,25 @@ public class AboutEventActivity extends BaseActivity {
                        "&layer=mapnik&marker=" + latitude + "," + longitude;
         
         webViewMap.loadUrl(mapUrl);
+    }
+    
+    private void openBudget() {
+        // Check if user is Event Organizer
+        SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        String userRole = prefs.getString("user_role", null);
+        
+        if (!"EventOrganizer".equals(userRole)) {
+            Toast.makeText(this, "Only Event Organizers can manage budgets", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        if (event != null) {
+            Intent intent = new Intent(this, BudgetActivity.class);
+            intent.putExtra("eventId", (long) event.getId());
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "Event data not loaded", Toast.LENGTH_SHORT).show();
+        }
     }
 
 }

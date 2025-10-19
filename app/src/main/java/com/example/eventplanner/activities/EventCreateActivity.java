@@ -372,7 +372,7 @@ public class EventCreateActivity extends BaseActivity {
     
     private void createEventWithLocation(LocationDTO location) {
         SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
-        Long organizerId = Long.parseLong(prefs.getString("user_id", "0"));
+        Long organizerId = prefs.getLong("user_id", -1L);
         
         String eventName = etEventName.getText().toString().trim();
         String description = etDescription.getText().toString().trim();
