@@ -72,6 +72,7 @@ public class LogInActivity extends BaseActivity {
                     editor.putString("user_role", loginResponse.getRole());
                     editor.putLong("user_id", loginResponse.getUserId());
                     editor.apply();
+                    
 
                     Toast.makeText(LogInActivity.this, "Welcome " + loginResponse.getEmail(), Toast.LENGTH_SHORT).show();
 
