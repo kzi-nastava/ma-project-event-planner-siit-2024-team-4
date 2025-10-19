@@ -118,6 +118,9 @@
         <activity
             android:name=".activities.ReviewActivity"
             android:exported="false" />
+        <activity
+            android:name=".activities.ChatActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

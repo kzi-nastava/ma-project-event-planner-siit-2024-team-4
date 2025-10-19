@@ -3,6 +3,7 @@ package com.example.eventplanner.activities;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -127,7 +128,7 @@ public class AboutProductActivity extends BaseActivity {
         });
 
         btnChatWithProvider.setOnClickListener(v -> {
-            Toast.makeText(this, "Chat functionality coming soon", Toast.LENGTH_SHORT).show();
+            openChatWithProvider();
         });
 
         // Setup buy product button
@@ -457,6 +458,20 @@ public class AboutProductActivity extends BaseActivity {
                 Log.d("AboutProductActivity", "Setting heart to empty");
                 heartIcon.setImageResource(R.drawable.heart_empty);
             }
+        }
+    }
+    
+    private void openChatWithProvider() {
+        String providerName = tvProviderName.getText().toString();
+        if (!TextUtils.isEmpty(providerName) && !providerName.equals("Unknown Provider")) {
+            Intent intent = new Intent(this, ChatActivity.class);
+            intent.putExtra("recipient_name", providerName);
+            intent.putExtra("context_type", "PRODUCT");
+            intent.putExtra("context_id", product.getId().toString());
+            intent.putExtra("product_name", product.getName());
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "Provider information not available", Toast.LENGTH_SHORT).show();
         }
     }
 }
