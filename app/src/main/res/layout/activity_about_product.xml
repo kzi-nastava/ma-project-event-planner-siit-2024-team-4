@@ -42,16 +42,37 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <!-- Product Name -->
-                <TextView
-                    android:id="@+id/tvProductName"
+                <!-- Product Name with Heart Icon -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Product Name"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/primary_color"
-                    android:layout_marginBottom="8dp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:id="@+id/tvProductName"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Product Name"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/primary_color" />
+
+                    <ImageView
+                        android:id="@+id/heartIcon"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/heart_empty"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:padding="4dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:contentDescription="Add to favorites"
+                        android:visibility="gone" />
+
+                </LinearLayout>
 
                 <!-- Price -->
                 <TextView
@@ -242,16 +263,6 @@
             android:layout_marginTop="16dp">
 
             <Button
-                android:id="@+id/btnContactProvider"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Contact Provider"
-                android:background="@drawable/button_primary"
-                android:textColor="@android:color/white"
-                android:layout_marginEnd="8dp" />
-
-            <Button
                 android:id="@+id/btnEditProduct"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -261,6 +272,35 @@
                 android:textColor="@color/primary_color"
                 android:layout_marginStart="8dp"
                 android:visibility="gone" />
+
+        </LinearLayout>
+
+        <!-- Additional Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <Button
+                android:id="@+id/btnProviderProfile"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Provider Profile"
+                android:background="@drawable/button_secondary"
+                android:textColor="@android:color/white"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/btnChatWithProvider"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Chat"
+                android:background="@drawable/button_primary"
+                android:textColor="@android:color/white"
+                android:layout_marginStart="8dp" />
 
         </LinearLayout>
 

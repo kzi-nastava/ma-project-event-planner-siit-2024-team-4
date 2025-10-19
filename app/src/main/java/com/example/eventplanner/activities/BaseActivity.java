@@ -103,6 +103,8 @@ public class BaseActivity extends AppCompatActivity {
                 startActivity(new Intent(this, MyEventsActivity.class));
             } else if (id == R.id.nav_favorite_events) {
                 startActivity(new Intent(this, FavoriteEventsActivity.class));
+            } else if (id == R.id.nav_favorite_solutions) {
+                startActivity(new Intent(this, FavoriteSolutionsActivity.class));
             } else if (id == R.id.nav_all_services) {
                 Intent intent = new Intent(this, ServicesActivity.class);
                 intent.putExtra("isMyServices", false);

@@ -1,11 +1,13 @@
 package com.example.eventplanner.activities;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -22,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.eventplanner.R;
 import com.example.eventplanner.dto.CategoryDTO;
+import com.example.eventplanner.dto.CreateCategoryDTO;
 import com.example.eventplanner.dto.CreateServiceDTO;
 import com.example.eventplanner.dto.EventTypeDTO;
 import com.example.eventplanner.dto.ServiceDTO;
@@ -190,8 +193,12 @@ public class AddServiceActivity extends AppCompatActivity {
         if (selectedEventTypes.isEmpty()) {
             tvSelectedEventTypes.setText("Selected: None");
         } else {
-            // Only enable "Add Category" button if no category is selected
-            btnAddCategory.setEnabled(selectedCategory == null);
+            StringBuilder sb = new StringBuilder("Selected: ");
+            for (int i = 0; i < selectedEventTypes.size(); i++) {
+                if (i > 0) sb.append(", ");
+                sb.append(selectedEventTypes.get(i).getName());
+            }
+            tvSelectedEventTypes.setText(sb.toString());
         }
     }
 
@@ -202,8 +209,8 @@ public class AddServiceActivity extends AppCompatActivity {
 
         EditText etCategoryName = dialogView.findViewById(R.id.etCategoryName);
         EditText etCategoryDescription = dialogView.findViewById(R.id.etCategoryDescription);
-        Button btnCancelCategory = dialogView.findViewById(R.id.btnCancelCategory);
-        Button btnAddCategory = dialogView.findViewById(R.id.btnAddCategory);
+        Button btnCancelCategory = dialogView.findViewById(R.id.btnCancel);
+        Button btnAddCategory = dialogView.findViewById(R.id.btnAdd);
 
         AlertDialog dialog = builder.create();
 
@@ -245,21 +252,10 @@ public class AddServiceActivity extends AppCompatActivity {
                     CategoryDTO createdCategory = response.body();
                     categories.add(createdCategory);
                     
-                    // Add to suggested categories if event types are selected
-                    if (!selectedEventTypes.isEmpty()) {
-                        suggestedCategories.add(createdCategory);
-                        setupCategoryCheckboxes();
-                        
-                        for (CheckBox checkbox : categoryCheckboxes) {
-                            CategoryDTO cat = (CategoryDTO) checkbox.getTag();
-                            if (cat.id.equals(createdCategory.id)) {
-                                checkbox.setChecked(true);
-                                selectedCategory = createdCategory;
-                                break;
-                            }
-                        }
-                        
-                        updateAddCategoryButtonState();
+                    // Update the category spinner adapter
+                    ArrayAdapter<CategoryDTO> adapter = (ArrayAdapter<CategoryDTO>) spinnerCategory.getAdapter();
+                    if (adapter != null) {
+                        adapter.notifyDataSetChanged();
                     }
                     isVisible = false;
                     Toast.makeText(AddServiceActivity.this, "Category created successfully and added to selected event types", Toast.LENGTH_SHORT).show();
@@ -268,8 +264,13 @@ public class AddServiceActivity extends AppCompatActivity {
                     isVisible = true;
                 }
             }
-            tvSelectedEventTypes.setText(sb.toString());
-        }
+
+            @Override
+            public void onFailure(Call<CategoryDTO> call, Throwable t) {
+                Toast.makeText(AddServiceActivity.this, "Error creating category: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                isVisible = true;
+            }
+        });
     }
 
     private void selectImages() {

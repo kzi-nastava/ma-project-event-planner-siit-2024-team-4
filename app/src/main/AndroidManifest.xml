@@ -59,6 +59,9 @@
         <activity
             android:name=".activities.ProfileActivity" />
         <activity
+            android:name=".activities.FavoriteSolutionsActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.ChooseRoleActivity"
             android:exported="false" />
         <activity

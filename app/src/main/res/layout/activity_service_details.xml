@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp">
@@ -9,42 +10,108 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Service Image -->
-        <ImageView
-            android:id="@+id/imageViewServiceDetails"
-            android:layout_width="match_parent"
-            android:layout_height="250dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/placeholder_image"
-            android:contentDescription="@string/service_pictures"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Service Name -->
+        <!-- Title -->
         <TextView
-            android:id="@+id/tvServiceNameDetails"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/service_name"
+            android:text="Service Details"
             android:textSize="24sp"
             android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Service Images -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPagerImages"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:background="@color/gray"
             android:layout_marginBottom="8dp" />
 
+        <!-- Image indicators -->
+        <LinearLayout
+            android:id="@+id/layoutIndicators"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:orientation="horizontal" />
+
+        <!-- Service Info Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Service Name with Heart Icon -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:id="@+id/tvServiceNameDetails"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/service_name"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/primary_color" />
+
+                    <ImageView
+                        android:id="@+id/favoriteIcon"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/heart_empty"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:padding="4dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:contentDescription="Add to favorites"
+                        android:visibility="gone" />
+
+                </LinearLayout>
+
         <!-- Service Description -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/service_description"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp" />
+
         <TextView
             android:id="@+id/tvServiceDescriptionDetails"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/service_description"
-            android:textSize="16sp"
             android:layout_marginBottom="16dp" />
 
-        <!-- Price and Discount -->
+        <!-- Price -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/service_price"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="16dp">
 
             <TextView
                 android:id="@+id/tvServicePriceDetails"
@@ -87,53 +154,35 @@
             android:text="@string/service_category"
             android:layout_marginBottom="16dp" />
 
-        <!-- Availability and Visibility -->
-        <LinearLayout
+        <!-- Availability -->
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="8dp">
+            android:text="@string/availability_"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp" />
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+        <TextView
+            android:id="@+id/tvServiceAvailabilityDetails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/available"
+            android:layout_marginBottom="16dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/availability_"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="4dp" />
+        <!-- Visibility -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/visibility"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp" />
 
-                <TextView
-                    android:id="@+id/tvServiceAvailabilityDetails"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/available" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/visibility"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="4dp" />
-
-                <TextView
-                    android:id="@+id/tvServiceVisibilityDetails"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/visible" />
-            </LinearLayout>
-        </LinearLayout>
+        <TextView
+            android:id="@+id/tvServiceVisibilityDetails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/visible"
+            android:layout_marginBottom="16dp" />
 
         <!-- Duration -->
         <TextView
@@ -195,6 +244,10 @@
             android:text="Provider: Not specified"
             android:layout_marginBottom="24dp" />
 
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
         <!-- Action Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -208,6 +261,8 @@
                 android:layout_height="wrap_content"
                 android:text="Book Service"
                 android:layout_marginEnd="8dp"
+                android:background="@drawable/button_primary"
+                android:textColor="@android:color/white"
                 android:visibility="gone" />
 
             <Button
@@ -216,6 +271,8 @@
                 android:layout_height="wrap_content"
                 android:text="@string/edit_service"
                 android:layout_marginEnd="8dp"
+                android:background="@drawable/button_primary"
+                android:textColor="@android:color/white"
                 android:visibility="gone" />
 
             <Button
@@ -223,8 +280,38 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/delete_service"
-                android:backgroundTint="@android:color/holo_red_dark"
+                android:background="@drawable/button_secondary"
+                android:textColor="@android:color/white"
                 android:visibility="gone" />
+        </LinearLayout>
+
+        <!-- Provider Profile and Chat Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:layout_marginTop="16dp">
+
+            <Button
+                android:id="@+id/btnProviderProfileDetails"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="View Provider Profile"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/button_secondary"
+                android:textColor="@android:color/white"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/btnChatWithProviderDetails"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Chat with Provider"
+                android:background="@drawable/button_primary"
+                android:textColor="@android:color/white"
+                android:visibility="gone" />
+
         </LinearLayout>
 
     </LinearLayout>
