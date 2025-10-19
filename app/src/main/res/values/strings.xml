@@ -18,7 +18,6 @@
     <string name="eventType3">Event type 3</string>
     <string name="eventType2">Event type 2</string>
     <string name="eventType1">Event type 1</string>
-    <string name="availability">Availability:</string>
     <string name="available">Available</string>
     <string name="not_available">Not available</string>
     <string name="price">Price:</string>
@@ -55,16 +54,15 @@
     <string name="min_engagement">Min. engagement</string>
     <string name="max_engagement">Max. engagement</string>
     <string name="due_for_service_reservation">Due for service reservation (days)</string>
-    <string name="due_for_service_cancelation">Due for service cancelation (days)</string>
+    <string name="due_for_service_cancellation">Due for service cancellation (days)</string>
     <string name="add_reservation_due">Add reservation due</string>
-    <string name="add_cancelation_due">Add cancelation due</string>
+    <string name="add_cancellation_due">Add cancellation due</string>
     <string name="reservation_type">Reservation type</string>
     <string name="manual">Manual</string>
     <string name="automatic">Automatic</string>
     <string name="add_category_name">Add category name</string>
     <string name="add_category_description">Add category description</string>
     <string name="cancel">Cancel</string>
-    <string name="edit_service">EDIT SERVICE</string>
     <string name="name">Something name</string>
     <string name="example_price">15.69</string>
     <string name="example_discount">10.00</string>
@@ -92,12 +90,137 @@
     <string name="upload_image">Upload image</string>
     <string name="enter_your_company_name">Enter your company name</string>
     <string name="about_your_company">About your company</string>
-
     <string name="navigation_drawer_open">Open Navigation Drawer</string>
     <string name="navigation_drawer_close">Close Navigation Drawer</string>
     <string name="homepage">Homepage</string>
     <string name="login">Login</string>
     <string name="registration">Registration</string>
+    <string name="profile">Profile</string>
+    <string name="delete">Delete</string>
+    <string name="categories">Categories</string>
+    <string name="event_types">Event Types</string>
+    <string name="add_category">Add category</string>
+    <string name="edit">Edit</string>
+    <string name="category_name">Category name</string>
+    <string name="category_description">Category description</string>
+    <string name="error_loading_categories">Error loading categories</string>
+    <string name="category_created">Category successfully created</string>
+    <string name="error_create_category">Error creating category</string>
+    <string name="category_updated">Category successfully updated</string>
+    <string name="error_update_category">Error updating category</string>
+    <string name="category_deleted">Category deleted</string>
+    <string name="error_delete_category">Error deleting category</string>
+    <string name="fill_all_fields">Please fill all fields</string>
+    <string name="approve">Approve</string>
+    <string name="deny">Deny</string>
+    <string name="category_approved">Category approved successfully</string>
+    <string name="category_denied">Category denied successfully</string>
+    <string name="error_approve_category">Error approving category</string>
+    <string name="error_deny_category">Error denying category</string>
+    <string name="event_name">Event Name</string>
+    <string name="email">Email:</string>
+    <string name="save">Save</string>
+    <string name="events">Events</string>
+    <string name="my_events">My Events</string>
+    <string name="favorite_events">Favorite Events</string>
+    <string name="favorite_solutions">Favorite Solutions</string>
+    <string name="all_events">All Events</string>
+    <string name="all_services">All Services</string>
+    <string name="my_services">My Services</string>
+    <string name="products">Products</string>
+    <string name="all_products">All Products</string>
+    <string name="my_products">My Products</string>
+    <string name="logout">Logout</string>
+    <string name="edit_category">Edit Category</string>
+    <string-array name="filter_options">
+        <item>All</item>
+        <item>Concert</item>
+        <item>Festival</item>
+        <item>Exhibition</item>
+        <item>Workshop</item>
+        <item>Theater</item>
+    </string-array>
+    <string-array name="product_filter_options">
+        <item>All</item>
+        <item>Catering</item>
+        <item>Entertainment</item>
+        <item>Decoration</item>
+        <item>Service</item>
+    </string-array>
 
+    <!-- Service related strings -->
+    <string name="add_service">Add Service</string>
+    <string name="search_services">Search services...</string>
+    <string name="min_price">Min Price</string>
+    <string name="max_price">Max Price</string>
+    <string name="apply_filters">Apply Filters</string>
+    <string name="view">View</string>
+    <string name="edit_service">Edit Service</string>
+    <string name="delete_service">Delete Service</string>
+    <string name="service_created">Service created successfully</string>
+    <string name="service_updated">Service updated successfully</string>
+    <string name="service_deleted">Service deleted successfully</string>
+    <string name="error_create_service">Error creating service</string>
+    <string name="error_update_service">Error updating service</string>
+    <string name="error_delete_service">Error deleting service</string>
+    <string name="error_loading_services">Error loading services</string>
+    <string name="error_searching_services">Error searching services</string>
+    <string name="event_type">Event Type</string>
+    <string name="availability">Availability</string>
+    <string name="all">All</string>
+    <string name="available_only">Available Only</string>
+    <string name="not_available_only">Not Available Only</string>
+    <string name="price_list">Price List</string>
+    <string name="budget">Budget</string>
+    <string name="budget_planning">Budget Planning</string>
+    <string name="budget_items">Budget Items</string>
+    <string name="add_budget_item">Add Budget Item</string>
+    <string name="total_budget">Total Budget</string>
+    <string name="confirm_budget">Confirm Budget</string>
+    <string name="reset_budget">Reset Budget</string>
+    <string name="select_category">Select category</string>
+    <string name="enter_amount">Enter amount</string>
+    <string name="details">Details</string>
+    <string name="remove">Remove</string>
+    <string name="cannot_remove">Cannot Remove</string>
+    <string name="add_valid_budget_item">Please add at least one valid budget item</string>
+    <string name="budget_updated_successfully">Budget updated successfully</string>
+    <string name="budget_created_successfully">Budget created successfully</string>
+    <string name="failed_to_update_budget">Failed to update budget</string>
+    <string name="failed_to_create_budget">Failed to create budget</string>
+    <string name="error_creating_budget">Error creating budget</string>
+    <string name="error_updating_budget">Error updating budget</string>
+    <string name="cannot_remove_item_with_purchases">Cannot remove item with purchases or reservations</string>
+    <string name="select_category_first">Please select a category first</string>
+    <string name="only_event_organizers_budget">Only Event Organizers can manage budgets</string>
+    <string name="event_id_not_provided">Event ID not provided</string>
+    <string name="failed_to_load_event_data">Failed to load event data</string>
+    <string name="error_loading_event_data">Error loading event data</string>
+    <string name="failed_to_load_event_types">Failed to load event types</string>
+    <string name="error_loading_event_types">Error loading event types</string>
+    <string name="failed_to_load_categories">Failed to load categories</string>
+    <string name="maximum_budget_items">Maximum number of budget items reached for this event type</string>
+    
+    <!-- Purchase and Review strings -->
+    <string name="buy_product">Buy Product</string>
+    <string name="purchase_product">Purchase Product</string>
+    <string name="select_event">Select Event:</string>
+    <string name="purchase_successful">Purchase successful!</string>
+    <string name="purchase_failed">Purchase failed</string>
+    <string name="product_not_available">This product is not available for purchase</string>
+    <string name="only_event_organizers_can_purchase">Only event organizers can purchase products</string>
+    <string name="leave_review">Leave a Review</string>
+    <string name="rate_product">Rate: %1$s</string>
+    <string name="rating_scale">Rating (0-10):</string>
+    <string name="comment">Comment:</string>
+    <string name="write_comment">Write your comment here...</string>
+    <string name="submit_review">Submit Review</string>
+    <string name="skip_review">Skip</string>
+    <string name="thank_you_for_review">Thank you for your review!</string>
+    <string name="review_skipped">Review skipped</string>
+    <string name="failed_to_submit_review">Failed to submit review</string>
+    <string name="enter_comment">Please enter a comment</string>
+    <string name="select_rating">Please select a rating</string>
+    <string name="purchase_note">Note: Product will be automatically added to your event budget as an expense in the appropriate category.</string>
 
 </resources>

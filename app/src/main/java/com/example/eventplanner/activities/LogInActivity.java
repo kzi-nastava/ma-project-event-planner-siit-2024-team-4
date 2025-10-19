@@ -2,74 +2,93 @@ package com.example.eventplanner.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.View;
+import android.util.Log;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.drawerlayout.widget.DrawerLayout;
-
 import com.example.eventplanner.R;
-import com.google.android.material.navigation.NavigationView;
+import com.example.eventplanner.network.ApiClient;
+import com.example.eventplanner.network.service.AuthService;
+import com.example.eventplanner.dto.LoginRequest;
+import com.example.eventplanner.dto.LoginResponse;
 
-public class LogInActivity extends AppCompatActivity {
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class LogInActivity extends BaseActivity {
+
+    private EditText emailInput, passwordInput;
+    private Button logInBtn, registerBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.base_layout);
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("");
-
-        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(item -> {
-            int id = item.getItemId();
-
-            if (id == R.id.nav_homepage) {
-                // Intent intent = new Intent(); nemamo homepage
-            } else if (id == R.id.nav_service) {
-                Intent intent = new Intent(LogInActivity.this, ServiceActivity.class);
-                startActivity(intent);
-            } else if (id == R.id.nav_login) {
-                Intent intent = new Intent(LogInActivity.this, LogInActivity.class);
-                startActivity(intent);
-            } else if (id == R.id.nav_registration) {
-                Intent intent = new Intent(LogInActivity.this, ChooseRoleActivity.class);
-                startActivity(intent);
-            }
-
-            drawerLayout.closeDrawer(navigationView);
-            return true;
-        });
-
         getLayoutInflater().inflate(R.layout.activity_login, findViewById(R.id.content_frame), true);
 
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button logInBtn = findViewById(R.id.loginBtn);
-        logInBtn.setOnClickListener(v ->
-                Toast.makeText(LogInActivity.this, "Login button clicked", Toast.LENGTH_SHORT).show()
-        );
+        emailInput = findViewById(R.id.enterEmailText);
+        passwordInput = findViewById(R.id.enterPasswordText);
+        logInBtn = findViewById(R.id.loginBtn);
+        registerBtn = findViewById(R.id.registerBtn);
 
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) TextView myTextView = findViewById(R.id.forgotPasswordText);
+        logInBtn.setOnClickListener(v -> doLogin());
+
+        @SuppressLint({"MissingInflatedId", "LocalSuppress"})
+        TextView myTextView = findViewById(R.id.forgotPasswordText);
         myTextView.setOnClickListener(v ->
-                Toast.makeText(LogInActivity.this, "Check your email for a link to reset your password.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(LogInActivity.this, "Check your email for a reset link.", Toast.LENGTH_SHORT).show()
         );
 
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button registerBtn = findViewById(R.id.registerBtn);
-        registerBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(LogInActivity.this, ChooseRoleActivity.class);
-            startActivity(intent);
+        registerBtn.setOnClickListener(v ->
+                startActivity(new Intent(LogInActivity.this, ChooseRoleActivity.class))
+        );
+    }
+
+    private void doLogin() {
+        String email = emailInput.getText().toString().trim();
+        String password = passwordInput.getText().toString().trim();
+
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        AuthService service = ApiClient.getClient().create(AuthService.class);
+        LoginRequest request = new LoginRequest(email, password);
+
+        service.login(request).enqueue(new Callback<LoginResponse>() {
+            @Override
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    LoginResponse loginResponse = response.body();
+
+                    SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putString("jwt_token", loginResponse.getToken());
+                    editor.putString("user_role", loginResponse.getRole());
+                    editor.putLong("user_id", loginResponse.getUserId());
+                    editor.apply();
+                    
+
+                    Toast.makeText(LogInActivity.this, "Welcome " + loginResponse.getEmail(), Toast.LENGTH_SHORT).show();
+
+                    Intent intent = new Intent(LogInActivity.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Toast.makeText(LogInActivity.this, "Login failed: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
+                Toast.makeText(LogInActivity.this, "Connection error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
         });
     }
 }

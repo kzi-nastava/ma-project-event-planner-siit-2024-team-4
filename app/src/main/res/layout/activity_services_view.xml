@@ -5,7 +5,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.ServiceActivity">
+    tools:context=".activities.ServiceActivity"
+    android:fitsSystemWindows="true">
 
     <!-- Nav bar -->
 
@@ -22,7 +23,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="?attr/actionBarSize"
         android:layout_marginEnd="220dp"/>
 
     <!-- Search bar -->
