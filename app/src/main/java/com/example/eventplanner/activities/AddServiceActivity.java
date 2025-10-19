@@ -52,7 +52,6 @@ public class AddServiceActivity extends AppCompatActivity {
 
     private static final int PICK_IMAGES_REQUEST = 1;
 
-    // Form views
     private EditText etServiceName, etServiceDescription, etServicePrice, etServiceDiscount;
     private EditText etDurationHours, etDurationMinutes, etMinEngagement, etMaxEngagement;
     private EditText etReservationDue, etCancellationDue;
@@ -64,7 +63,6 @@ public class AddServiceActivity extends AppCompatActivity {
     private Button btnUploadImages, btnAddCategory, btnSave, btnCancel;
     private TextView tvImageCount, tvSelectedEventTypes, tvCategoryInfo, tvCategoryInstruction;
 
-    // Data
     private List<CategoryDTO> categories = new ArrayList<>();
     private List<CategoryDTO> suggestedCategories = new ArrayList<>();
     private List<EventTypeDTO> eventTypes = new ArrayList<>();
@@ -464,14 +462,12 @@ public class AddServiceActivity extends AppCompatActivity {
             selectedImageUris.clear();
             
             if (data.getClipData() != null) {
-                // Multiple images selected
                 int count = data.getClipData().getItemCount();
                 for (int i = 0; i < count; i++) {
                     Uri imageUri = data.getClipData().getItemAt(i).getUri();
                     selectedImageUris.add(imageUri);
                 }
             } else if (data.getData() != null) {
-                // Single image selected
                 selectedImageUris.add(data.getData());
             }
             
@@ -484,7 +480,6 @@ public class AddServiceActivity extends AppCompatActivity {
             return;
         }
 
-        // Create service DTO
         CreateServiceDTO dto = new CreateServiceDTO();
         dto.setName(etServiceName.getText().toString().trim());
         dto.setDescription(etServiceDescription.getText().toString().trim());
@@ -494,19 +489,7 @@ public class AddServiceActivity extends AppCompatActivity {
         dto.setDiscount(TextUtils.isEmpty(discountStr) ? 0 : Double.parseDouble(discountStr));
         
         dto.setAvailable(cbAvailable.isChecked());
-        
-//        boolean isVisible = true;
-//        if (selectedCategory != null && !selectedCategory.isApprovedByAdmin) {
-//            isVisible = false;
-//        }
-        
-        // Debug log
-        if (selectedCategory != null) {
-            android.util.Log.d("AddServiceActivity", "Selected category: " + selectedCategory.name + 
-                ", isApprovedByAdmin: " + selectedCategory.isApprovedByAdmin + 
-                ", will set visible: " + visible);
-        }
-        
+                
         dto.setVisible(visible);
         
         if (selectedCategory == null) {
@@ -516,7 +499,6 @@ public class AddServiceActivity extends AppCompatActivity {
             dto.setCategoryId(selectedCategory.id);
         }
         
-        // Event types
         List<Long> eventTypeIds = new ArrayList<>();
         for (EventTypeDTO eventType : selectedEventTypes) {
             eventTypeIds.add(eventType.getId());
@@ -543,12 +525,12 @@ public class AddServiceActivity extends AppCompatActivity {
             if (!TextUtils.isEmpty(minEngStr)) {
                 dto.setMinEngagement(Integer.parseInt(minEngStr));
             } else {
-                dto.setMinEngagement(1); // Default minimum engagement
+                dto.setMinEngagement(null); // Default minimum engagement
             }
             if (!TextUtils.isEmpty(maxEngStr)) {
                 dto.setMaxEngagement(Integer.parseInt(maxEngStr));
             } else {
-                dto.setMaxEngagement(5); // Default maximum engagement
+                dto.setMaxEngagement(null); // Default maximum engagement
             }
             dto.setDuration(null);
         } else {
@@ -557,17 +539,14 @@ public class AddServiceActivity extends AppCompatActivity {
             dto.setMaxEngagement(1);
         }
         
-        // Reservation/Cancellation due
         String resDueStr = etReservationDue.getText().toString().trim();
         String cancelDueStr = etCancellationDue.getText().toString().trim();
         dto.setReservationDue(TextUtils.isEmpty(resDueStr) ? 0 : Integer.parseInt(resDueStr));
         dto.setCancelationDue(TextUtils.isEmpty(cancelDueStr) ? 0 : Integer.parseInt(cancelDueStr));
         
-        // Reservation type
         int selectedId = rgReservationType.getCheckedRadioButtonId();
         dto.setReservationType(selectedId == R.id.rbAutomatic ? "AUTOMATIC" : "MANUAL");
         
-        // Provider ID
         dto.setProviderId(getCurrentUserId());
         
         Gson gson = new Gson();

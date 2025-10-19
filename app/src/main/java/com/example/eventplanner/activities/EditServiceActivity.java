@@ -51,7 +51,6 @@ public class EditServiceActivity extends AppCompatActivity {
     private Long serviceId;
     private ServiceDTO currentService;
 
-    // Form views
     private EditText etServiceName, etServiceDescription, etServicePrice, etServiceDiscount;
     private EditText etDurationHours, etDurationMinutes, etMinEngagement, etMaxEngagement;
     private EditText etReservationDue, etCancellationDue;
@@ -270,7 +269,6 @@ public class EditServiceActivity extends AppCompatActivity {
         // Load event types for this category
         loadEventTypesForCategory();
         
-        // Current images
         if (currentService.getImageURLs() != null && !currentService.getImageURLs().isEmpty()) {
             tvCurrentImages.setText(currentService.getImageURLs().size() + " image(s)");
         } else {
@@ -278,6 +276,87 @@ public class EditServiceActivity extends AppCompatActivity {
         }
     }
 
+    private void loadCategories() {
+        CategoryService categoryService = ApiClient.getClient(this).create(CategoryService.class);
+        categoryService.getAllCategories(getAuthHeader()).enqueue(new Callback<List<CategoryDTO>>() {
+            @Override
+            public void onResponse(Call<List<CategoryDTO>> call, Response<List<CategoryDTO>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    categories.clear();
+                    categories.addAll(response.body());
+                    setupCategorySpinner();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<CategoryDTO>> call, Throwable t) {
+                Toast.makeText(EditServiceActivity.this, "Error loading categories", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void loadEventTypes() {
+        EventTypeService eventTypeService = ApiClient.getClient(this).create(EventTypeService.class);
+        eventTypeService.getAllEventTypes(getAuthHeader()).enqueue(new Callback<List<EventTypeDTO>>() {
+            @Override
+            public void onResponse(Call<List<EventTypeDTO>> call, Response<List<EventTypeDTO>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    eventTypes.clear();
+                    eventTypes.addAll(response.body());
+                    setupEventTypeSpinner();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<EventTypeDTO>> call, Throwable t) {
+                Toast.makeText(EditServiceActivity.this, "Error loading event types", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void setupCategorySpinner() {
+        List<String> categoryNames = new ArrayList<>();
+        categoryNames.add("Select Category");
+        for (CategoryDTO category : categories) {
+            if (category.isApprovedByAdmin) {
+                categoryNames.add(category.name);
+            }
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categoryNames);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerCategory.setAdapter(adapter);
+        
+        if (currentService != null && currentService.getCategory() != null) {
+            for (int i = 0; i < categories.size(); i++) {
+                if (categories.get(i).id.equals(currentService.getCategory().id)) {
+                    spinnerCategory.setSelection(i + 1);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void setupEventTypeSpinner() {
+        List<String> eventTypeNames = new ArrayList<>();
+        eventTypeNames.add("Select Event Type");
+        for (EventTypeDTO eventType : eventTypes) {
+            eventTypeNames.add(eventType.getName());
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, eventTypeNames);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerEventTypes.setAdapter(adapter);
+    }
+
+    private void addEventType() {
+        int position = spinnerEventTypes.getSelectedItemPosition();
+        if (position > 0) {
+            EventTypeDTO selectedEventType = eventTypes.get(position - 1);
+            if (!selectedEventTypes.contains(selectedEventType)) {
+                selectedEventTypes.add(selectedEventType);
+                updateSelectedEventTypesDisplay();
+            }
+        }
+    }
 
 
     private void selectImages() {
@@ -301,7 +380,6 @@ public class EditServiceActivity extends AppCompatActivity {
         selectedImages.clear();
             
             if (data.getClipData() != null) {
-                // Multiple images selected
                 int count = data.getClipData().getItemCount();
                 for (int i = 0; i < count; i++) {
                     Uri imageUri = data.getClipData().getItemAt(i).getUri();
@@ -337,7 +415,6 @@ public class EditServiceActivity extends AppCompatActivity {
             return;
         }
 
-        // Create update DTO
         UpdateServiceDTO dto = new UpdateServiceDTO();
         dto.setServiceId(serviceId);
         dto.setName(etServiceName.getText().toString().trim());
@@ -350,7 +427,6 @@ public class EditServiceActivity extends AppCompatActivity {
         dto.setAvailable(cbAvailable.isChecked());
         dto.setVisible(true);
         
-        // Event types - use selected event type from spinner
         List<Long> eventTypeIds = new ArrayList<>();
         int selectedPosition = spinnerEventTypes.getSelectedItemPosition();
         if (selectedPosition > 0) {
@@ -395,7 +471,6 @@ public class EditServiceActivity extends AppCompatActivity {
             dto.setMaxEngagement(1);
         }
         
-        // Reservation/Cancellation due
         String resDueStr = etReservationDue.getText().toString().trim();
         String cancelDueStr = etCancellationDue.getText().toString().trim();
         dto.setReservationDue(TextUtils.isEmpty(resDueStr) ? 0 : Integer.parseInt(resDueStr));
@@ -409,7 +484,6 @@ public class EditServiceActivity extends AppCompatActivity {
             dto.setCategoryId(currentService.getCategory().getId());
         }
         
-        // Keep existing images if no new images selected
         if (newImageUris.isEmpty() && currentService.getImageURLs() != null) {
             dto.setImageURLs(currentService.getImageURLs());
         }
@@ -423,7 +497,6 @@ public class EditServiceActivity extends AppCompatActivity {
             imageParts = MultipartHelper.createMultipartList(selectedImages);
         }
         
-        // Call API
         ServiceService serviceAPI = ApiClient.getClient(this).create(ServiceService.class);
         serviceAPI.updateService(getAuthHeader(), serviceId, dtoBody, imageParts).enqueue(new Callback<ServiceDTO>() {
             @Override

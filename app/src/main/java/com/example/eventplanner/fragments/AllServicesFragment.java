@@ -188,8 +188,6 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
     }
 
     private void loadServices() {
-        Log.d("AllServicesFragment", "=== loadServices START ===");
-        Log.d("AllServicesFragment", "isMyServices: " + isMyServices);
         
         ServiceService service = ApiClient.getClient(getContext()).create(ServiceService.class);
         

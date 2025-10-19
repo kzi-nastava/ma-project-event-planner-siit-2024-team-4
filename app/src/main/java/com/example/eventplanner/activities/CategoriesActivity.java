@@ -49,7 +49,6 @@ public class CategoriesActivity extends BaseActivity implements CategoryAdapter.
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Inflate the categories layout into the content frame
         getLayoutInflater().inflate(R.layout.activity_categories, findViewById(R.id.content_frame));
         setTitle(R.string.categories);
 
@@ -85,8 +84,6 @@ public class CategoriesActivity extends BaseActivity implements CategoryAdapter.
     }
 
     private String getAuthHeader() {
-        // Expect AuthInterceptor to inject token automatically via ApiClient.getClient(context)
-        // Some endpoints also accept explicit token via header, but we rely on interceptor
         return null;
     }
 
@@ -95,14 +92,12 @@ public class CategoriesActivity extends BaseActivity implements CategoryAdapter.
     }
 
     private void loadCategories() {
-        // Load all categories and filter them like in IKS Angular app
         service().getAllCategories(getAuthHeader()).enqueue(new Callback<List<CategoryDTO>>() {
             @Override
             public void onResponse(Call<List<CategoryDTO>> call, Response<List<CategoryDTO>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     List<CategoryDTO> allCategories = response.body();
                     
-                    // Filter approved categories (like in IKS: data.filter((c: any) => c.approvedByAdmin))
                     approvedCategories.clear();
                     for (CategoryDTO category : allCategories) {
                         if (category.isApprovedByAdmin) {
@@ -111,7 +106,6 @@ public class CategoriesActivity extends BaseActivity implements CategoryAdapter.
                     }
                     approvedAdapter.notifyDataSetChanged();
                     
-                    // Filter pending categories (like in IKS: data.filter((c: any) => !c.approvedByAdmin))
                     if (isAdmin()) {
                         pendingCategories.clear();
                         for (CategoryDTO category : allCategories) {
@@ -121,7 +115,6 @@ public class CategoriesActivity extends BaseActivity implements CategoryAdapter.
                         }
                         pendingAdapter.notifyDataSetChanged();
                         
-                        // Show/hide pending section based on whether there are pending categories
                         if (pendingCategories.isEmpty()) {
                             tvPendingTitle.setVisibility(View.GONE);
                             recyclerPendingCategories.setVisibility(View.GONE);
@@ -166,7 +159,7 @@ public class CategoriesActivity extends BaseActivity implements CategoryAdapter.
                 CreateCategoryDTO dto = new CreateCategoryDTO();
                 dto.name = name;
                 dto.description = desc;
-                dto.isApprovedByAdmin = true; // admin creates approved
+                dto.isApprovedByAdmin = true;
                 service().createCategory(getAuthHeader(), dto).enqueue(new Callback<CategoryDTO>() {
                     @Override
                     public void onResponse(Call<CategoryDTO> call, Response<CategoryDTO> response) {
@@ -266,9 +259,6 @@ public class CategoriesActivity extends BaseActivity implements CategoryAdapter.
 
     @Override
     public void onApprove(CategoryDTO category) {
-        android.util.Log.d("CategoriesActivity", "=== onApprove called for category: " + category.name + " (ID: " + category.id + ") ===");
-        
-        // Approve category by updating isApprovedByAdmin to true (like in IKS Angular app)
         UpdateCategoryDTO updateDto = new UpdateCategoryDTO();
         updateDto.id = category.id;
         updateDto.name = category.name;
@@ -468,7 +458,6 @@ public class CategoriesActivity extends BaseActivity implements CategoryAdapter.
 
     @Override
     public void onDeny(CategoryDTO category) {
-        // Deny category by deleting it (like in IKS Angular app)
         new AlertDialog.Builder(this)
                 .setTitle("Deny Category")
                 .setMessage("Are you sure you want to deny this category? It will be permanently deleted.")

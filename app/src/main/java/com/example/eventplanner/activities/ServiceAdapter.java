@@ -60,10 +60,8 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ViewHold
             holder.tvDiscount.setVisibility(View.GONE);
         }
 
-        // Load first image if available
         if (service.getImageURLs() != null && !service.getImageURLs().isEmpty()) {
             String imageUrl = service.getImageURLs().get(0);
-            // Convert relative path to full URL
             if (imageUrl.startsWith("/uploads/")) {
                 imageUrl = IMG_URL + imageUrl;
             }
@@ -76,14 +74,12 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ViewHold
             holder.ivImage.setImageResource(R.drawable.placeholder_image);
         }
 
-        // Show provider name
         if (service.getProvider() != null) {
             holder.tvProvider.setText("Provider: " + service.getProvider().getName());
         } else {
             holder.tvProvider.setText("Provider: N/A");
         }
 
-        // Show availability status
         if (service.isAvailable()) {
             holder.tvStatus.setText("Available");
             holder.tvStatus.setTextColor(holder.itemView.getContext().getResources().getColor(android.R.color.holo_green_dark));
@@ -92,7 +88,6 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ViewHold
             holder.tvStatus.setTextColor(holder.itemView.getContext().getResources().getColor(android.R.color.holo_red_dark));
         }
 
-        // Show visibility status for my services
         if (isMyServices) {
             if (service.isVisible()) {
                 holder.tvVisibility.setText("Visible");
@@ -106,9 +101,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ViewHold
             holder.tvVisibility.setVisibility(View.GONE);
         }
 
-        // Set up action buttons
         if (isMyServices) {
-            // For my services, show edit and delete buttons
             holder.btnEdit.setVisibility(View.VISIBLE);
             holder.btnDelete.setVisibility(View.VISIBLE);
             holder.btnView.setVisibility(View.GONE);
@@ -116,13 +109,11 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ViewHold
             holder.btnEdit.setOnClickListener(v -> listener.onEdit(service));
             holder.btnDelete.setOnClickListener(v -> listener.onDelete(service));
         } else {
-            // For all services, hide all buttons (no eye icon)
             holder.btnEdit.setVisibility(View.GONE);
             holder.btnDelete.setVisibility(View.GONE);
             holder.btnView.setVisibility(View.GONE);
         }
 
-        // Set up item click listener
         holder.itemView.setOnClickListener(v -> {
             if (isMyServices) {
                 listener.onEdit(service);

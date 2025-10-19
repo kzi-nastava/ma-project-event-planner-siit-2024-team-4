@@ -71,7 +71,7 @@ public class AllEventsActivity extends BaseActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                allEventAdapter.filter(newText);  // Filtrira događaje
+                allEventAdapter.filter(newText);
                 return false;
             }
         });
@@ -103,10 +103,9 @@ public class AllEventsActivity extends BaseActivity {
             btnCreateEvent.setVisibility(View.VISIBLE);
             btnCreateEvent.setOnClickListener(v -> {
                 Intent intent = new Intent(AllEventsActivity.this, EventCreateActivity.class);
-                startActivityForResult(intent, 100); // Request code 100 for event creation
+                startActivityForResult(intent, 100);
             });
         } else {
-            // Hide button for non-Event Organizers
             btnCreateEvent.setVisibility(View.GONE);
         }
     }

@@ -36,7 +36,6 @@ public final class GlideAuthModule extends AppGlideModule {
                 return chain.proceed(requestBuilder.build());
             });
         } else {
-            Log.w("GlideAuthModule", "JWT token not found in SharedPreferences. Images might not load if authentication is required.");
         }
 
         OkHttpClient okHttpClient = clientBuilder.build();

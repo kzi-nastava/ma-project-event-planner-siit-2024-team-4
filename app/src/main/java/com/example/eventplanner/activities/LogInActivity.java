@@ -80,7 +80,7 @@ public class LogInActivity extends BaseActivity {
                     startActivity(intent);
                     finish();
                 } else {
-                    Toast.makeText(LogInActivity.this, "Invalid credentials", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LogInActivity.this, "Login failed: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 

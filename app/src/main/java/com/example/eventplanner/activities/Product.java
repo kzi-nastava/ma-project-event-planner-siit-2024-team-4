@@ -5,14 +5,12 @@ public class Product {
     private int imageResId;
     private String category;
 
-    // Constructor
     public Product(String name, int imageResId, String category) {
         this.name = name;
         this.imageResId = imageResId;
         this.category = category;
     }
 
-    // Getters
     public String getName() {
         return name;
     }
@@ -25,7 +23,6 @@ public class Product {
         return category;
     }
 
-    // Setters
     public void setName(String name) {
         this.name = name;
     }
