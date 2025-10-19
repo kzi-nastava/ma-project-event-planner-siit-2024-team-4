@@ -23,4 +23,9 @@
     
     <!-- Products colors -->
     <color name="background_color">#F5F5F5</color>
+    
+    <!-- Price List colors -->
+    <color name="secondary_color">#FF6B6B</color>
+    <color name="discount_color">#FF9800</color>
+    <color name="success_color">#4CAF50</color>
 </resources>

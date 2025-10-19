@@ -58,6 +58,7 @@ public class BaseActivity extends AppCompatActivity {
             MenuItem favoriteEventsItem = navigationView.getMenu().findItem(R.id.nav_favorite_events);
             MenuItem myServicesItem = navigationView.getMenu().findItem(R.id.nav_my_services);
             MenuItem myProductsItem = navigationView.getMenu().findItem(R.id.nav_my_products);
+            MenuItem priceListItem = navigationView.getMenu().findItem(R.id.nav_price_list);
             MenuItem categoriesItem = navigationView.getMenu().findItem(R.id.nav_categories);
             MenuItem eventTypesItem = navigationView.getMenu().findItem(R.id.nav_event_types);
             
@@ -73,6 +74,9 @@ public class BaseActivity extends AppCompatActivity {
 
             if (myProductsItem != null) {
                 myProductsItem.setVisible("SPProvider".equals(userRole));
+            }
+            if (priceListItem != null) {
+                priceListItem.setVisible("SPProvider".equals(userRole));
             }
             if (categoriesItem != null) {
                 categoriesItem.setVisible(true);
@@ -125,6 +129,8 @@ public class BaseActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, AllProductsActivity.class);
                 intent.putExtra("isMyProducts", true);
                 startActivity(intent);
+            } else if (id == R.id.nav_price_list) {
+                startActivity(new Intent(this, PriceListActivity.class));
             }
 
             drawerLayout.closeDrawer(navigationView);

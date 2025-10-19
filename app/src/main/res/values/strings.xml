@@ -170,5 +170,6 @@
     <string name="all">All</string>
     <string name="available_only">Available Only</string>
     <string name="not_available_only">Not Available Only</string>
+    <string name="price_list">Price List</string>
 
 </resources>
