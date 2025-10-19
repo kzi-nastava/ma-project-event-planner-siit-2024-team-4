@@ -15,7 +15,6 @@ public class RegistrationActivity extends BaseActivity {
         getLayoutInflater().inflate(R.layout.activity_registration, findViewById(R.id.content_frame), true);
 
         String role = getIntent().getStringExtra("ROLE");
-//        updateMenuForRole(role); // prilagođava meni
 
         Fragment selectedFragment;
         if ("Event organizer".equals(role)) {

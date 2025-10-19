@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -30,13 +31,12 @@ import retrofit2.Response;
 
 import static com.example.eventplanner.config.ApiConfig.BASE_URL;
 
-public class AboutProductActivity extends AppCompatActivity {
+public class AboutProductActivity extends BaseActivity {
 
     private ProductDTO product;
     private String userRole;
     private String currentUserId;
 
-    // Views
     private ViewPager2 viewPagerImages;
     private LinearLayout layoutIndicators;
     private TextView tvProductName;
@@ -54,9 +54,10 @@ public class AboutProductActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_about_product);
 
-        // Get product from intent
+        FrameLayout contentFrame = findViewById(R.id.content_frame);
+        getLayoutInflater().inflate(R.layout.activity_about_product, contentFrame, true);
+
         product = (ProductDTO) getIntent().getSerializableExtra("product");
         if (product == null) {
             Toast.makeText(this, "Product not found", Toast.LENGTH_SHORT).show();
@@ -94,37 +95,31 @@ public class AboutProductActivity extends AppCompatActivity {
     }
 
     private void setupButtons() {
-        // Contact Provider button
         btnContactProvider.setOnClickListener(v -> {
             // TODO: Implement contact provider functionality
             Toast.makeText(this, "Contact provider functionality coming soon", Toast.LENGTH_SHORT).show();
         });
 
-        // Edit Product button - only visible for product owner
         if (product.getServiceProviderId() != null && 
             currentUserId != null && 
             product.getServiceProviderId().toString().equals(currentUserId) &&
             ("SPProvider".equals(userRole) || "SERVICE_PROVIDER".equals(userRole))) {
             btnEditProduct.setVisibility(View.VISIBLE);
             btnEditProduct.setOnClickListener(v -> {
-                // TODO: Navigate to edit product activity
                 Toast.makeText(this, "Edit product functionality coming soon", Toast.LENGTH_SHORT).show();
             });
         }
     }
 
     private void fillProductInfo() {
-        // Set product name
         tvProductName.setText(product.getName());
 
-        // Set price
         if (product.getPrice() != null) {
             tvPrice.setText("Price: " + product.getPrice().intValue() + " RSD");
         } else {
             tvPrice.setText("Price: N/A");
         }
         
-        // Set discount
         if (product.getDiscount() != null && product.getDiscount() > 0) {
             tvDiscount.setText("Discount: " + product.getDiscount().intValue() + "%");
             tvDiscount.setVisibility(View.VISIBLE);
@@ -132,7 +127,6 @@ public class AboutProductActivity extends AppCompatActivity {
             tvDiscount.setVisibility(View.GONE);
         }
 
-        // Set availability
         if (product.getAvailable() != null && product.getAvailable()) {
             tvAvailability.setText("Available");
             tvAvailability.setTextColor(getResources().getColor(android.R.color.white));
@@ -143,14 +137,12 @@ public class AboutProductActivity extends AppCompatActivity {
             tvAvailability.setBackgroundResource(R.drawable.unavailable_background);
         }
 
-        // Set description
         if (product.getDescription() != null && !product.getDescription().trim().isEmpty()) {
             tvDescription.setText(product.getDescription());
         } else {
             tvDescription.setText("No description available");
         }
 
-        // Set provider info
         if (product.getServiceProviderName() != null && !product.getServiceProviderName().trim().isEmpty()) {
             tvProviderName.setText(product.getServiceProviderName());
         } else if (product.getProviderId() != null) {
@@ -161,10 +153,8 @@ public class AboutProductActivity extends AppCompatActivity {
             tvProviderName.setText("Unknown Provider");
         }
 
-        // Provider email - not available in ProductDTO, so we'll show placeholder
         tvProviderEmail.setText("Contact information not available");
 
-        // Set category
         if (product.getCategory() != null && product.getCategory().getName() != null && !product.getCategory().getName().trim().isEmpty()) {
             tvCategory.setText(product.getCategory().getName());
         } else if (product.getCategoryName() != null && !product.getCategoryName().trim().isEmpty()) {
@@ -173,7 +163,6 @@ public class AboutProductActivity extends AppCompatActivity {
             tvCategory.setText("-");
         }
 
-        // Set event types
         if (product.getEventTypes() != null && !product.getEventTypes().isEmpty()) {
             StringBuilder eventTypesText = new StringBuilder();
             for (int i = 0; i < product.getEventTypes().size(); i++) {
@@ -189,13 +178,11 @@ public class AboutProductActivity extends AppCompatActivity {
             tvEventType.setText("-");
         }
 
-        // Set product images
         if (product.getImageURLs() != null && !product.getImageURLs().isEmpty()) {
             ProductImageAdapter imageAdapter = new ProductImageAdapter(product.getImageURLs());
             viewPagerImages.setAdapter(imageAdapter);
             viewPagerImages.setVisibility(View.VISIBLE);
             
-            // Setup indicators if more than one image
             if (product.getImageURLs().size() > 1) {
                 setupIndicators(product.getImageURLs().size());
                 layoutIndicators.setVisibility(View.VISIBLE);
@@ -203,7 +190,6 @@ public class AboutProductActivity extends AppCompatActivity {
                 layoutIndicators.setVisibility(View.GONE);
             }
         } else {
-            // Show default image if no images
             viewPagerImages.setVisibility(View.GONE);
             layoutIndicators.setVisibility(View.GONE);
         }
@@ -238,7 +224,6 @@ public class AboutProductActivity extends AppCompatActivity {
             public void onResponse(Call<ProfileDTO> call, Response<ProfileDTO> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     ProfileDTO profile = response.body();
-                    // Get provider name based on role
                     String providerName = getProviderName(profile);
                     tvProviderName.setText(providerName);
                 } else {
@@ -258,28 +243,14 @@ public class AboutProductActivity extends AppCompatActivity {
             return "Unknown Provider";
         }
         
-        // Check user role and get appropriate name
         String role = profile.getRole();
-        if ("EventOrganizer".equals(role)) {
-            // For Event Organizer, use name + last name
-            String name = profile.getName();
-            String lastName = profile.getLastName();
-            if (name != null && lastName != null) {
-                return name + " " + lastName;
-            } else if (name != null) {
-                return name;
-            } else if (lastName != null) {
-                return lastName;
-            }
-        } else if ("SPProvider".equals(role) || "SERVICE_PROVIDER".equals(role)) {
-            // For Service Provider, use name (company name)
+        if ("SPProvider".equals(role) || "SERVICE_PROVIDER".equals(role)) {
             String name = profile.getName();
             if (name != null && !name.trim().isEmpty()) {
                 return name;
             }
         }
         
-        // Fallback to email if no name is available
         String email = profile.getEmail();
         if (email != null && !email.trim().isEmpty()) {
             return email;
@@ -303,12 +274,10 @@ public class AboutProductActivity extends AppCompatActivity {
             layoutIndicators.addView(indicator);
         }
         
-        // Set first indicator as selected
         if (count > 0) {
             layoutIndicators.getChildAt(0).setBackgroundResource(R.drawable.indicator_selected);
         }
         
-        // Update indicators when page changes
         viewPagerImages.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {

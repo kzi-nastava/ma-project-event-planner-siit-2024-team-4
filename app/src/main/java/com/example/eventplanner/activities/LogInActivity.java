@@ -72,6 +72,7 @@ public class LogInActivity extends BaseActivity {
                     editor.putString("user_role", loginResponse.getRole());
                     editor.putLong("user_id", loginResponse.getUserId());
                     editor.apply();
+                    
 
                     Toast.makeText(LogInActivity.this, "Welcome " + loginResponse.getEmail(), Toast.LENGTH_SHORT).show();
 
@@ -80,7 +81,7 @@ public class LogInActivity extends BaseActivity {
                     startActivity(intent);
                     finish();
                 } else {
-                    Toast.makeText(LogInActivity.this, "Invalid credentials", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LogInActivity.this, "Login failed: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 

@@ -75,12 +75,10 @@ public class AllProductsAndServicesActivity extends AppCompatActivity {
         FrameLayout contentFrame = findViewById(R.id.content_frame);
         getLayoutInflater().inflate(R.layout.activity_all_products_and_services, contentFrame, true);
 
-        // Inicijalizacija UI komponenti
         rvAllProductsServices = findViewById(R.id.rvAllProductsServices);
         searchViewProducts = findViewById(R.id.searchViewProducts);
         spinnerFilterProducts = findViewById(R.id.spinnerFilterProducts);
 
-        // Kreiranje liste proizvoda
         productList = new ArrayList<>();
         productList.add(new Product("Wedding Cake", R.drawable.service_band, "Catering"));
         productList.add(new Product("DJ Services", R.drawable.service_band, "Entertainment"));
@@ -88,12 +86,10 @@ public class AllProductsAndServicesActivity extends AppCompatActivity {
         productList.add(new Product("Photography", R.drawable.service_band, "Service"));
         productList.add(new Product("Custom Flags", R.drawable.service_band, "Decoration"));
 
-        // Postavljanje RecyclerView-a
         rvAllProductsServices.setLayoutManager(new LinearLayoutManager(this));
         productAdapter = new OldProductAdapter(productList);
         rvAllProductsServices.setAdapter(productAdapter);
 
-        // Funkcionalnost pretrage
         searchViewProducts.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -107,7 +103,6 @@ public class AllProductsAndServicesActivity extends AppCompatActivity {
             }
         });
 
-        // Postavljanje filter Spinner-a
         ArrayAdapter<CharSequence> filterAdapter = ArrayAdapter.createFromResource(
                 this,
                 R.array.product_filter_options,
@@ -130,7 +125,6 @@ public class AllProductsAndServicesActivity extends AppCompatActivity {
         });
     }
 
-    // Metoda za filtriranje proizvoda na osnovu kategorije
     private void filterProducts(String filter) {
         List<Product> filteredProducts = new ArrayList<>();
         if (filter.equals("All")) {

@@ -3,6 +3,13 @@
         android:id="@+id/nav_homepage"
         android:title="@string/homepage" />
     <item
+        android:id="@+id/nav_event_types"
+        android:title="@string/event_types"
+        android:visible="false" />
+    <item
+        android:id="@+id/nav_all_events"
+        android:title="@string/all_events" />
+    <item
         android:id="@+id/nav_my_events"
         android:title="@string/my_events"
         android:visible="false" />
@@ -10,18 +17,8 @@
         android:id="@+id/nav_favorite_events"
         android:title="@string/favorite_events" />
     <item
-        android:id="@+id/nav_all_events"
-        android:title="@string/all_events" />
-    <item
         android:id="@+id/nav_all_services"
         android:title="@string/all_services" />
-    <item
-        android:id="@+id/nav_categories"
-        android:title="@string/categories" />
-    <item
-        android:id="@+id/nav_event_types"
-        android:title="@string/event_types"
-        android:visible="false" />
     <item
         android:id="@+id/nav_my_services"
         android:title="@string/my_services"
@@ -33,6 +30,9 @@
         android:id="@+id/nav_my_products"
         android:title="@string/my_products"
         android:visible="false" />
+    <item
+        android:id="@+id/nav_categories"
+        android:title="@string/categories" />
     <item
         android:id="@+id/nav_profile"
         android:title="@string/profile" />

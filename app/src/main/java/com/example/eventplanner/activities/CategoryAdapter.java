@@ -52,7 +52,6 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         
         if (canManage) {
             if (isPendingList) {
-                // Za pending kategorije prikaži approve/deny dugmad
                 holder.btnApprove.setVisibility(View.VISIBLE);
                 holder.btnDeny.setVisibility(View.VISIBLE);
                 holder.btnEdit.setVisibility(View.VISIBLE);
@@ -63,7 +62,6 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
                 holder.btnEdit.setOnClickListener(v -> listener.onEdit(item));
                 holder.btnDelete.setOnClickListener(null);
             } else {
-                // Za approved kategorije prikaži edit/delete dugmad
                 holder.btnApprove.setVisibility(View.GONE);
                 holder.btnDeny.setVisibility(View.GONE);
                 holder.btnEdit.setVisibility(View.VISIBLE);
@@ -75,7 +73,6 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
                 holder.btnDelete.setOnClickListener(v -> listener.onDelete(item));
             }
         } else {
-            // Za obične korisnike sakrij sva dugmad
             holder.btnApprove.setVisibility(View.GONE);
             holder.btnDeny.setVisibility(View.GONE);
             holder.btnEdit.setVisibility(View.GONE);

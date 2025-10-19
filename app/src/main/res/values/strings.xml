@@ -169,11 +169,5 @@
     <string name="all">All</string>
     <string name="available_only">Available Only</string>
     <string name="not_available_only">Not Available Only</string>
-    
-    <!-- Edit Service Strings -->
-    <string name="enter_service_name">Enter service name</string>
-    <string name="enter_service_description">Enter service description</string>
-    <string name="enter_service_price">Enter service price</string>
-    <string name="enter_service_discount">Enter service discount</string>
 
 </resources>

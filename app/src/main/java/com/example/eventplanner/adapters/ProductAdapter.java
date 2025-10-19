@@ -31,6 +31,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     public interface OnProductClickListener {
         void onProductClick(ProductDTO product);
         void onEditClick(ProductDTO product);
+        void onDeleteClick(ProductDTO product);
     }
     
     public ProductAdapter(List<ProductDTO> products, OnProductClickListener listener) {
@@ -74,8 +75,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         private TextView tvPrice;
         private TextView tvDiscount;
         private TextView tvAvailability;
-        private Button btnViewDetails;
         private ImageButton btnEdit;
+        private ImageButton btnDelete;
         
         public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -86,8 +87,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             tvPrice = itemView.findViewById(R.id.tvPrice);
             tvDiscount = itemView.findViewById(R.id.tvDiscount);
             tvAvailability = itemView.findViewById(R.id.tvAvailability);
-            btnViewDetails = itemView.findViewById(R.id.btnViewDetails);
             btnEdit = itemView.findViewById(R.id.btnEdit);
+            btnDelete = itemView.findViewById(R.id.btnDelete);
             
             // Set click listeners
             itemView.setOnClickListener(v -> {
@@ -96,15 +97,15 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 }
             });
             
-            btnViewDetails.setOnClickListener(v -> {
-                if (listener != null) {
-                    listener.onProductClick(products.get(getAdapterPosition()));
-                }
-            });
-            
             btnEdit.setOnClickListener(v -> {
                 if (listener != null) {
                     listener.onEditClick(products.get(getAdapterPosition()));
+                }
+            });
+            
+            btnDelete.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onDeleteClick(products.get(getAdapterPosition()));
                 }
             });
         }
@@ -163,8 +164,9 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 layoutIndicators.setVisibility(View.GONE);
             }
             
-            // Show/hide edit button
+            // Show/hide edit and delete buttons for my products
             btnEdit.setVisibility(showEditButton ? View.VISIBLE : View.GONE);
+            btnDelete.setVisibility(showEditButton ? View.VISIBLE : View.GONE);
         }
         
         private void setupIndicators(int count) {

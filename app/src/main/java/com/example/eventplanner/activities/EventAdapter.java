@@ -38,12 +38,10 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         holder.eventName.setText(event.getName());
         holder.eventImage.setImageResource(event.getImageResId());
         
-        // Set click listener for the entire card
         holder.itemView.setOnClickListener(v -> {
             Context context = v.getContext();
             Intent intent = new Intent(context, AboutEventActivity.class);
-            // For now, use a mock event ID. In real implementation, Event should have an ID field
-            intent.putExtra("event_id", position + 1); // Mock ID based on position
+            intent.putExtra("event_id", position + 1);
             context.startActivity(intent);
         });
     }
@@ -53,11 +51,10 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         return events.size();
     }
 
-    // Filter method
     public void filter(String query) {
         events.clear();
         if (query.isEmpty()) {
-            events.addAll(eventsFull); // If query is empty, show all events
+            events.addAll(eventsFull);
         } else {
             for (Event event : eventsFull) {
                 if (event.getName().toLowerCase().contains(query.toLowerCase())) {

@@ -76,7 +76,6 @@ public class EventTypeAdapter extends RecyclerView.Adapter<EventTypeAdapter.Even
             tvEventTypeName.setText(eventType.getName());
             tvEventTypeDescription.setText(eventType.getDescription());
             
-            // Display categories
             if (eventType.getSuggestedCategories() != null && !eventType.getSuggestedCategories().isEmpty()) {
                 StringBuilder categoriesText = new StringBuilder("Categories: ");
                 for (int i = 0; i < eventType.getSuggestedCategories().size(); i++) {
@@ -90,10 +89,8 @@ public class EventTypeAdapter extends RecyclerView.Adapter<EventTypeAdapter.Even
                 tvCategories.setText("Categories: None");
             }
             
-            // Display status
             tvStatus.setText(eventType.isActive() ? "Status: Active" : "Status: Inactive");
             
-            // Show/hide admin buttons
             if (isAdmin) {
                 btnToggleStatus.setVisibility(View.VISIBLE);
                 btnToggleStatus.setText(eventType.isActive() ? "Deactivate" : "Activate");

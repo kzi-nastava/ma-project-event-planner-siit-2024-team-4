@@ -31,17 +31,16 @@ public class EventAdapterNoImage extends RecyclerView.Adapter<EventAdapterNoImag
     private List<EventDTO> eventsFull;
     private Context context;
     private FavoriteService favoriteService;
-    private boolean isFavoriteEventsList; // Flag to indicate if this is showing favorite events
+    private boolean isFavoriteEventsList;
 
     public EventAdapterNoImage(List<EventDTO> events, Context context) {
         this.events = events;
         this.context = context;
         eventsFull = new ArrayList<>(events);
         favoriteService = ApiClient.getClient(context).create(FavoriteService.class);
-        this.isFavoriteEventsList = false; // Default is false for regular event lists
+        this.isFavoriteEventsList = false;
     }
 
-    // Constructor for favorite events list
     public EventAdapterNoImage(List<EventDTO> events, Context context, boolean isFavoriteEventsList) {
         this.events = events;
         this.context = context;
@@ -60,24 +59,20 @@ public class EventAdapterNoImage extends RecyclerView.Adapter<EventAdapterNoImag
     @Override
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
         EventDTO event = events.get(position);
+        
         holder.eventName.setText(event.getName());
         holder.eventType.setText(event.getEventTypeName());
         holder.eventDescription.setText(event.getDescription());
         
-        // Set heart icon based on context
         if (isFavoriteEventsList) {
-            // If this is favorite events list, all events are favorites
             holder.heartIcon.setImageResource(R.drawable.heart_filled);
             holder.heartIcon.setTag(true);
         } else {
-            // For regular event lists, check if event is favorite
             checkAndSetFavoriteStatus(holder, event);
         }
         
-        // Set click listener for heart icon
         holder.heartIcon.setOnClickListener(v -> toggleFavorite(holder, event));
         
-        // Set click listener for the entire card
         holder.itemView.setOnClickListener(v -> {
             Context context = v.getContext();
             Intent intent = new Intent(context, AboutEventActivity.class);
@@ -91,11 +86,10 @@ public class EventAdapterNoImage extends RecyclerView.Adapter<EventAdapterNoImag
         return events.size();
     }
 
-    // Filter method
     public void filter(String query) {
         events.clear();
         if (query.isEmpty()) {
-            events.addAll(eventsFull); // If query is empty, show all events
+            events.addAll(eventsFull);
         } else {
             for (EventDTO event : eventsFull) {
                 if (event.getName().toLowerCase().contains(query.toLowerCase())) {
@@ -131,14 +125,14 @@ public class EventAdapterNoImage extends RecyclerView.Adapter<EventAdapterNoImag
     }
 
     private void checkAndSetFavoriteStatus(EventViewHolder holder, EventDTO event) {
+        holder.heartIcon.setImageResource(R.drawable.heart_empty);
+        holder.heartIcon.setTag(false);
+        
         SharedPreferences prefs = context.getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
         String userIdStr = prefs.getString("user_id", null);
         String token = prefs.getString("jwt_token", null);
         
         if (userIdStr == null || token == null) {
-            // User not logged in, show empty heart
-            holder.heartIcon.setImageResource(R.drawable.heart_empty);
-            holder.heartIcon.setTag(false);
             return;
         }
         
@@ -149,24 +143,22 @@ public class EventAdapterNoImage extends RecyclerView.Adapter<EventAdapterNoImag
             public void onResponse(Call<Boolean> call, Response<Boolean> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     boolean isFavorite = response.body();
-                    // Update UI on main thread
+                    
                     holder.itemView.post(() -> {
                         holder.heartIcon.setImageResource(isFavorite ? 
                             R.drawable.heart_filled : R.drawable.heart_empty);
                         holder.heartIcon.setTag(isFavorite);
                     });
                 } else {
-                    // On API error, show empty heart
                     holder.itemView.post(() -> {
                         holder.heartIcon.setImageResource(R.drawable.heart_empty);
                         holder.heartIcon.setTag(false);
                     });
                 }
             }
-
+            
             @Override
             public void onFailure(Call<Boolean> call, Throwable t) {
-                // On failure, show empty heart
                 holder.itemView.post(() -> {
                     holder.heartIcon.setImageResource(R.drawable.heart_empty);
                     holder.heartIcon.setTag(false);
@@ -190,7 +182,6 @@ public class EventAdapterNoImage extends RecyclerView.Adapter<EventAdapterNoImag
         Boolean currentStatus = (Boolean) holder.heartIcon.getTag();
         boolean isFavorite = currentStatus != null ? currentStatus : false;
         
-        // Optimistic update - change UI immediately for better UX
         boolean newStatus = !isFavorite;
         holder.heartIcon.setImageResource(newStatus ? 
             R.drawable.heart_filled : R.drawable.heart_empty);
@@ -210,7 +201,6 @@ public class EventAdapterNoImage extends RecyclerView.Adapter<EventAdapterNoImag
                     String message = newStatus ? "Added to favorites" : "Removed from favorites";
                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
                     
-                    // If this is favorite events list and event was removed, remove it from the list
                     if (isFavoriteEventsList && !newStatus) {
                         int position = holder.getAdapterPosition();
                         if (position != RecyclerView.NO_POSITION) {
@@ -221,8 +211,7 @@ public class EventAdapterNoImage extends RecyclerView.Adapter<EventAdapterNoImag
                         }
                     }
                 } else {
-                    // Revert optimistic update on failure
-                    holder.heartIcon.setImageResource(isFavorite ? 
+                    holder.heartIcon.setImageResource(isFavorite ?
                         R.drawable.heart_filled : R.drawable.heart_empty);
                     holder.heartIcon.setTag(isFavorite);
                     Toast.makeText(context, "Failed to update favorites", Toast.LENGTH_SHORT).show();
@@ -231,8 +220,7 @@ public class EventAdapterNoImage extends RecyclerView.Adapter<EventAdapterNoImag
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                // Revert optimistic update on failure
-                holder.heartIcon.setImageResource(isFavorite ? 
+                holder.heartIcon.setImageResource(isFavorite ?
                     R.drawable.heart_filled : R.drawable.heart_empty);
                 holder.heartIcon.setTag(isFavorite);
                 Toast.makeText(context, "Connection error", Toast.LENGTH_SHORT).show();

@@ -139,7 +139,6 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
     }
 
     private void loadServices() {
-        Log.d("AllServicesFragment", "loadServices called");
         ServiceService service = ApiClient.getClient(getContext()).create(ServiceService.class);
         
         Call<List<ServiceDTO>> call;
@@ -157,29 +156,22 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
         call.enqueue(new Callback<List<ServiceDTO>>() {
             @Override
             public void onResponse(Call<List<ServiceDTO>> call, Response<List<ServiceDTO>> response) {
-                Log.d("AllServicesFragment", "Response received: " + response.code());
                 if (response.isSuccessful() && response.body() != null) {
                     services.clear();
                     List<ServiceDTO> allServices = response.body();
-                    Log.d("AllServicesFragment", "Received " + allServices.size() + " services from backend");
-                    Log.d("AllServicesFragment", "Current user role: " + getCurrentUserRole());
-                    Log.d("AllServicesFragment", "Is admin: " + isAdmin());
-                    Log.d("AllServicesFragment", "Is SPP: " + isServiceProvider());
-                    
+                                       
                     List<ServiceDTO> filteredServices = filterServicesByVisibility(allServices);
                     Log.d("AllServicesFragment", "After filtering: " + filteredServices.size() + " services");
                     services.addAll(filteredServices);
                     
                     serviceAdapter.notifyDataSetChanged();
                 } else {
-                    Log.d("AllServicesFragment", "Error response: " + response.code() + ", body: " + response.body());
                     Toast.makeText(getContext(), "Error loading services: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<ServiceDTO>> call, Throwable t) {
-                Log.e("AllServicesFragment", "Failed to load services", t);
                 Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -456,13 +448,6 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
         Toast.makeText(getContext(), "Filters cleared", Toast.LENGTH_SHORT).show();
     }
 
-    /**
-     * Filters services based on visibility and availability rules:
-     * - Admin vidi sve servise koje backend vraća (backend već filtrira vidljive)
-     * - Niko ne vidi nevidljive usluge (visible = false) - backend ih ne vraća
-     * - Svi mogu videti dostupne usluge (available = true)
-     * - SPP može videti i svoje nedostupne usluge (available = false, ali samo svoje)
-     */
     private List<ServiceDTO> filterServicesByVisibility(List<ServiceDTO> allServices) {
         List<ServiceDTO> filteredServices = new ArrayList<>();
         boolean isSPP = isServiceProvider();

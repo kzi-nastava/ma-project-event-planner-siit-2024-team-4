@@ -32,16 +32,13 @@ public class SplashScreenActivity extends AppCompatActivity {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                // Check if user is logged in
                 SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
                 String token = prefs.getString("jwt_token", null);
                 
                 Intent intent;
                 if (token != null) {
-                    // User is logged in - go to homepage
                     intent = new Intent(SplashScreenActivity.this, MainActivity.class);
                 } else {
-                    // User is not logged in - go to login
                     intent = new Intent(SplashScreenActivity.this, LogInActivity.class);
                 }
                 
