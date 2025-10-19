@@ -58,6 +58,7 @@ public class AboutEventActivity extends BaseActivity {
     private ImageView favoriteIcon;
     private Button downloadPdfBtn;
     private Button btnBudget;
+    private Button btnChatWithOrganizer;
     private WebView webViewMap;
 
     @Override
@@ -101,6 +102,7 @@ public class AboutEventActivity extends BaseActivity {
         favoriteIcon = findViewById(R.id.favoriteIcon);
         downloadPdfBtn = findViewById(R.id.downloadPdfBtn);
         btnBudget = findViewById(R.id.btnBudget);
+        btnChatWithOrganizer = findViewById(R.id.btnChatWithOrganizer);
         webViewMap = findViewById(R.id.webViewMap);
     }
 
@@ -108,6 +110,7 @@ public class AboutEventActivity extends BaseActivity {
         favoriteIcon.setOnClickListener(v -> toggleFavorite());
         downloadPdfBtn.setOnClickListener(v -> generatePDF());
         btnBudget.setOnClickListener(v -> openBudget());
+        btnChatWithOrganizer.setOnClickListener(v -> openChatWithOrganizer());
     }
     
     private void setupMap() {
@@ -448,6 +451,23 @@ public class AboutEventActivity extends BaseActivity {
             startActivity(intent);
         } else {
             Toast.makeText(this, "Event data not loaded", Toast.LENGTH_SHORT).show();
+        }
+    }
+    
+    private void openChatWithOrganizer() {
+        if (event != null) {
+            // For now, use event name as organizer name (similar to Angular implementation)
+            // In a real implementation, you would get the actual organizer name from the backend
+            String organizerName = "Organizer of " + event.getName();
+            
+            Intent intent = new Intent(this, ChatActivity.class);
+            intent.putExtra("recipient_name", organizerName);
+            intent.putExtra("context_type", "EVENT");
+            intent.putExtra("context_id", String.valueOf(event.getId()));
+            intent.putExtra("event_name", event.getName());
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "Event information not available", Toast.LENGTH_SHORT).show();
         }
     }
 
