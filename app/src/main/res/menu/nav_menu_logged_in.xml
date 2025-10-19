@@ -17,6 +17,9 @@
         android:id="@+id/nav_favorite_events"
         android:title="@string/favorite_events" />
     <item
+        android:id="@+id/nav_favorite_solutions"
+        android:title="@string/favorite_solutions" />
+    <item
         android:id="@+id/nav_all_services"
         android:title="@string/all_services" />
     <item

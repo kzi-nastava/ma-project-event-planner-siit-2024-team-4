@@ -52,12 +52,12 @@ import retrofit2.Response;
 public class ProfileActivity extends BaseActivity {
 
     private EditText etEmail, etNameEO, etLastNameEO, etCompanyName, etDescription, etAddress, etPhone;
-    private LinearLayout layoutEO, layoutSPP, layoutEOImage, layoutSPPImages;
+    private LinearLayout layoutEO, layoutSPP, layoutEOImage, layoutSPPImages, layoutCalendar;
     private Button btnEditProfile, btnSaveChanges, btnCancel, btnChangePassword, btnDeactivate;
     private Button btnEOChangeImage, btnAddSPPImage, btnPrevImage, btnNextImage, btnRemoveEOImage, btnRemoveSPPImage;
     private ImageView ivEOProfile, ivSPPProfile;
     private CalendarView calendarView;
-    private TextView tvCalendarInfo;
+    private TextView tvCalendarInfo, tvTitle;
 
     private boolean isEditing = false;
     private String userRole;
@@ -83,7 +83,20 @@ public class ProfileActivity extends BaseActivity {
 
         initActivityResultLaunchers();
         initViews();
-        loadUserProfile();
+        
+        // Check if we should load a specific user's profile
+        Intent intent = getIntent();
+        if (intent.hasExtra("userId")) {
+            Long targetUserId = intent.getLongExtra("userId", -1L);
+            if (targetUserId != -1L) {
+                loadSpecificUserProfile(targetUserId);
+            } else {
+                loadUserProfile();
+            }
+        } else {
+            loadUserProfile();
+        }
+        
         setupButtons();
     }
 
@@ -122,6 +135,7 @@ public class ProfileActivity extends BaseActivity {
         layoutSPP = findViewById(R.id.layoutSPP);
         layoutEOImage = findViewById(R.id.layoutEOImage);
         layoutSPPImages = findViewById(R.id.layoutSPPImages);
+        layoutCalendar = findViewById(R.id.layoutCalendar);
 
         btnEditProfile = findViewById(R.id.btnEditProfile);
         btnSaveChanges = findViewById(R.id.btnSaveChanges);
@@ -140,6 +154,40 @@ public class ProfileActivity extends BaseActivity {
         
         calendarView = findViewById(R.id.calendarView);
         tvCalendarInfo = findViewById(R.id.tvCalendarInfo);
+        tvTitle = findViewById(R.id.tvTitle);
+    }
+
+    private void loadSpecificUserProfile(Long userId) {
+        SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        String token = prefs.getString("jwt_token", null);
+
+        if (token == null) {
+            Toast.makeText(this, "Please log in first", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, LogInActivity.class));
+            finish();
+            return;
+        }
+
+        ProfileService profileService = ApiClient.getClient(this).create(ProfileService.class);
+        
+        // Load specific user's profile by ID
+        profileService.getProfileById("Bearer " + token, userId).enqueue(new Callback<ProfileDTO>() {
+            @Override
+            public void onResponse(Call<ProfileDTO> call, Response<ProfileDTO> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    fillProfileFields(response.body());
+                    // Disable editing for other users' profiles
+                    disableEditing();
+                } else {
+                    Toast.makeText(ProfileActivity.this, "Failed to load user profile", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ProfileDTO> call, Throwable t) {
+                Toast.makeText(ProfileActivity.this, "Connection error", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void loadUserProfile() {
@@ -173,6 +221,14 @@ public class ProfileActivity extends BaseActivity {
     }
 
     private void fillProfileFields(ProfileDTO user) {
+        // Set title based on whether viewing own profile or provider profile
+        boolean isViewingOwnProfile = !getIntent().hasExtra("userId");
+        if (isViewingOwnProfile) {
+            tvTitle.setText("My Profile");
+        } else {
+            tvTitle.setText("Provider Profile");
+        }
+        
         etEmail.setText(user.getEmail());
         etNameEO.setText(user.getName());
         etLastNameEO.setText(user.getLastName());
@@ -226,7 +282,19 @@ public class ProfileActivity extends BaseActivity {
             updateSPPImageDisplay();
         }
         
-        loadCalendarEvents();
+        // Only load calendar events if viewing own profile or if user is not EO/Admin viewing SPP profile
+        SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        String currentUserRole = prefs.getString("user_role", null);
+        isViewingOwnProfile = !getIntent().hasExtra("userId");
+        boolean isEOOrAdmin = "EventOrganizer".equals(currentUserRole) || "ADMIN".equals(currentUserRole) || "admin".equals(currentUserRole) || "Admin".equals(currentUserRole);
+        boolean isSPPProfile = "SPProvider".equals(userRole) || "SPP".equals(userRole) || "SERVICE_PROVIDER".equals(userRole);
+        
+        if (isViewingOwnProfile || !isEOOrAdmin || !isSPPProfile) {
+            loadCalendarEvents();
+        } else {
+            // Hide entire calendar section for EO/Admin viewing SPP profile
+            layoutCalendar.setVisibility(View.GONE);
+        }
     }
 
     private void setupButtons() {
@@ -602,12 +670,14 @@ public class ProfileActivity extends BaseActivity {
     private void loadCalendarEvents() {
         SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
         String token = prefs.getString("jwt_token", null);
-        String userId = prefs.getString("user_id", null);
+        Long userIdLong = prefs.getLong("user_id", -1L);
         
-        if (token == null || userId == null) {
+        if (token == null || userIdLong == -1L) {
             tvCalendarInfo.setText("Please log in to view events");
             return;
         }
+        
+        String userId = userIdLong.toString();
         
         FavoriteService favoriteService = ApiClient.getClient(this).create(FavoriteService.class);
         favoriteService.getFavoriteEvents(userId, "Bearer " + token).enqueue(new Callback<List<EventDTO>>() {
@@ -662,6 +732,26 @@ public class ProfileActivity extends BaseActivity {
         }
         
         return eventsOnDate;
+    }
+    
+    private void disableEditing() {
+        // Disable all editing controls for other users' profiles
+        btnEditProfile.setVisibility(View.GONE);
+        btnChangePassword.setVisibility(View.GONE);
+        btnDeactivate.setVisibility(View.GONE);
+        btnEOChangeImage.setVisibility(View.GONE);
+        btnAddSPPImage.setVisibility(View.GONE);
+        btnRemoveEOImage.setVisibility(View.GONE);
+        btnRemoveSPPImage.setVisibility(View.GONE);
+        
+        // Make all text fields read-only
+        etEmail.setEnabled(false);
+        etNameEO.setEnabled(false);
+        etLastNameEO.setEnabled(false);
+        etCompanyName.setEnabled(false);
+        etDescription.setEnabled(false);
+        etAddress.setEnabled(false);
+        etPhone.setEnabled(false);
     }
     
     private void updateDatesWithEvents() {

@@ -10,15 +10,6 @@
         android:orientation="vertical">
 
         <!-- Info Text -->
-        <TextView
-            android:id="@+id/tvInfo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Showing available and visible services"
-            android:textSize="12sp"
-            android:textColor="@android:color/darker_gray"
-            android:layout_marginBottom="8dp"
-            android:gravity="center" />
 
         <!-- Add Service Button -->
         <Button

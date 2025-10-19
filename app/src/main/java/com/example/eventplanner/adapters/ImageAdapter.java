@@ -60,8 +60,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
         public ImageViewHolder(@NonNull View itemView) {
             super(itemView);
-            ivImage = itemView.findViewById(R.id.ivImage);
-            btnRemoveImage = itemView.findViewById(R.id.btnRemoveImage);
+            ivImage = itemView.findViewById(R.id.imageView);
+            btnRemoveImage = null; // No remove button in this layout
         }
 
         public void bind(String imagePath, int position) {
@@ -88,11 +88,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                 ivImage.setImageResource(R.drawable.gallery);
             }
 
-            btnRemoveImage.setOnClickListener(v -> {
-                if (listener != null) {
-                    listener.onImageRemove(position);
-                }
-            });
+            // No remove button in this layout
         }
     }
 }

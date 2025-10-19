@@ -3,6 +3,7 @@ package com.example.eventplanner.activities;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -19,11 +20,13 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.eventplanner.R;
 import com.example.eventplanner.adapters.ProductImageAdapter;
+import com.example.eventplanner.dto.FavoriteSolutionDTO;
 import com.example.eventplanner.dto.ProductDTO;
 import com.example.eventplanner.dto.ProfileDTO;
 import com.example.eventplanner.network.ApiClient;
 import com.example.eventplanner.network.GlideAuthModule;
 import com.example.eventplanner.network.service.ProfileService;
+import com.example.eventplanner.network.service.FavoriteService;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -31,11 +34,16 @@ import retrofit2.Response;
 
 import static com.example.eventplanner.config.ApiConfig.BASE_URL;
 
+import java.util.List;
+
 public class AboutProductActivity extends BaseActivity {
 
     private ProductDTO product;
     private String userRole;
     private String currentUserId;
+    private boolean isFavorite = false;
+    private boolean isFromFavorites = false;
+    private FavoriteService favoriteService;
 
     private ViewPager2 viewPagerImages;
     private LinearLayout layoutIndicators;
@@ -48,8 +56,10 @@ public class AboutProductActivity extends BaseActivity {
     private TextView tvProviderEmail;
     private TextView tvCategory;
     private TextView tvEventType;
-    private Button btnContactProvider;
+    private ImageView heartIcon;
     private Button btnEditProduct;
+    private Button btnProviderProfile;
+    private Button btnChatWithProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +69,8 @@ public class AboutProductActivity extends BaseActivity {
         getLayoutInflater().inflate(R.layout.activity_about_product, contentFrame, true);
 
         product = (ProductDTO) getIntent().getSerializableExtra("product");
+        isFromFavorites = getIntent().getBooleanExtra("isFromFavorites", false);
+        
         if (product == null) {
             Toast.makeText(this, "Product not found", Toast.LENGTH_SHORT).show();
             finish();
@@ -67,9 +79,11 @@ public class AboutProductActivity extends BaseActivity {
 
         initViews();
         loadUserInfo();
+        initFavoriteService();
         setupButtons();
         fillProductInfo();
         loadProviderInfo();
+        checkIfFavorite();
     }
 
     private void initViews() {
@@ -84,21 +98,45 @@ public class AboutProductActivity extends BaseActivity {
         tvProviderEmail = findViewById(R.id.tvProviderEmail);
         tvCategory = findViewById(R.id.tvCategory);
         tvEventType = findViewById(R.id.tvEventType);
-        btnContactProvider = findViewById(R.id.btnContactProvider);
+        heartIcon = findViewById(R.id.heartIcon);
         btnEditProduct = findViewById(R.id.btnEditProduct);
+        btnProviderProfile = findViewById(R.id.btnProviderProfile);
+        btnChatWithProvider = findViewById(R.id.btnChatWithProvider);
     }
 
     private void loadUserInfo() {
         SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
         userRole = prefs.getString("user_role", "");
-        currentUserId = prefs.getString("user_id", "");
+        Long userId = prefs.getLong("user_id", -1L);
+        currentUserId = userId != -1L ? userId.toString() : "";
     }
 
     private void setupButtons() {
-        btnContactProvider.setOnClickListener(v -> {
-            // TODO: Implement contact provider functionality
-            Toast.makeText(this, "Contact provider functionality coming soon", Toast.LENGTH_SHORT).show();
+        btnProviderProfile.setOnClickListener(v -> {
+            // Navigate to provider profile
+            Long providerId = product.getServiceProviderId() != null ? product.getServiceProviderId() : product.getProviderId();
+            if (providerId != null) {
+                Intent intent = new Intent(this, ProfileActivity.class);
+                intent.putExtra("userId", providerId);
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "Provider information not available", Toast.LENGTH_SHORT).show();
+            }
         });
+
+        btnChatWithProvider.setOnClickListener(v -> {
+            Toast.makeText(this, "Chat functionality coming soon", Toast.LENGTH_SHORT).show();
+        });
+
+        // Setup heart icon for favorites
+        if (!"SPProvider".equals(userRole) && !"SERVICE_PROVIDER".equals(userRole)) {
+            Log.d("AboutProductActivity", "Setting heart icon visible for user role: " + userRole);
+            heartIcon.setVisibility(View.VISIBLE);
+            heartIcon.setImageResource(R.drawable.heart_empty); // Set initial state
+            heartIcon.setOnClickListener(v -> toggleFavorite());
+        } else {
+            Log.d("AboutProductActivity", "Heart icon not visible for user role: " + userRole);
+        }
 
         if (product.getServiceProviderId() != null && 
             currentUserId != null && 
@@ -292,5 +330,113 @@ public class AboutProductActivity extends BaseActivity {
                 }
             }
         });
+    }
+
+    private void initFavoriteService() {
+        favoriteService = ApiClient.getClient(this).create(FavoriteService.class);
+    }
+
+    private void checkIfFavorite() {
+        Log.d("AboutProductActivity", "checkIfFavorite called");
+        
+        // Only check if heart icon is visible (user is not SPP)
+        if (heartIcon == null || heartIcon.getVisibility() != View.VISIBLE) {
+            Log.d("AboutProductActivity", "Heart icon not visible, skipping check");
+            return;
+        }
+        
+        SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        Long userId = prefs.getLong("user_id", -1L);
+        String token = prefs.getString("jwt_token", null);
+
+        Log.d("AboutProductActivity", "checkIfFavorite: userId=" + userId + ", token=" + (token != null) + ", product=" + (product != null));
+
+        if (userId == -1L || token == null || product == null) {
+            Log.d("AboutProductActivity", "Missing required data, skipping check");
+            return;
+        }
+
+        String authHeader = "Bearer " + token;
+        String userIdStr = userId.toString();
+
+        Log.d("AboutProductActivity", "Checking if product " + product.getId() + " is favorite for user " + userIdStr);
+        // Instead of checkIfProductIsFavorite, get all favorites and check if this product is in the list
+        favoriteService.getFavoriteProducts(userIdStr, authHeader).enqueue(new Callback<List<FavoriteSolutionDTO>>() {
+            @Override
+            public void onResponse(Call<List<FavoriteSolutionDTO>> call, Response<List<FavoriteSolutionDTO>> response) {
+                Log.d("AboutProductActivity", "getFavoriteProducts response: success=" + response.isSuccessful() + ", body size=" + (response.body() != null ? response.body().size() : "null"));
+                if (response.isSuccessful() && response.body() != null) {
+                    // Check if this product is in the favorites list
+                    isFavorite = false;
+                    for (FavoriteSolutionDTO favoriteSolution : response.body()) {
+                        if (favoriteSolution.getSolution() != null && favoriteSolution.getSolution().getId().equals(product.getId())) {
+                            isFavorite = true;
+                            break;
+                        }
+                    }
+                    Log.d("AboutProductActivity", "Product is favorite: " + isFavorite);
+                    updateHeartIcon();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<FavoriteSolutionDTO>> call, Throwable t) {
+                Log.e("AboutProductActivity", "Error getting favorite products: " + t.getMessage());
+            }
+        });
+    }
+
+    private void toggleFavorite() {
+        SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        Long userId = prefs.getLong("user_id", -1L);
+        String token = prefs.getString("jwt_token", null);
+
+        if (userId == -1L || token == null || product == null) {
+            Toast.makeText(this, "Error: User not logged in", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String authHeader = "Bearer " + token;
+        String userIdStr = userId.toString();
+
+        Call<Void> call;
+        if (isFavorite) {
+            call = favoriteService.removeProductFromFavorites(userIdStr, product.getId(), authHeader);
+        } else {
+            call = favoriteService.addProductToFavorites(userIdStr, product.getId(), authHeader);
+        }
+
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    isFavorite = !isFavorite;
+                    updateHeartIcon();
+                    String message = isFavorite ? "Added to favorites" : "Removed from favorites";
+                    Toast.makeText(AboutProductActivity.this, message, Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(AboutProductActivity.this, "Error updating favorites", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Log.e("AboutProductActivity", "Error toggling favorite: " + t.getMessage());
+                Toast.makeText(AboutProductActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void updateHeartIcon() {
+        Log.d("AboutProductActivity", "updateHeartIcon: heartIcon=" + (heartIcon != null) + ", isFavorite=" + isFavorite + ", visibility=" + (heartIcon != null ? heartIcon.getVisibility() : "null"));
+        if (heartIcon != null) {
+            if (isFavorite) {
+                Log.d("AboutProductActivity", "Setting heart to filled");
+                heartIcon.setImageResource(R.drawable.heart_filled);
+            } else {
+                Log.d("AboutProductActivity", "Setting heart to empty");
+                heartIcon.setImageResource(R.drawable.heart_empty);
+            }
+        }
     }
 }
