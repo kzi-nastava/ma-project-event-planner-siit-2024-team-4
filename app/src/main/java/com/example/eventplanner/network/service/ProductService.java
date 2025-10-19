@@ -65,4 +65,43 @@ public interface ProductService {
             @Header("Authorization") String token,
             @retrofit2.http.Path("id") Long productId
     );
+    
+    @GET("products")
+    Call<List<ProductDTO>> getProductsByProviderId(
+            @Header("Authorization") String token,
+            @Query("providerId") Long providerId
+    );
+    
+    @retrofit2.http.PUT("products/{id}/price-discount")
+    Call<ProductDTO> updatePriceAndDiscount(
+            @Header("Authorization") String token,
+            @retrofit2.http.Path("id") Long id,
+            @Body PriceDiscountUpdateDTO dto
+    );
+    
+    class PriceDiscountUpdateDTO {
+        private double price;
+        private double discount;
+
+        public PriceDiscountUpdateDTO(double price, double discount) {
+            this.price = price;
+            this.discount = discount;
+        }
+
+        public double getPrice() {
+            return price;
+        }
+
+        public void setPrice(double price) {
+            this.price = price;
+        }
+
+        public double getDiscount() {
+            return discount;
+        }
+
+        public void setDiscount(double discount) {
+            this.discount = discount;
+        }
+    }
 }

@@ -34,6 +34,10 @@
         android:title="@string/my_products"
         android:visible="false" />
     <item
+        android:id="@+id/nav_price_list"
+        android:title="@string/price_list"
+        android:visible="false" />
+    <item
         android:id="@+id/nav_categories"
         android:title="@string/categories" />
     <item
