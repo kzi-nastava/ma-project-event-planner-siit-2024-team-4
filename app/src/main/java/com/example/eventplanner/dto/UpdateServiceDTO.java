@@ -1,7 +1,6 @@
 package com.example.eventplanner.dto;
 
 import java.util.List;
-import com.google.gson.annotations.SerializedName;
 
 public class UpdateServiceDTO {
     private Long serviceId;
@@ -10,14 +9,9 @@ public class UpdateServiceDTO {
     private double price;
     private double discount;
     private List<String> imageURLs;
-    
-    @SerializedName("visible")
     private boolean isVisible;
-    
-    @SerializedName("available")
     private boolean isAvailable;
     private List<Long> eventTypeIds;
-    private Long categoryId;
     private Integer duration;
     private Integer minEngagement;
     private Integer maxEngagement;
@@ -97,7 +91,6 @@ public class UpdateServiceDTO {
         this.imageURLs = imageURLs;
     }
 
-    @SerializedName("visible")
     public boolean isVisible() {
         return isVisible;
     }
@@ -106,7 +99,6 @@ public class UpdateServiceDTO {
         isVisible = visible;
     }
 
-    @SerializedName("available")
     public boolean isAvailable() {
         return isAvailable;
     }
@@ -121,14 +113,6 @@ public class UpdateServiceDTO {
 
     public void setEventTypeIds(List<Long> eventTypeIds) {
         this.eventTypeIds = eventTypeIds;
-    }
-
-    public Long getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
     }
 
     public Integer getDuration() {

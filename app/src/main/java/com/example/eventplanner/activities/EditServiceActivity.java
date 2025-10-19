@@ -2,22 +2,19 @@ package com.example.eventplanner.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.RadioGroup;
-import android.widget.RadioButton;
-import android.widget.LinearLayout;
-import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,12 +25,15 @@ import com.example.eventplanner.dto.EventTypeDTO;
 import com.example.eventplanner.dto.ServiceDTO;
 import com.example.eventplanner.dto.UpdateServiceDTO;
 import com.example.eventplanner.network.ApiClient;
-import com.example.eventplanner.network.MultipartHelper;
+import com.example.eventplanner.network.service.CategoryService;
 import com.example.eventplanner.network.service.EventTypeService;
 import com.example.eventplanner.network.service.ServiceService;
 import com.google.gson.Gson;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,23 +52,18 @@ public class EditServiceActivity extends AppCompatActivity {
     private ServiceDTO currentService;
 
     private EditText etServiceName, etServiceDescription, etServicePrice, etServiceDiscount;
-    private EditText etDurationHours, etDurationMinutes, etMinEngagement, etMaxEngagement;
+    private EditText etDuration, etMinEngagement, etMaxEngagement;
     private EditText etReservationDue, etCancellationDue;
-    private TextView tvCategory;
-    private Spinner spinnerEventTypes;
-    private RadioGroup rgDurationType;
-    private RadioButton rbFixedDuration;
-    private RadioButton rbEngagementRange;
-    private LinearLayout layoutFixedDuration;
-    private LinearLayout layoutEngagementRange;
-    private CheckBox cbAvailable;
-    private Button btnUploadImages, btnSave, btnCancel;
-    private TextView tvImageCount, tvCurrentImages;
+    private Spinner spinnerCategory, spinnerEventTypes;
+    private RadioGroup rgReservationType;
+    private CheckBox cbAvailable, cbVisible;
+    private Button btnUploadImages, btnAddEventType, btnSave, btnCancel;
+    private TextView tvImageCount, tvSelectedEventTypes, tvCurrentImages;
 
-    // Data
+    private List<CategoryDTO> categories = new ArrayList<>();
     private List<EventTypeDTO> eventTypes = new ArrayList<>();
+    private List<EventTypeDTO> selectedEventTypes = new ArrayList<>();
     private List<Uri> newImageUris = new ArrayList<>();
-    private List<Bitmap> selectedImages = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +79,8 @@ public class EditServiceActivity extends AppCompatActivity {
         }
 
         initViews();
+        loadCategories();
+        loadEventTypes();
         loadServiceData();
         setupListeners();
     }
@@ -93,106 +90,35 @@ public class EditServiceActivity extends AppCompatActivity {
         etServiceDescription = findViewById(R.id.etServiceDescription);
         etServicePrice = findViewById(R.id.etServicePrice);
         etServiceDiscount = findViewById(R.id.etServiceDiscount);
-        etDurationHours = findViewById(R.id.etDurationHours);
-        etDurationMinutes = findViewById(R.id.etDurationMinutes);
+        etDuration = findViewById(R.id.etDuration);
         etMinEngagement = findViewById(R.id.etMinEngagement);
         etMaxEngagement = findViewById(R.id.etMaxEngagement);
         etReservationDue = findViewById(R.id.etReservationDue);
         etCancellationDue = findViewById(R.id.etCancellationDue);
         
-        tvCategory = findViewById(R.id.tvCategory);
+        spinnerCategory = findViewById(R.id.spinnerCategory);
         spinnerEventTypes = findViewById(R.id.spinnerEventTypes);
-        rgDurationType = findViewById(R.id.rgDurationType);
-        rbFixedDuration = findViewById(R.id.rbFixedDuration);
-        rbEngagementRange = findViewById(R.id.rbEngagementRange);
-        layoutFixedDuration = findViewById(R.id.layoutFixedDuration);
-        layoutEngagementRange = findViewById(R.id.layoutEngagementRange);
+        
+        rgReservationType = findViewById(R.id.rgReservationType);
         cbAvailable = findViewById(R.id.cbAvailable);
+        cbVisible = findViewById(R.id.cbVisible);
         
         btnUploadImages = findViewById(R.id.btnUploadImages);
+        btnAddEventType = findViewById(R.id.btnAddEventType);
         btnSave = findViewById(R.id.btnSave);
         btnCancel = findViewById(R.id.btnCancel);
         
         tvImageCount = findViewById(R.id.tvImageCount);
+        tvSelectedEventTypes = findViewById(R.id.tvSelectedEventTypes);
         tvCurrentImages = findViewById(R.id.tvCurrentImages);
     }
 
     private void setupListeners() {
         btnUploadImages.setOnClickListener(v -> selectImages());
+        btnAddEventType.setOnClickListener(v -> addEventType());
         btnSave.setOnClickListener(v -> saveService());
         btnCancel.setOnClickListener(v -> finish());
-        
-        // Duration type radio button listener
-        rgDurationType.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if (checkedId == R.id.rbFixedDuration) {
-                    layoutFixedDuration.setVisibility(View.VISIBLE);
-                    layoutEngagementRange.setVisibility(View.GONE);
-                } else if (checkedId == R.id.rbEngagementRange) {
-                    layoutFixedDuration.setVisibility(View.GONE);
-                    layoutEngagementRange.setVisibility(View.VISIBLE);
-                }
-            }
-        });
     }
-
-    private void loadEventTypesForCategory() {
-        if (currentService == null || currentService.getCategory() == null) {
-            return;
-        }
-        
-        EventTypeService eventTypeAPI = ApiClient.getClient(this).create(EventTypeService.class);
-        eventTypeAPI.getAllEventTypes(getAuthHeader()).enqueue(new Callback<List<EventTypeDTO>>() {
-            @Override
-            public void onResponse(Call<List<EventTypeDTO>> call, Response<List<EventTypeDTO>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    List<EventTypeDTO> allEventTypes = response.body();
-                    
-                    eventTypes.clear();
-                    Long currentCategoryId = currentService.getCategory().getId();
-                    
-                    for (EventTypeDTO eventType : allEventTypes) {
-                        if (eventType.getSuggestedCategories() != null) {
-                            for (CategoryDTO category : eventType.getSuggestedCategories()) {
-                                if (category.getId().equals(currentCategoryId)) {
-                                    eventTypes.add(eventType);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    
-                    List<String> eventTypeNames = new ArrayList<>();
-                    eventTypeNames.add("Select Event Type");
-                    for (EventTypeDTO eventType : eventTypes) {
-                        eventTypeNames.add(eventType.getName());
-                    }
-                    
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(EditServiceActivity.this, 
-                            android.R.layout.simple_spinner_item, eventTypeNames);
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    spinnerEventTypes.setAdapter(adapter);
-                    
-                    if (currentService.getEventTypes() != null && !currentService.getEventTypes().isEmpty()) {
-                        EventTypeDTO currentEventType = currentService.getEventTypes().get(0);
-                        for (int i = 0; i < eventTypes.size(); i++) {
-                            if (eventTypes.get(i).getId().equals(currentEventType.getId())) {
-                                spinnerEventTypes.setSelection(i + 1);
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<EventTypeDTO>> call, Throwable t) {
-                Toast.makeText(EditServiceActivity.this, "Error loading event types", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
 
     private void loadServiceData() {
         ServiceService serviceAPI = ApiClient.getClient(this).create(ServiceService.class);
@@ -224,50 +150,42 @@ public class EditServiceActivity extends AppCompatActivity {
         etServicePrice.setText(String.valueOf(currentService.getPrice()));
         etServiceDiscount.setText(String.valueOf(currentService.getDiscount()));
         
-        // Duration - determine type and populate accordingly
-        if (currentService.getDuration() != null && currentService.getDuration() > 0) {
-            // Fixed duration
-            rbFixedDuration.setChecked(true);
-            layoutFixedDuration.setVisibility(View.VISIBLE);
-            layoutEngagementRange.setVisibility(View.GONE);
-            
-            int totalMinutes = currentService.getDuration();
-            int hours = totalMinutes / 60;
-            int minutes = totalMinutes % 60;
-            etDurationHours.setText(String.valueOf(hours));
-            etDurationMinutes.setText(String.valueOf(minutes));
-        } else if (currentService.getMinEngagement() != null || currentService.getMaxEngagement() != null) {
-            // Engagement range
-            rbEngagementRange.setChecked(true);
-            layoutFixedDuration.setVisibility(View.GONE);
-            layoutEngagementRange.setVisibility(View.VISIBLE);
-            
+        if (currentService.getDuration() != null) {
+            etDuration.setText(String.valueOf(currentService.getDuration()));
+        }
         if (currentService.getMinEngagement() != null) {
             etMinEngagement.setText(String.valueOf(currentService.getMinEngagement()));
         }
         if (currentService.getMaxEngagement() != null) {
             etMaxEngagement.setText(String.valueOf(currentService.getMaxEngagement()));
         }
-        } else {
-            // Default to fixed duration
-            rbFixedDuration.setChecked(true);
-            layoutFixedDuration.setVisibility(View.VISIBLE);
-            layoutEngagementRange.setVisibility(View.GONE);
-        }
-        
         
         etReservationDue.setText(String.valueOf(currentService.getReservationDue()));
         etCancellationDue.setText(String.valueOf(currentService.getCancelationDue()));
         
         cbAvailable.setChecked(currentService.isAvailable());
+        cbVisible.setChecked(currentService.isVisible());
         
-        // Category (read-only)
-        if (currentService.getCategory() != null) {
-            tvCategory.setText(currentService.getCategory().getName());
+        if ("AUTOMATIC".equals(currentService.getReservationType())) {
+            rgReservationType.check(R.id.rbAutomatic);
+        } else {
+            rgReservationType.check(R.id.rbManual);
         }
         
-        // Load event types for this category
-        loadEventTypesForCategory();
+        if (currentService.getCategory() != null && !categories.isEmpty()) {
+            for (int i = 0; i < categories.size(); i++) {
+                if (categories.get(i).id.equals(currentService.getCategory().id)) {
+                    spinnerCategory.setSelection(i + 1);
+                    break;
+                }
+            }
+        }
+        
+        if (currentService.getEventTypes() != null) {
+            selectedEventTypes.clear();
+            selectedEventTypes.addAll(currentService.getEventTypes());
+            updateSelectedEventTypesDisplay();
+        }
         
         if (currentService.getImageURLs() != null && !currentService.getImageURLs().isEmpty()) {
             tvCurrentImages.setText(currentService.getImageURLs().size() + " image(s)");
@@ -358,6 +276,18 @@ public class EditServiceActivity extends AppCompatActivity {
         }
     }
 
+    private void updateSelectedEventTypesDisplay() {
+        if (selectedEventTypes.isEmpty()) {
+            tvSelectedEventTypes.setText("Selected: None");
+        } else {
+            StringBuilder sb = new StringBuilder("Selected: ");
+            for (int i = 0; i < selectedEventTypes.size(); i++) {
+                if (i > 0) sb.append(", ");
+                sb.append(selectedEventTypes.get(i).getName());
+            }
+            tvSelectedEventTypes.setText(sb.toString());
+        }
+    }
 
     private void selectImages() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -371,42 +301,19 @@ public class EditServiceActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         
         if (requestCode == PICK_IMAGES_REQUEST && resultCode == RESULT_OK && data != null) {
-            handleImageSelection(data);
-        }
-    }
-
-    private void handleImageSelection(Intent data) {
             newImageUris.clear();
-        selectedImages.clear();
             
             if (data.getClipData() != null) {
                 int count = data.getClipData().getItemCount();
                 for (int i = 0; i < count; i++) {
                     Uri imageUri = data.getClipData().getItemAt(i).getUri();
                     newImageUris.add(imageUri);
-                try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
-                    selectedImages.add(bitmap);
-                } catch (IOException e) {
-                    Toast.makeText(this, "Error loading image " + (i + 1), Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
                 }
-            }
-            tvImageCount.setText(count + " images selected");
-            Toast.makeText(this, count + " images selected", Toast.LENGTH_SHORT).show();
             } else if (data.getData() != null) {
-                // Single image selected
-            Uri imageUri = data.getData();
-            newImageUris.add(imageUri);
-            try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
-                selectedImages.add(bitmap);
-                tvImageCount.setText("1 image selected");
-                Toast.makeText(this, "Image selected", Toast.LENGTH_SHORT).show();
-            } catch (IOException e) {
-                Toast.makeText(this, "Error loading image", Toast.LENGTH_SHORT).show();
-                e.printStackTrace();
+                newImageUris.add(data.getData());
             }
+            
+            tvImageCount.setText(newImageUris.size() + " new image(s) selected");
         }
     }
 
@@ -425,50 +332,26 @@ public class EditServiceActivity extends AppCompatActivity {
         dto.setDiscount(TextUtils.isEmpty(discountStr) ? 0 : Double.parseDouble(discountStr));
         
         dto.setAvailable(cbAvailable.isChecked());
-        dto.setVisible(true);
+        dto.setVisible(cbVisible.isChecked());
         
         List<Long> eventTypeIds = new ArrayList<>();
-        int selectedPosition = spinnerEventTypes.getSelectedItemPosition();
-        if (selectedPosition > 0) {
-            EventTypeDTO selectedEventType = eventTypes.get(selectedPosition - 1);
-            eventTypeIds.add(selectedEventType.getId());
+        for (EventTypeDTO eventType : selectedEventTypes) {
+            eventTypeIds.add(eventType.getId());
         }
         dto.setEventTypeIds(eventTypeIds);
         
-        // Duration and Engagement based on selected type
-        if (rbFixedDuration.isChecked()) {
-            // Fixed duration
-            String hoursStr = etDurationHours.getText().toString().trim();
-            String minutesStr = etDurationMinutes.getText().toString().trim();
-            if (!TextUtils.isEmpty(hoursStr) || !TextUtils.isEmpty(minutesStr)) {
-                int hours = TextUtils.isEmpty(hoursStr) ? 0 : Integer.parseInt(hoursStr);
-                int minutes = TextUtils.isEmpty(minutesStr) ? 0 : Integer.parseInt(minutesStr);
-                dto.setDuration(hours * 60 + minutes);
-            }
-            // Set default engagement values for fixed duration (backend expects these)
-            dto.setMinEngagement(0);
-            dto.setMaxEngagement(0);
-        } else if (rbEngagementRange.isChecked()) {
-            // Engagement range
+        String durationStr = etDuration.getText().toString().trim();
+        if (!TextUtils.isEmpty(durationStr)) {
+            dto.setDuration(Integer.parseInt(durationStr));
+        }
+        
         String minEngStr = etMinEngagement.getText().toString().trim();
         String maxEngStr = etMaxEngagement.getText().toString().trim();
         if (!TextUtils.isEmpty(minEngStr)) {
             dto.setMinEngagement(Integer.parseInt(minEngStr));
-            } else {
-                dto.setMinEngagement(1); // Default minimum engagement
         }
         if (!TextUtils.isEmpty(maxEngStr)) {
             dto.setMaxEngagement(Integer.parseInt(maxEngStr));
-            } else {
-                dto.setMaxEngagement(5); // Default maximum engagement
-            }
-            // Clear duration for engagement range
-            dto.setDuration(null);
-        } else {
-            // Default case - set both duration and engagement
-            dto.setDuration(60); // Default 1 hour
-            dto.setMinEngagement(1);
-            dto.setMaxEngagement(1);
         }
         
         String resDueStr = etReservationDue.getText().toString().trim();
@@ -476,13 +359,8 @@ public class EditServiceActivity extends AppCompatActivity {
         dto.setReservationDue(TextUtils.isEmpty(resDueStr) ? 0 : Integer.parseInt(resDueStr));
         dto.setCancelationDue(TextUtils.isEmpty(cancelDueStr) ? 0 : Integer.parseInt(cancelDueStr));
         
-        // Reservation type - always MANUAL
-        dto.setReservationType("MANUAL");
-        
-        // Category - keep original category
-        if (currentService.getCategory() != null) {
-            dto.setCategoryId(currentService.getCategory().getId());
-        }
+        int selectedId = rgReservationType.getCheckedRadioButtonId();
+        dto.setReservationType(selectedId == R.id.rbAutomatic ? "AUTOMATIC" : "MANUAL");
         
         if (newImageUris.isEmpty() && currentService.getImageURLs() != null) {
             dto.setImageURLs(currentService.getImageURLs());
@@ -493,8 +371,15 @@ public class EditServiceActivity extends AppCompatActivity {
         RequestBody dtoBody = RequestBody.create(MediaType.parse("application/json"), dtoJson);
         
         List<MultipartBody.Part> imageParts = new ArrayList<>();
-        if (!selectedImages.isEmpty()) {
-            imageParts = MultipartHelper.createMultipartList(selectedImages);
+        for (Uri uri : newImageUris) {
+            try {
+                File file = createTempFileFromUri(uri);
+                RequestBody fileBody = RequestBody.create(MediaType.parse("image/*"), file);
+                MultipartBody.Part part = MultipartBody.Part.createFormData("files", file.getName(), fileBody);
+                imageParts.add(part);
+            } catch (IOException e) {
+                Toast.makeText(EditServiceActivity.this, "Error creating file from URI", Toast.LENGTH_SHORT).show();
+            }
         }
         
         ServiceService serviceAPI = ApiClient.getClient(this).create(ServiceService.class);
@@ -532,6 +417,22 @@ public class EditServiceActivity extends AppCompatActivity {
         return true;
     }
 
+    private File createTempFileFromUri(Uri uri) throws IOException {
+        InputStream inputStream = getContentResolver().openInputStream(uri);
+        File tempFile = File.createTempFile("upload", ".jpg", getCacheDir());
+        FileOutputStream outputStream = new FileOutputStream(tempFile);
+        
+        byte[] buffer = new byte[4096];
+        int bytesRead;
+        while ((bytesRead = inputStream.read(buffer)) != -1) {
+            outputStream.write(buffer, 0, bytesRead);
+        }
+        
+        inputStream.close();
+        outputStream.close();
+        
+        return tempFile;
+    }
 
     private String getAuthHeader() {
         String token = getSharedPreferences("MyAppPrefs", MODE_PRIVATE).getString("jwt_token", null);

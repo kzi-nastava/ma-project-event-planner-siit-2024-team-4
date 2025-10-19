@@ -15,18 +15,11 @@ import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
-import retrofit2.http.Query;
 
 public interface EventTypeService {
 
     @GET("event-types")
     Call<List<EventTypeDTO>> getAllEventTypes(@Header("Authorization") String token);
-
-    @GET("event-types")
-    Call<List<EventTypeDTO>> getEventTypesByCategory(
-            @Header("Authorization") String token,
-            @Query("categoryId") Long categoryId
-    );
 
     @GET("event-types/{id}")
     Call<EventTypeDTO> getEventTypeById(

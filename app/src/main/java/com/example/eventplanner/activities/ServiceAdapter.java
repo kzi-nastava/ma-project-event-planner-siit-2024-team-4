@@ -47,7 +47,6 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ServiceDTO service = services.get(position);
-        Log.d("ServiceAdapter", "Binding service: " + service.getName() + " at position " + position);
         
         holder.tvName.setText(service.getName());
         holder.tvDescription.setText(service.getDescription());
