@@ -104,12 +104,6 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
         btnAddService = view.findViewById(R.id.btnAddService);
         filterLayout = view.findViewById(R.id.filterLayout);
         btnToggleFilters = view.findViewById(R.id.btnToggleFilters);
-<<<<<<< HEAD
-        tvInfo = view.findViewById(R.id.tvInfo);
-        
-=======
-
->>>>>>> e554bf1 ([update] services)
         etMinPrice = view.findViewById(R.id.etMinPrice);
         etMaxPrice = view.findViewById(R.id.etMaxPrice);
         spinnerCategory = view.findViewById(R.id.spinnerCategory);
@@ -135,14 +129,6 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
         } else {
             btnAddService.setVisibility(View.GONE);
         }
-<<<<<<< HEAD
-        if (isMyServices) {
-            tvInfo.setText("Showing all your visible services (available and unavailable)");
-        } else {
-            tvInfo.setText("Showing available and visible services");
-        }
-=======
->>>>>>> e554bf1 ([update] services)
     }
 
     private void setupRecyclerView() {
@@ -175,9 +161,6 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
                 if (response.isSuccessful() && response.body() != null) {
                     services.clear();
                     List<ServiceDTO> allServices = response.body();
-<<<<<<< HEAD
-                                        List<ServiceDTO> filteredServices = filterServicesByVisibility(allServices);
-=======
                     Log.d("AllServicesFragment", "Received " + allServices.size() + " services from backend");
                     Log.d("AllServicesFragment", "Current user role: " + getCurrentUserRole());
                     Log.d("AllServicesFragment", "Is admin: " + isAdmin());
@@ -185,26 +168,18 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
                     
                     List<ServiceDTO> filteredServices = filterServicesByVisibility(allServices);
                     Log.d("AllServicesFragment", "After filtering: " + filteredServices.size() + " services");
-                    
->>>>>>> e554bf1 ([update] services)
                     services.addAll(filteredServices);
                     
                     serviceAdapter.notifyDataSetChanged();
                 } else {
-<<<<<<< HEAD
-=======
                     Log.d("AllServicesFragment", "Error response: " + response.code() + ", body: " + response.body());
->>>>>>> e554bf1 ([update] services)
                     Toast.makeText(getContext(), "Error loading services: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<ServiceDTO>> call, Throwable t) {
-<<<<<<< HEAD
-=======
                 Log.e("AllServicesFragment", "Failed to load services", t);
->>>>>>> e554bf1 ([update] services)
                 Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -245,18 +220,22 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
 
     private void loadFilterData() {
         CategoryService categoryService = ApiClient.getClient(getContext()).create(CategoryService.class);
-        categoryService.getAllCategories(getAuthHeader()).enqueue(new Callback<List<CategoryDTO>>() {
+        // Use getAllApprovedCategories to get only approved categories
+        categoryService.getAllApprovedCategories(getAuthHeader()).enqueue(new Callback<List<CategoryDTO>>() {
             @Override
             public void onResponse(Call<List<CategoryDTO>> call, Response<List<CategoryDTO>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     categories.clear();
                     categories.addAll(response.body());
+                    Log.d("AllServicesFragment", "Loaded " + categories.size() + " approved categories");
                     setupCategorySpinner();
+                } else {
+                    Log.e("AllServicesFragment", "Error loading approved categories: " + response.code());
                 }
             }
             @Override
             public void onFailure(Call<List<CategoryDTO>> call, Throwable t) {
-                // Handle error silently
+                Log.e("AllServicesFragment", "Failed to load approved categories", t);
             }
         });
 
@@ -267,12 +246,16 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
                 if (response.isSuccessful() && response.body() != null) {
                     eventTypes.clear();
                     eventTypes.addAll(response.body());
+                    Log.d("AllServicesFragment", "Loaded " + eventTypes.size() + " event types");
                     setupEventTypeSpinner();
+                } else {
+                    Log.e("AllServicesFragment", "Error loading event types: " + response.code());
                 }
             }
 
             @Override
             public void onFailure(Call<List<EventTypeDTO>> call, Throwable t) {
+                Log.e("AllServicesFragment", "Failed to load event types", t);
             }
         });
         setupAvailabilitySpinner();
@@ -281,14 +264,14 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
     private void setupCategorySpinner() {
         List<String> categoryNames = new ArrayList<>();
         categoryNames.add("All Categories");
+        // Since we're using getAllApprovedCategories, all categories are already approved
         for (CategoryDTO category : categories) {
-            if (category.isApprovedByAdmin) {
-                categoryNames.add(category.name);
-            }
+            categoryNames.add(category.name);
         }
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, categoryNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerCategory.setAdapter(adapter);
+        Log.d("AllServicesFragment", "Category spinner setup with " + categoryNames.size() + " items");
     }
 
     private void setupEventTypeSpinner() {
@@ -300,6 +283,7 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, eventTypeNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerEventType.setAdapter(adapter);
+        Log.d("AllServicesFragment", "Event type spinner setup with " + eventTypeNames.size() + " items");
     }
 
     private void setupAvailabilitySpinner() {
@@ -342,8 +326,10 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
                 }
             }
             eventTypeId = tempEventTypeId;
+            Log.d("AllServicesFragment", "Selected event type: " + selectedEventType + ", ID: " + eventTypeId);
         } else {
             eventTypeId = null;
+            Log.d("AllServicesFragment", "No event type selected");
         }
 
         Double tempMinPrice = null;
@@ -406,15 +392,21 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
                                                 if (eventTypeId != null) {
                             boolean hasEventType = false;
                             if (serviceItem.getEventTypes() != null) {
+                                Log.d("AllServicesFragment", "Service " + serviceItem.getName() + " has " + serviceItem.getEventTypes().size() + " event types");
                                 for (EventTypeDTO eventType : serviceItem.getEventTypes()) {
+                                    Log.d("AllServicesFragment", "  - Event type: " + eventType.getName() + " (ID: " + eventType.getId() + ")");
                                     if (eventType.getId().equals(eventTypeId)) {
                                         hasEventType = true;
+                                        Log.d("AllServicesFragment", "  -> MATCH found!");
                                         break;
                                     }
                                 }
+                            } else {
+                                Log.d("AllServicesFragment", "Service " + serviceItem.getName() + " has no event types");
                             }
                             if (!hasEventType) {
                                 matches = false;
+                                Log.d("AllServicesFragment", "Service " + serviceItem.getName() + " filtered out - no matching event type");
                             }
                         }
                         if (minPrice != null && serviceItem.getPrice() < minPrice) {
@@ -466,39 +458,25 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
 
     /**
      * Filters services based on visibility and availability rules:
-<<<<<<< HEAD
-     * - Niko ne vidi nevidljive usluge (visible = false)
-=======
      * - Admin vidi sve servise koje backend vraća (backend već filtrira vidljive)
      * - Niko ne vidi nevidljive usluge (visible = false) - backend ih ne vraća
->>>>>>> e554bf1 ([update] services)
      * - Svi mogu videti dostupne usluge (available = true)
      * - SPP može videti i svoje nedostupne usluge (available = false, ali samo svoje)
      */
     private List<ServiceDTO> filterServicesByVisibility(List<ServiceDTO> allServices) {
         List<ServiceDTO> filteredServices = new ArrayList<>();
         boolean isSPP = isServiceProvider();
-<<<<<<< HEAD
-=======
         boolean isAdmin = isAdmin();
->>>>>>> e554bf1 ([update] services)
         
         for (ServiceDTO service : allServices) {
             boolean shouldShow = false;
             
-<<<<<<< HEAD
-            // Prvo proveri da li je usluga vidljiva - niko ne vidi nevidljive
-            if (!service.isVisible()) {
-                shouldShow = false;
-                Log.d("AllServicesFragment", "Service not visible: " + service.getName());
-=======
             if (isAdmin) {
                 // Admin vidi sve servise koje backend vraća - ne filtrira se ništa
                 shouldShow = true;
                 Log.d("AllServicesFragment", "Admin - Service: " + service.getName() + 
                       ", Available: " + service.isAvailable() + ", Visible: " + service.isVisible() + 
                       ", Should show: " + shouldShow);
->>>>>>> e554bf1 ([update] services)
             } else if (isMyServices && isSPP) {
                 // SPP user viewing their own services - show all visible services (available and unavailable)
                 Long currentUserId = getCurrentUserId();
@@ -507,12 +485,6 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
                 Log.d("AllServicesFragment", "SPP My Services - Service: " + service.getName() + 
                       ", Should show: " + shouldShow + ", Current user: " + currentUserId + 
                       ", Service provider: " + serviceProviderId);
-<<<<<<< HEAD
-            } else {
-                // Svi ostali - samo dostupne usluge
-                shouldShow = service.isAvailable();
-                Log.d("AllServicesFragment", "All Services - Service: " + service.getName() + 
-=======
             } else if (isSPP) {
                 // SPP korisnici vide sve servise (i dostupne i nedostupne)
                 shouldShow = true;
@@ -523,7 +495,6 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
                 // Ostali korisnici - samo dostupne usluge
                 shouldShow = service.isAvailable();
                 Log.d("AllServicesFragment", "Regular User - Service: " + service.getName() + 
->>>>>>> e554bf1 ([update] services)
                       ", Available: " + service.isAvailable() + ", Visible: " + service.isVisible() + 
                       ", Should show: " + shouldShow);
             }
@@ -539,11 +510,7 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
     private boolean isServiceProvider() {
         String userRole = requireContext().getSharedPreferences("MyAppPrefs", getContext().MODE_PRIVATE).getString("user_role", null);
         Log.d("AllServicesFragment", "Current user role: " + userRole);
-<<<<<<< HEAD
-        boolean isSPP = "SPP".equals(userRole) || "SERVICE_PROVIDER".equals(userRole);
-=======
         boolean isSPP = "SPP".equals(userRole) || "SERVICE_PROVIDER".equals(userRole) || "SPProvider".equals(userRole);
->>>>>>> e554bf1 ([update] services)
         Log.d("AllServicesFragment", "Is service provider: " + isSPP);
         return isSPP;
     }
@@ -551,11 +518,7 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
     private boolean isAdmin() {
         String userRole = requireContext().getSharedPreferences("MyAppPrefs", getContext().MODE_PRIVATE).getString("user_role", null);
         Log.d("AllServicesFragment", "Current user role for admin check: " + userRole);
-<<<<<<< HEAD
-        boolean isAdmin = "ADMIN".equals(userRole) || "admin".equals(userRole);
-=======
         boolean isAdmin = "ADMIN".equals(userRole) || "admin".equals(userRole) || "Admin".equals(userRole);
->>>>>>> e554bf1 ([update] services)
         Log.d("AllServicesFragment", "Is admin: " + isAdmin);
         return isAdmin;
     }
@@ -570,13 +533,9 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
         return token != null ? "Bearer " + token : "";
     }
 
-<<<<<<< HEAD
-=======
     private String getCurrentUserRole() {
         return requireContext().getSharedPreferences("MyAppPrefs", getContext().MODE_PRIVATE).getString("user_role", null);
     }
-
->>>>>>> e554bf1 ([update] services)
     @Override
     public void onEdit(ServiceDTO service) {
         Intent intent = new Intent(getActivity(), EditServiceActivity.class);

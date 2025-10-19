@@ -72,6 +72,8 @@ public class AddServiceActivity extends AppCompatActivity {
     private List<Uri> selectedImageUris = new ArrayList<>();
     private List<CheckBox> categoryCheckboxes = new ArrayList<>();
     private CategoryDTO selectedCategory = null;
+    boolean isVisible = true;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -424,10 +426,11 @@ public class AddServiceActivity extends AppCompatActivity {
                         
                         updateAddCategoryButtonState();
                     }
-                    
+                    isVisible = false;
                     Toast.makeText(AddServiceActivity.this, "Category created successfully and added to selected event types", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(AddServiceActivity.this, "Error creating category", Toast.LENGTH_SHORT).show();
+                    isVisible = true;
                 }
             }
 
@@ -484,11 +487,6 @@ public class AddServiceActivity extends AppCompatActivity {
         dto.setDiscount(TextUtils.isEmpty(discountStr) ? 0 : Double.parseDouble(discountStr));
         
         dto.setAvailable(cbAvailable.isChecked());
-        
-        boolean isVisible = true;
-        if (selectedCategory != null && !selectedCategory.isApprovedByAdmin) {
-            isVisible = false;
-        }
         dto.setVisible(isVisible);
         
         if (selectedCategory == null) {
