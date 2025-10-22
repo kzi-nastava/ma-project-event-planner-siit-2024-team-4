@@ -26,11 +26,9 @@ import com.example.eventplanner.R;
 import com.example.eventplanner.dto.CategoryDTO;
 import com.example.eventplanner.dto.CreateCategoryDTO;
 import com.example.eventplanner.dto.CreateServiceDTO;
-import com.example.eventplanner.dto.EventTypeDTO;
 import com.example.eventplanner.dto.ServiceDTO;
 import com.example.eventplanner.network.ApiClient;
 import com.example.eventplanner.network.service.CategoryService;
-import com.example.eventplanner.network.service.EventTypeService;
 import com.example.eventplanner.network.service.ServiceService;
 import com.google.gson.Gson;
 
@@ -53,19 +51,17 @@ public class AddServiceActivity extends AppCompatActivity {
     private static final int PICK_IMAGES_REQUEST = 1;
 
     private EditText etServiceName, etServiceDescription, etServicePrice, etServiceDiscount;
-    private EditText etDuration, etMinEngagement, etMaxEngagement;
+    private EditText etDurationHours, etDurationMinutes, etMinEngagement, etMaxEngagement;
     private EditText etReservationDue, etCancellationDue;
-    private Spinner spinnerCategory, spinnerEventTypes;
-    private RadioGroup rgReservationType;
-    private CheckBox cbAvailable, cbVisible;
-    private Button btnUploadImages, btnAddEventType, btnSave, btnCancel;
-    private TextView tvImageCount, tvSelectedEventTypes;
+    private Spinner spinnerCategory;
+    private RadioGroup rgReservationType, rgDurationType;
+    private CheckBox cbAvailable;
+    private Button btnUploadImages, btnSave, btnCancel, btnAddNewCategory;
+    private TextView tvImageCount;
+    private View layoutDuration, layoutEngagement;
 
     private List<CategoryDTO> categories = new ArrayList<>();
-    private List<EventTypeDTO> eventTypes = new ArrayList<>();
-    private List<EventTypeDTO> selectedEventTypes = new ArrayList<>();
     private List<Uri> selectedImageUris = new ArrayList<>();
-    private List<CheckBox> categoryCheckboxes = new ArrayList<>();
     private CategoryDTO selectedCategory = null;
     boolean isVisible = true;
 
@@ -78,7 +74,6 @@ public class AddServiceActivity extends AppCompatActivity {
         
         initViews();
         loadCategories();
-        loadEventTypes();
         setupListeners();
     }
 
@@ -87,33 +82,84 @@ public class AddServiceActivity extends AppCompatActivity {
         etServiceDescription = findViewById(R.id.etServiceDescription);
         etServicePrice = findViewById(R.id.etServicePrice);
         etServiceDiscount = findViewById(R.id.etServiceDiscount);
-        etDuration = findViewById(R.id.etDuration);
+        etDurationHours = findViewById(R.id.etDurationHours);
+        etDurationMinutes = findViewById(R.id.etDurationMinutes);
         etMinEngagement = findViewById(R.id.etMinEngagement);
         etMaxEngagement = findViewById(R.id.etMaxEngagement);
         etReservationDue = findViewById(R.id.etReservationDue);
         etCancellationDue = findViewById(R.id.etCancellationDue);
         
         spinnerCategory = findViewById(R.id.spinnerCategory);
-        spinnerEventTypes = findViewById(R.id.spinnerEventTypes);
+        btnAddNewCategory = findViewById(R.id.btnAddNewCategory);
         
         rgReservationType = findViewById(R.id.rgReservationType);
+        rgDurationType = findViewById(R.id.rgDurationType);
+        layoutDuration = findViewById(R.id.layoutDuration);
+        layoutEngagement = findViewById(R.id.layoutEngagement);
+        
         cbAvailable = findViewById(R.id.cbAvailable);
-        cbVisible = findViewById(R.id.cbVisible);
         
         btnUploadImages = findViewById(R.id.btnUploadImages);
-        btnAddEventType = findViewById(R.id.btnAddEventType);
         btnSave = findViewById(R.id.btnSave);
         btnCancel = findViewById(R.id.btnCancel);
         
         tvImageCount = findViewById(R.id.tvImageCount);
-        tvSelectedEventTypes = findViewById(R.id.tvSelectedEventTypes);
     }
 
     private void setupListeners() {
         btnUploadImages.setOnClickListener(v -> selectImages());
-        btnAddEventType.setOnClickListener(v -> addEventType());
         btnSave.setOnClickListener(v -> saveService());
         btnCancel.setOnClickListener(v -> finish());
+        btnAddNewCategory.setOnClickListener(v -> showAddCategoryDialog());
+        
+        // Toggle between Duration and Engagement fields
+        rgDurationType.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.rbDuration) {
+                layoutDuration.setVisibility(View.VISIBLE);
+                layoutEngagement.setVisibility(View.GONE);
+                // Clear engagement fields
+                etMinEngagement.setText("");
+                etMaxEngagement.setText("");
+            } else if (checkedId == R.id.rbEngagement) {
+                layoutDuration.setVisibility(View.GONE);
+                layoutEngagement.setVisibility(View.VISIBLE);
+                // Clear duration fields
+                etDurationHours.setText("");
+                etDurationMinutes.setText("");
+            }
+        });
+        
+        // Category selection listener
+        spinnerCategory.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                if (position > 0) {
+                    // Find the corresponding category
+                    int categoryIndex = 0;
+                    for (int i = 0; i < categories.size(); i++) {
+                        if (categories.get(i).isApprovedByAdmin) {
+                            if (categoryIndex == position - 1) {
+                                selectedCategory = categories.get(i);
+                                // If selecting an existing approved category, service should be visible
+                                isVisible = true;
+                                break;
+                            }
+                            categoryIndex++;
+                        }
+                    }
+                } else {
+                    selectedCategory = null;
+                    // Default to visible when no category selected
+                    isVisible = true;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {
+                selectedCategory = null;
+                isVisible = true;
+            }
+        });
     }
 
     private void loadCategories() {
@@ -135,25 +181,6 @@ public class AddServiceActivity extends AppCompatActivity {
         });
     }
 
-    private void loadEventTypes() {
-        EventTypeService eventTypeService = ApiClient.getClient(this).create(EventTypeService.class);
-        eventTypeService.getAllEventTypes(getAuthHeader()).enqueue(new Callback<List<EventTypeDTO>>() {
-            @Override
-            public void onResponse(Call<List<EventTypeDTO>> call, Response<List<EventTypeDTO>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    eventTypes.clear();
-                    eventTypes.addAll(response.body());
-                    setupEventTypeSpinner();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<EventTypeDTO>> call, Throwable t) {
-                Toast.makeText(AddServiceActivity.this, "Error loading event types", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
     private void setupCategorySpinner() {
         List<String> categoryNames = new ArrayList<>();
         categoryNames.add("Select Category");
@@ -165,41 +192,6 @@ public class AddServiceActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categoryNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerCategory.setAdapter(adapter);
-    }
-
-    private void setupEventTypeSpinner() {
-        List<String> eventTypeNames = new ArrayList<>();
-        eventTypeNames.add("Select Event Type");
-        for (EventTypeDTO eventType : eventTypes) {
-            eventTypeNames.add(eventType.getName());
-        }
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, eventTypeNames);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerEventTypes.setAdapter(adapter);
-    }
-
-    private void addEventType() {
-        int position = spinnerEventTypes.getSelectedItemPosition();
-        if (position > 0) {
-            EventTypeDTO selectedEventType = eventTypes.get(position - 1);
-            if (!selectedEventTypes.contains(selectedEventType)) {
-                selectedEventTypes.add(selectedEventType);
-                updateSelectedEventTypesDisplay();
-            }
-        }
-    }
-
-    private void updateSelectedEventTypesDisplay() {
-        if (selectedEventTypes.isEmpty()) {
-            tvSelectedEventTypes.setText("Selected: None");
-        } else {
-            StringBuilder sb = new StringBuilder("Selected: ");
-            for (int i = 0; i < selectedEventTypes.size(); i++) {
-                if (i > 0) sb.append(", ");
-                sb.append(selectedEventTypes.get(i).getName());
-            }
-            tvSelectedEventTypes.setText(sb.toString());
-        }
     }
 
     private void showAddCategoryDialog() {
@@ -251,14 +243,17 @@ public class AddServiceActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     CategoryDTO createdCategory = response.body();
                     categories.add(createdCategory);
+                    selectedCategory = createdCategory;
                     
-                    // Update the category spinner adapter
-                    ArrayAdapter<CategoryDTO> adapter = (ArrayAdapter<CategoryDTO>) spinnerCategory.getAdapter();
-                    if (adapter != null) {
-                        adapter.notifyDataSetChanged();
-                    }
+                    // Reload spinner with new category - it won't show in the list since it's not approved
+                    setupCategorySpinner();
+                    
+                    // Service will be invisible until category is approved
                     isVisible = false;
-                    Toast.makeText(AddServiceActivity.this, "Category created successfully and added to selected event types", Toast.LENGTH_SHORT).show();
+                    
+                    Toast.makeText(AddServiceActivity.this, 
+                        "Category created. Service will be visible after admin approves the category.", 
+                        Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(AddServiceActivity.this, "Error creating category", Toast.LENGTH_SHORT).show();
                     isVisible = true;
@@ -317,6 +312,8 @@ public class AddServiceActivity extends AppCompatActivity {
         dto.setAvailable(cbAvailable.isChecked());
         dto.setVisible(isVisible);
         
+        Log.d("AddServiceActivity", "Service visibility: " + isVisible + ", available: " + cbAvailable.isChecked());
+        
         if (selectedCategory == null) {
             Toast.makeText(this, "Please select a category", Toast.LENGTH_SHORT).show();
             return;
@@ -324,24 +321,37 @@ public class AddServiceActivity extends AppCompatActivity {
             dto.setCategoryId(selectedCategory.id);
         }
         
-        List<Long> eventTypeIds = new ArrayList<>();
-        for (EventTypeDTO eventType : selectedEventTypes) {
-            eventTypeIds.add(eventType.getId());
-        }
-        dto.setEventTypes(eventTypeIds);
+        // Set eventTypes as empty list (not required anymore, but backend expects non-null)
+        dto.setEventTypes(new ArrayList<>());
         
-        String durationStr = etDuration.getText().toString().trim();
-        if (!TextUtils.isEmpty(durationStr)) {
-            dto.setDuration(Integer.parseInt(durationStr));
-        }
-        
-        String minEngStr = etMinEngagement.getText().toString().trim();
-        String maxEngStr = etMaxEngagement.getText().toString().trim();
-        if (!TextUtils.isEmpty(minEngStr)) {
-            dto.setMinEngagement(Integer.parseInt(minEngStr));
-        }
-        if (!TextUtils.isEmpty(maxEngStr)) {
-            dto.setMaxEngagement(Integer.parseInt(maxEngStr));
+        // Check if Duration or Engagement is selected
+        int durationTypeId = rgDurationType.getCheckedRadioButtonId();
+        if (durationTypeId == R.id.rbDuration) {
+            // Using Duration - convert hours and minutes to total minutes
+            String hoursStr = etDurationHours.getText().toString().trim();
+            String minutesStr = etDurationMinutes.getText().toString().trim();
+            
+            int hours = TextUtils.isEmpty(hoursStr) ? 0 : Integer.parseInt(hoursStr);
+            int minutes = TextUtils.isEmpty(minutesStr) ? 0 : Integer.parseInt(minutesStr);
+            
+            if (hours == 0 && minutes == 0) {
+                Toast.makeText(this, "Please enter duration (hours and/or minutes)", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            int totalMinutes = (hours * 60) + minutes;
+            dto.setDuration(totalMinutes);
+        } else {
+            // Using Engagement Range
+            String minEngStr = etMinEngagement.getText().toString().trim();
+            String maxEngStr = etMaxEngagement.getText().toString().trim();
+            if (!TextUtils.isEmpty(minEngStr) && !TextUtils.isEmpty(maxEngStr)) {
+                dto.setMinEngagement(Integer.parseInt(minEngStr));
+                dto.setMaxEngagement(Integer.parseInt(maxEngStr));
+            } else {
+                Toast.makeText(this, "Please enter both min and max engagement", Toast.LENGTH_SHORT).show();
+                return;
+            }
         }
         
         String resDueStr = etReservationDue.getText().toString().trim();
@@ -356,6 +366,10 @@ public class AddServiceActivity extends AppCompatActivity {
         
         Gson gson = new Gson();
         String dtoJson = gson.toJson(dto);
+        Log.d("AddServiceActivity", "=== DTO VALUES ===");
+        Log.d("AddServiceActivity", "isVisible: " + dto.isVisible());
+        Log.d("AddServiceActivity", "isAvailable: " + dto.isAvailable());
+        Log.d("AddServiceActivity", "Sending DTO JSON: " + dtoJson);
         RequestBody dtoBody = RequestBody.create(MediaType.parse("application/json"), dtoJson);
         
         List<MultipartBody.Part> imageParts = new ArrayList<>();
@@ -378,12 +392,21 @@ public class AddServiceActivity extends AppCompatActivity {
                     Toast.makeText(AddServiceActivity.this, "Service created successfully", Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
-                    Toast.makeText(AddServiceActivity.this, "Error creating service: " + response.code(), Toast.LENGTH_SHORT).show();
+                    String errorMsg = "Error creating service: " + response.code();
+                    try {
+                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "No error details";
+                        Log.e("AddServiceActivity", "Error response: " + errorBody);
+                        errorMsg += "\n" + errorBody;
+                    } catch (Exception e) {
+                        Log.e("AddServiceActivity", "Error reading error body", e);
+                    }
+                    Toast.makeText(AddServiceActivity.this, errorMsg, Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ServiceDTO> call, Throwable t) {
+                Log.e("AddServiceActivity", "Network error", t);
                 Toast.makeText(AddServiceActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });

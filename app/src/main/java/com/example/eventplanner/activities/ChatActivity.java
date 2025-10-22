@@ -136,8 +136,11 @@ public class ChatActivity extends BaseActivity implements WebSocketManager.WebSo
             Log.d(TAG, "Testing WebSocket connection...");
             Toast.makeText(this, "Testing connection...", Toast.LENGTH_SHORT).show();
             if (webSocketManager != null) {
-                webSocketManager.disconnect();
-                webSocketManager.connect(currentUsername);
+                webSocketManager.testConnection();
+                if (!webSocketManager.isConnected()) {
+                    webSocketManager.disconnect();
+                    webSocketManager.connect(currentUsername);
+                }
             }
         });
     }

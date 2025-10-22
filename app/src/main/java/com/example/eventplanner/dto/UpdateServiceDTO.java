@@ -1,16 +1,24 @@
 package com.example.eventplanner.dto;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
 public class UpdateServiceDTO {
     private Long serviceId;
+    private Long categoryId;
     private String name;
     private String description;
     private double price;
     private double discount;
     private List<String> imageURLs;
+    
+    @SerializedName("isVisible")
     private boolean isVisible;
+    
+    @SerializedName("isAvailable")
     private boolean isAvailable;
+    
     private List<Long> eventTypeIds;
     private Integer duration;
     private Integer minEngagement;
@@ -49,6 +57,14 @@ public class UpdateServiceDTO {
 
     public void setServiceId(Long serviceId) {
         this.serviceId = serviceId;
+    }
+
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
     }
 
     public String getName() {

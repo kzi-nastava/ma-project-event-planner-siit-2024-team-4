@@ -48,6 +48,7 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
     private RecyclerView recyclerServices;
     private ServiceAdapter serviceAdapter;
     private List<ServiceDTO> services;
+    private List<ServiceDTO> allLoadedServices = new ArrayList<>(); // Keep original unfiltered list
     
     private EditText etSearch;
     private Button btnSearch;
@@ -158,11 +159,17 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
             @Override
             public void onResponse(Call<List<ServiceDTO>> call, Response<List<ServiceDTO>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    services.clear();
                     List<ServiceDTO> allServices = response.body(); 
                                        
                     List<ServiceDTO> filteredServices = filterServicesByVisibility(allServices);
                     Log.d("AllServicesFragment", "After filtering: " + filteredServices.size() + " services");
+                    
+                    // Store the unfiltered list for later filtering
+                    allLoadedServices.clear();
+                    allLoadedServices.addAll(filteredServices);
+                    
+                    // Display the services
+                    services.clear();
                     services.addAll(filteredServices);
                     
                     serviceAdapter.notifyDataSetChanged();
@@ -275,16 +282,6 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
         // Get filter values
         String searchTerm = etSearch.getText().toString().trim();
         
-        // If search term is empty, reload all visible services
-        if (TextUtils.isEmpty(searchTerm)) {
-            loadServices();
-            return;
-        }
-        
-        // Get all services from the current list (already loaded)
-        List<ServiceDTO> allServices = new ArrayList<>(services);
-        services.clear();
-        
         Long categoryId = null;
         if (spinnerCategory.getSelectedItemPosition() > 0) {
             String selectedCategory = (String) spinnerCategory.getSelectedItem();
@@ -333,8 +330,27 @@ public class AllServicesFragment extends Fragment implements ServiceAdapter.Serv
             isAvailable = false;
         }
         
+        // Check if any filters are active
+        boolean hasActiveFilters = !TextUtils.isEmpty(searchTerm) || 
+                                    categoryId != null || 
+                                    eventTypeId != null || 
+                                    minPrice != null || 
+                                    maxPrice != null || 
+                                    isAvailable != null;
+        
+        // If no filters are active, show all loaded services
+        if (!hasActiveFilters) {
+            services.clear();
+            services.addAll(allLoadedServices);
+            serviceAdapter.notifyDataSetChanged();
+            return;
+        }
+        
+        // Filter from the original unfiltered list
+        services.clear();
+        
         // Apply filters like in Angular
-        for (ServiceDTO service : allServices) {
+        for (ServiceDTO service : allLoadedServices) {
             boolean shouldInclude = true;
             
             // Search filter

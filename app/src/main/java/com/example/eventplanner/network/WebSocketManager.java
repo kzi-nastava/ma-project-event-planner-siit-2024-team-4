@@ -31,6 +31,10 @@ public class WebSocketManager {
     private ScheduledExecutorService scheduler;
     private Gson gson = new Gson();
     private WebSocketClient webSocketClient;
+    private static final int CONNECTION_TIMEOUT = 10000; // 10 seconds
+    private static final int MAX_RETRY_ATTEMPTS = 3;
+    private int retryCount = 0;
+    private boolean isRetrying = false;
     
     public interface WebSocketListener {
         void onMessageReceived(ChatMessageDTO message);
@@ -54,17 +58,23 @@ public class WebSocketManager {
     
     public void connect(String username) {
         this.currentUsername = username;
+        this.retryCount = 0;
+        this.isRetrying = false;
         // chatRoom should be set before connecting via setChatRoom method
         
         Log.d(TAG, "Connecting to chat server for user: " + username + " in room: " + chatRoom);
+        Log.d(TAG, "WebSocket URL: " + WEBSOCKET_URL);
         
         try {
             URI serverUri = new URI(WEBSOCKET_URL);
+            Log.d(TAG, "Created URI: " + serverUri.toString());
             
             webSocketClient = new WebSocketClient(serverUri) {
                 @Override
                 public void onOpen(ServerHandshake handshake) {
                     Log.d(TAG, "WebSocket connected successfully");
+                    Log.d(TAG, "Handshake status: " + handshake.getHttpStatus());
+                    Log.d(TAG, "Handshake status message: " + handshake.getHttpStatusMessage());
                     isConnected = true;
                     if (listener != null) {
                         listener.onConnectionStatusChanged(true);
@@ -79,6 +89,7 @@ public class WebSocketManager {
                     joinMessage.setChatRoom(chatRoom);
                     try {
                         String jsonMessage = gson.toJson(joinMessage);
+                        Log.d(TAG, "Sending join message: " + jsonMessage);
                         webSocketClient.send(jsonMessage);
                     } catch (Exception e) {
                         Log.e(TAG, "Error sending join message: " + e.getMessage());
@@ -98,33 +109,62 @@ public class WebSocketManager {
                         }
                     } catch (JsonSyntaxException e) {
                         Log.e(TAG, "Error parsing message: " + e.getMessage());
+                        Log.e(TAG, "Raw message: " + message);
                     }
                 }
 
                 @Override
                 public void onClose(int code, String reason, boolean remote) {
-                    Log.d(TAG, "WebSocket closed: " + reason);
+                    Log.d(TAG, "WebSocket closed: code=" + code + ", reason=" + reason + ", remote=" + remote);
                     isConnected = false;
-                    if (listener != null) {
-                        listener.onConnectionStatusChanged(false);
+                    
+                    // Only retry if it wasn't a normal closure and we haven't exceeded max attempts
+                    if (code != 1000 && retryCount < MAX_RETRY_ATTEMPTS && !isRetrying) {
+                        retryCount++;
+                        isRetrying = true;
+                        Log.d(TAG, "Connection closed unexpectedly. Retrying in 3 seconds... (attempt " + retryCount + "/" + MAX_RETRY_ATTEMPTS + ")");
+                        scheduler.schedule(() -> {
+                            isRetrying = false;
+                            reconnect();
+                        }, 3, TimeUnit.SECONDS);
+                    } else {
+                        if (listener != null) {
+                            listener.onConnectionStatusChanged(false);
+                        }
                     }
                 }
 
                 @Override
                 public void onError(Exception ex) {
                     Log.e(TAG, "WebSocket error: " + ex.getMessage());
+                    ex.printStackTrace();
                     isConnected = false;
-                    if (listener != null) {
-                        listener.onConnectionStatusChanged(false);
-                        listener.onError("Connection error: " + ex.getMessage());
+                    
+                    // Retry connection if we haven't exceeded max attempts
+                    if (retryCount < MAX_RETRY_ATTEMPTS && !isRetrying) {
+                        retryCount++;
+                        isRetrying = true;
+                        Log.d(TAG, "Retrying connection in 2 seconds... (attempt " + retryCount + "/" + MAX_RETRY_ATTEMPTS + ")");
+                        scheduler.schedule(() -> {
+                            isRetrying = false;
+                            reconnect();
+                        }, 2, TimeUnit.SECONDS);
+                    } else {
+                        Log.e(TAG, "Max retry attempts reached. Connection failed.");
+                        if (listener != null) {
+                            listener.onConnectionStatusChanged(false);
+                            listener.onError("Connection failed after " + MAX_RETRY_ATTEMPTS + " attempts: " + ex.getMessage());
+                        }
                     }
                 }
             };
             
+            Log.d(TAG, "Attempting to connect to WebSocket...");
             webSocketClient.connect();
             
         } catch (Exception e) {
             Log.e(TAG, "Error connecting to WebSocket: " + e.getMessage());
+            e.printStackTrace();
             if (listener != null) {
                 listener.onError("Connection error: " + e.getMessage());
             }
@@ -178,5 +218,23 @@ public class WebSocketManager {
     
     public boolean isConnected() {
         return isConnected;
+    }
+    
+    public void testConnection() {
+        Log.d(TAG, "Testing WebSocket connection...");
+        if (webSocketClient != null && webSocketClient.isOpen()) {
+            Log.d(TAG, "WebSocket is open and connected");
+        } else {
+            Log.d(TAG, "WebSocket is not connected");
+        }
+    }
+    
+    private void reconnect() {
+        if (currentUsername != null) {
+            Log.d(TAG, "Reconnecting to WebSocket...");
+            connect(currentUsername);
+        } else {
+            Log.e(TAG, "Cannot reconnect: no username available");
+        }
     }
 }

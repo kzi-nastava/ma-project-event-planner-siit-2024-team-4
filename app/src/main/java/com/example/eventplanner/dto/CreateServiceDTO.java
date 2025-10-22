@@ -1,5 +1,7 @@
 package com.example.eventplanner.dto;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
 public class CreateServiceDTO {
@@ -8,8 +10,13 @@ public class CreateServiceDTO {
     private double price;
     private double discount;
     private List<String> imageURLs;
+    
+    @SerializedName("isVisible")
     private boolean isVisible;
+    
+    @SerializedName("isAvailable")
     private boolean isAvailable;
+    
     private Long providerId;
     private Long categoryId;
     private List<Long> eventTypes;

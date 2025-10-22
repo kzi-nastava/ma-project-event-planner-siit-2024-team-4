@@ -2,21 +2,42 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:background="#F5F5F5">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="16dp">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/add_service"
-            android:textSize="24sp"
+            android:textSize="28sp"
             android:textStyle="bold"
+            android:textColor="#333333"
             android:layout_marginBottom="24dp"
             android:gravity="center" />
+
+        <!-- Basic Information Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@android:color/white"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp"
+            android:elevation="2dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Basic Information"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#1976D2"
+                android:layout_marginBottom="16dp" />
 
         <!-- Service Name -->
         <TextView
@@ -49,7 +70,28 @@
             android:hint="@string/description_of_service"
             android:inputType="textMultiLine"
             android:gravity="top"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="8dp" />
+
+        </LinearLayout>
+
+        <!-- Pricing Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@android:color/white"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp"
+            android:elevation="2dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Pricing"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#1976D2"
+                android:layout_marginBottom="16dp" />
 
         <!-- Price -->
         <TextView
@@ -81,7 +123,28 @@
             android:layout_height="wrap_content"
             android:hint="@string/add_discount"
             android:inputType="numberDecimal"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="8dp" />
+
+        </LinearLayout>
+
+        <!-- Category Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@android:color/white"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp"
+            android:elevation="2dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Category"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#1976D2"
+                android:layout_marginBottom="16dp" />
 
         <!-- Category -->
         <TextView
@@ -95,65 +158,101 @@
             android:id="@+id/spinnerCategory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Event Types -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/service_event_types"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
-
-        <Spinner
-            android:id="@+id/spinnerEventTypes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:layout_marginBottom="8dp" />
 
         <Button
-            android:id="@+id/btnAddEventType"
+            android:id="@+id/btnAddNewCategory"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Add Event Type"
+            android:text="Add New Category"
             android:layout_marginBottom="8dp" />
 
-        <TextView
-            android:id="@+id/tvSelectedEventTypes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Selected: None"
-            android:textSize="14sp"
-            android:layout_marginBottom="16dp" />
+        </LinearLayout>
 
-        <!-- Duration -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/duration_of_service"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
-
-        <EditText
-            android:id="@+id/etDuration"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/add_duration_of_service"
-            android:inputType="number"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Min/Max Engagement -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Engagement Range (minutes)"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
-
+        <!-- Duration/Engagement Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@android:color/white"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp"
+            android:elevation="2dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Duration/Engagement"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#1976D2"
+                android:layout_marginBottom="16dp" />
+
+        <!-- Duration or Engagement Selection -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Service Duration/Engagement"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp" />
+
+        <RadioGroup
+            android:id="@+id/rgDurationType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <RadioButton
+                android:id="@+id/rbDuration"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Duration"
+                android:checked="true" />
+
+            <RadioButton
+                android:id="@+id/rbEngagement"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Engagement Range" />
+        </RadioGroup>
+
+        <!-- Duration Field -->
+        <LinearLayout
+            android:id="@+id/layoutDuration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="visible"
+            android:layout_marginBottom="16dp">
+
+            <EditText
+                android:id="@+id/etDurationHours"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Hours"
+                android:inputType="number"
+                android:layout_marginEnd="8dp" />
+
+            <EditText
+                android:id="@+id/etDurationMinutes"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Minutes"
+                android:inputType="number" />
+        </LinearLayout>
+
+        <!-- Engagement Fields -->
+        <LinearLayout
+            android:id="@+id/layoutEngagement"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone"
             android:layout_marginBottom="16dp">
 
             <EditText
@@ -173,6 +272,27 @@
                 android:hint="@string/add_max_engagement"
                 android:inputType="number" />
         </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Booking Settings Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@android:color/white"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp"
+            android:elevation="2dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Booking Settings"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#1976D2"
+                android:layout_marginBottom="16dp" />
 
         <!-- Reservation Due -->
         <TextView
@@ -237,6 +357,27 @@
                 android:text="@string/manual" />
         </RadioGroup>
 
+        </LinearLayout>
+
+        <!-- Availability Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@android:color/white"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp"
+            android:elevation="2dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Availability"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#1976D2"
+                android:layout_marginBottom="16dp" />
+
         <!-- Availability -->
         <CheckBox
             android:id="@+id/cbAvailable"
@@ -246,14 +387,26 @@
             android:checked="true"
             android:layout_marginBottom="8dp" />
 
-        <!-- Visibility -->
-        <CheckBox
-            android:id="@+id/cbVisible"
+        </LinearLayout>
+
+        <!-- Images Section -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/visible"
-            android:checked="true"
-            android:layout_marginBottom="16dp" />
+            android:orientation="vertical"
+            android:background="@android:color/white"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp"
+            android:elevation="2dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Service Images"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#1976D2"
+                android:layout_marginBottom="16dp" />
 
         <!-- Image Upload -->
         <TextView
@@ -276,7 +429,9 @@
             android:layout_height="wrap_content"
             android:text="No images selected"
             android:textSize="14sp"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginBottom="8dp" />
+
+        </LinearLayout>
 
         <!-- Action Buttons -->
         <LinearLayout
